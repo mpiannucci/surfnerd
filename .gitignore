@@ -2,6 +2,8 @@
 *.o
 *.a
 *.so
+*.framework
+*.aar
 
 # Folders
 _obj
