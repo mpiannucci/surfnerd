@@ -1,7 +1,14 @@
 package wavewatch
 
 type EastCoastModel struct {
-	Name string
+}
+
+func (e *EastCoastModel) Name() string {
+	return "multi_1.at_10m"
+}
+
+func (e *EastCoastModel) Description() string {
+	return "Multi-grid wave model: US East Coast 10 arc-min grid"
 }
 
 func (e *EastCoastModel) BottomLeftCoord() *Location {
@@ -12,7 +19,7 @@ func (e *EastCoastModel) TopRightCoord() *Location {
 	return &Location{55.00011, 310.00011}
 }
 
-func (e *EastCoastModel) Resolution() float64 {
+func (e *EastCoastModel) LocationResolution() float64 {
 	return 0.167
 }
 
@@ -23,4 +30,8 @@ func (e *EastCoastModel) ContainsLocation(loc *Location) bool {
 		}
 	}
 	return false
+}
+
+func (e *EastCoastModel) TimeResolution() float64 {
+	return 0.125
 }

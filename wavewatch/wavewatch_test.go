@@ -1,9 +1,10 @@
 package wavewatch
 
 import (
+	"fmt"
 	"testing"
 )
 
 func TestWaveWatchFetch(t *testing.T) {
-	FetchWaveWatchData()
+	fmt.Println(BASE_MULTIGRID_URL)
 }
