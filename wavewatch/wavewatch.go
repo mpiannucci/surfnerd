@@ -12,6 +12,8 @@ func fetchRawWaveWatchData(loc *Location) {
 
 	// TODO: Find the latitude and longitde indexes
 
+	// TODO: Format the data url
+
 	// TODO: Fetch the raw data
 
 	// TODO: Call to parse the raw data into containers
