@@ -45,6 +45,7 @@ func fetchRawWaveWatchData(loc *Location, model WaveModel, timestamp *time.Time)
 
 	// Format the url
 	url := fmt.Sprintf(baseMultigridUrl, dateString, model.Name(), hourString, latIndex, lngIndex)
+	fmt.Println(url)
 
 	// Fetch the data
 	resp, httpErr := http.Get(url)
