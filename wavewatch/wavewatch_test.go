@@ -6,5 +6,5 @@ import (
 )
 
 func TestWaveWatchFetch(t *testing.T) {
-	fmt.Println(BASE_MULTIGRID_URL)
+	fmt.Println("TODO")
 }

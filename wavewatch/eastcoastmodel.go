@@ -35,3 +35,19 @@ func (e *EastCoastModel) ContainsLocation(loc *Location) bool {
 func (e *EastCoastModel) TimeResolution() float64 {
 	return 0.125
 }
+
+func (e *EastCoastModel) LocationIndices(loc *Location) (int, int) {
+	if !e.ContainsLocation(loc) {
+		return -1, -1
+	}
+
+	// Find the offsets from the minimum lat and long
+	latOffset := loc.Latitude - e.BottomLeftCoord().Latitude
+	lngOffset := loc.Longitude - e.BottomLeftCoord().Longitude
+
+	// Get the indexes and return them
+	latIndex := int(latOffset / e.LocationResolution())
+	lngIndex := int(lngOffset / e.LocationResolution())
+	return latIndex, lngIndex
+
+}
