@@ -1,10 +1,10 @@
 package wavewatch
 
 import (
-	"fmt"
 	"testing"
 )
 
 func TestWaveWatchFetch(t *testing.T) {
-	fmt.Println("TODO")
+	riLocation := &Location{41.336872, 288.635294}
+	FetchWaveWatchData(riLocation)
 }

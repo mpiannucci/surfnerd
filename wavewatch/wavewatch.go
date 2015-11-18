@@ -1,21 +1,59 @@
 package wavewatch
 
-const (
-	baseMultigridUrl = "http://nomads.ncep.noaa.gov:9090/dods/wave/mww3/%s/%s%s_%s.ascii?dirpwsfc.dirpwsfc[0:60][%d][%d],htsgwsfc.htsgwsfc[0:60][%d][%d],perpwsfc.perpwsfc[0:60][%d][%d],swdir_1.swdir_1[0:60][%d][%d],swdir_2.swdir_2[0:60][%d][%d],swell_1.swell_1[0:60][%d][%d],swell_2.swell_2[0:60][%d][%d],swper_1.swper_1[0:60][%d][%d],swper_2.swper_2[0:60][%d][%d],ugrdsfc.ugrdsfc[0:60][%d][%d],vgrdsfc.vgrdsfc[0:60][%d][%d],wdirsfc.wdirsfc[0:60][%d][%d],windsfc.windsfc[0:60][%d][%d],wvdirsfc.wvdirsfc[0:60][%d][%d],wvhgtsfc.wvhgtsfc[0:60][%d][%d],wvpersfc.wvpersfc[0:60][%d][%d]"
+import (
+	"errors"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"time"
 )
 
-func fetchRawWaveWatchData(loc *Location) {
+func FetchWaveWatchData(loc *Location) {
 
 	eastCoastModel := EastCoastModel{}
 	if !eastCoastModel.ContainsLocation(loc) {
 		return
 	}
 
-	// TODO: Find the latitude and longitude indexes
-
-	// TODO: Format the data url
-
-	// TODO: Fetch the raw data
+	// Fetch the raw data
+	currentTime := time.Now()
+	_, err := fetchRawWaveWatchData(loc, &eastCoastModel, &currentTime)
+	if err != nil {
+		fmt.Println("Oh no!! Errrroorrrrrr")
+	}
 
 	// TODO: Call to parse the raw data into containers
+}
+
+func latestModelDateTime() (time.Time, int) {
+	currentTime := time.Now().Local()
+	lastModelTime := currentTime.Hour() - (currentTime.Hour() % 6)
+	return currentTime, lastModelTime
+}
+
+func fetchRawWaveWatchData(loc *Location, model WaveModel, timestamp *time.Time) ([]byte, error) {
+	// Get the times
+	dateString := timestamp.Format("20060102")
+	lastModelTime := timestamp.Hour() - (timestamp.Hour() % 6)
+	hourString := fmt.Sprintf("%02dz", lastModelTime)
+
+	// Get the location
+	latIndex, lngIndex := model.LocationIndices(loc)
+	if latIndex < 0 || lngIndex < 0 {
+		return nil, errors.New("Latitude or Longitude not in the range of the model!")
+	}
+
+	// Format the url
+	url := fmt.Sprintf(baseMultigridUrl, dateString, model.Name(), hourString, latIndex, lngIndex)
+
+	// Fetch the data
+	resp, httpErr := http.Get(url)
+	if httpErr != nil {
+		return nil, httpErr
+	}
+	defer resp.Body.Close()
+
+	// Read all of the raw data
+	contents, readErr := ioutil.ReadAll(resp.Body)
+	return contents, readErr
 }
