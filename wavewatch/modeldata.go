@@ -5,12 +5,12 @@ import (
 	"io/ioutil"
 )
 
-type modelDataMap map[string][]float64
+type ModelDataMap map[string][]float64
 
 type ModelData struct {
 	*Location
 	ModelRun string
-	Data     modelDataMap
+	Data     ModelDataMap
 }
 
 func (m *ModelData) ToJSON() ([]byte, error) {

@@ -11,30 +11,14 @@ import (
 )
 
 func FetchWaveWatchData(loc *Location) *Forecast {
+	modelData := FetchWaveWatchDataMap(loc)
+	forecastItems := parseWaveWatchDataIntoForecastItems(modelData.Data)
 
-	eastCoastModel := EastCoastModel{}
-	if !eastCoastModel.ContainsLocation(loc) {
-		return nil
-	}
-
-	// Fetch the raw data
-	modelTime, _ := latestModelDateTime()
-	rawData, err := fetchRawWaveWatchData(loc, &eastCoastModel, &modelTime)
-	if err != nil {
-		fmt.Println("Oh no!! Errrroorrrrrr")
-		return nil
-	}
-
-	// Call to parse the raw data into containers
-	modelData := parseRawWaveWatchData(rawData)
-	forecastItems := parseWaveWatchDataIntoForecastItems(modelData)
-
-	forecast := &Forecast{loc, formatViewingTime(modelTime), forecastItems}
+	forecast := &Forecast{loc, modelData.ModelRun, forecastItems}
 	return forecast
 }
 
 func FetchWaveWatchDataMap(loc *Location) *ModelData {
-
 	eastCoastModel := EastCoastModel{}
 	if !eastCoastModel.ContainsLocation(loc) {
 		return nil
@@ -87,7 +71,7 @@ func fetchRawWaveWatchData(loc *Location, model WaveModel, timestamp *time.Time)
 	return contents, readErr
 }
 
-func parseRawWaveWatchData(data []byte) modelDataMap {
+func parseRawWaveWatchData(data []byte) ModelDataMap {
 	if data == nil {
 		return nil
 	}
@@ -97,7 +81,7 @@ func parseRawWaveWatchData(data []byte) modelDataMap {
 	splitData := strings.Split(allData, "\n")
 
 	// Create the model data object to parse into
-	modelData := modelDataMap{}
+	modelData := ModelDataMap{}
 	currentVar := ""
 
 	for _, value := range splitData {
@@ -123,7 +107,7 @@ func parseRawWaveWatchData(data []byte) modelDataMap {
 	return modelData
 }
 
-func parseWaveWatchDataIntoForecastItems(data modelDataMap) []*ForecastItem {
+func parseWaveWatchDataIntoForecastItems(data ModelDataMap) []*ForecastItem {
 	// Create the list of items
 	itemCount := len(data["dirpwsfc"])
 	items := make([]*ForecastItem, itemCount)
@@ -132,7 +116,7 @@ func parseWaveWatchDataIntoForecastItems(data modelDataMap) []*ForecastItem {
 	for i := 0; i < itemCount; i++ {
 		thisForecastItem := &ForecastItem{}
 
-		thisForecastItem.Time = modelTime.Add(time.Duration(3 * i * int(time.Hour))).Format("Monday January _2, 2006 Z15")
+		thisForecastItem.Time = modelTime.Add(time.Duration(3 * i * int(time.Hour))).Format("Monday January _2, 2006 15z")
 		thisForecastItem.SignificantWaveHeight = data["htsgwsfc"][i]
 		thisForecastItem.DominantWaveDirection = data["dirpwsfc"][i]
 		thisForecastItem.MeanWavePeriod = data["perpwsfc"][i]
@@ -155,5 +139,5 @@ func parseWaveWatchDataIntoForecastItems(data modelDataMap) []*ForecastItem {
 }
 
 func formatViewingTime(timestamp time.Time) string {
-	return timestamp.Format("Monday January _2, 2006 Z15")
+	return timestamp.Format("Monday January _2, 2006 15z")
 }

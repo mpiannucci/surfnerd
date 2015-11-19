@@ -6,12 +6,12 @@ import (
 
 func TestWaveWatchFetch(t *testing.T) {
 	riLocation := &Location{41.165881, 360 - 71.350888}
-	forecast := FetchWaveWatchDataMap(riLocation)
+	forecast := FetchWaveWatchData(riLocation)
 	if forecast == nil {
 		t.FailNow()
 	}
 
-	forecast.ExportAsJSON("resources/test_map.json")
+	forecast.ExportAsJSON("resources/test.json")
 }
 
 // func TestWaveWatchParse(t *testing.T) {
