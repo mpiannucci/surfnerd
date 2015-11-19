@@ -12,7 +12,7 @@ import (
 
 type modelDataMap map[string][]float64
 
-func FetchWaveWatchData(loc *Location) []*ForecastItem {
+func FetchWaveWatchData(loc *Location) *Forecast {
 
 	eastCoastModel := EastCoastModel{}
 	if !eastCoastModel.ContainsLocation(loc) {
@@ -20,8 +20,8 @@ func FetchWaveWatchData(loc *Location) []*ForecastItem {
 	}
 
 	// Fetch the raw data
-	currentTime := time.Now()
-	rawData, err := fetchRawWaveWatchData(loc, &eastCoastModel, &currentTime)
+	modelTime, _ := latestModelDateTime()
+	rawData, err := fetchRawWaveWatchData(loc, &eastCoastModel, &modelTime)
 	if err != nil {
 		fmt.Println("Oh no!! Errrroorrrrrr")
 		return nil
@@ -30,7 +30,9 @@ func FetchWaveWatchData(loc *Location) []*ForecastItem {
 	// Call to parse the raw data into containers
 	modelData := parseRawWaveWatchData(rawData)
 	forecastItems := parseWaveWatchDataIntoForecastItems(modelData)
-	return forecastItems
+
+	forecast := &Forecast{loc, formatViewingTime(modelTime), forecastItems}
+	return forecast
 }
 
 func latestModelDateTime() (time.Time, int) {
@@ -43,7 +45,7 @@ func latestModelDateTime() (time.Time, int) {
 func fetchRawWaveWatchData(loc *Location, model WaveModel, timestamp *time.Time) ([]byte, error) {
 	// Get the times
 	dateString := timestamp.Format("20060102")
-	lastModelTime := timestamp.Hour() - (timestamp.Hour() % 6)
+	lastModelTime := timestamp.Hour()
 	hourString := fmt.Sprintf("%02dz", lastModelTime)
 
 	// Get the location
@@ -133,4 +135,8 @@ func parseWaveWatchDataIntoForecastItems(data modelDataMap) []*ForecastItem {
 	}
 
 	return items
+}
+
+func formatViewingTime(timestamp time.Time) string {
+	return timestamp.Format("Monday January _2, 2006 Z15")
 }

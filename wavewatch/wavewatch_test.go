@@ -7,12 +7,12 @@ import (
 
 func TestWaveWatchFetch(t *testing.T) {
 	riLocation := &Location{41.336872, 288.635294}
-	forecastItems := FetchWaveWatchData(riLocation)
-	if forecastItems == nil {
+	forecast := FetchWaveWatchData(riLocation)
+	if forecast == nil {
 		t.FailNow()
 	}
 
-	fmt.Println(forecastItems[0].Time)
+	fmt.Println(forecast.forecastData[0].Time)
 }
 
 // func TestWaveWatchParse(t *testing.T) {
