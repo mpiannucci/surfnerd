@@ -5,24 +5,31 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 )
 
-func FetchWaveWatchData(loc *Location) {
+type modelDataMap map[string][]float64
+
+func FetchWaveWatchData(loc *Location) modelDataMap {
 
 	eastCoastModel := EastCoastModel{}
 	if !eastCoastModel.ContainsLocation(loc) {
-		return
+		return nil
 	}
 
 	// Fetch the raw data
 	currentTime := time.Now()
-	_, err := fetchRawWaveWatchData(loc, &eastCoastModel, &currentTime)
+	rawData, err := fetchRawWaveWatchData(loc, &eastCoastModel, &currentTime)
 	if err != nil {
 		fmt.Println("Oh no!! Errrroorrrrrr")
+		return nil
 	}
 
-	// TODO: Call to parse the raw data into containers
+	// Call to parse the raw data into containers
+	modelData := parseRawWaveWatchData(rawData)
+	return modelData
 }
 
 func latestModelDateTime() (time.Time, int) {
@@ -57,4 +64,34 @@ func fetchRawWaveWatchData(loc *Location, model WaveModel, timestamp *time.Time)
 	// Read all of the raw data
 	contents, readErr := ioutil.ReadAll(resp.Body)
 	return contents, readErr
+}
+
+func parseRawWaveWatchData(data []byte) modelDataMap {
+	if data == nil {
+		return nil
+	}
+
+	// Get the data into a better status
+	allData := string(data)
+	splitData := strings.Split(allData, "\n")
+
+	// Create the model data object to parse into
+	modelData := modelDataMap{}
+	currentVar := ""
+
+	for _, value := range splitData {
+		switch {
+		case len(value) < 1:
+			continue
+		case value[0] == '[':
+			datas := strings.Split(value, ",")
+			f, _ := strconv.ParseFloat(strings.TrimSpace(datas[1]), 64)
+			modelData[currentVar] = append(modelData[currentVar], f)
+		default:
+			variables := strings.Split(value, ",")
+			currentVar = variables[0]
+		}
+	}
+
+	return modelData
 }
