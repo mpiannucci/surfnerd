@@ -1,6 +1,11 @@
-// +build !arm
-
 package wavewatch
+
+import (
+	"encoding/json"
+	"io/ioutil"
+)
+
+type modelDataMap map[string][]float64
 
 type ModelData struct {
 	*Location
@@ -8,22 +13,16 @@ type ModelData struct {
 	Data     modelDataMap
 }
 
-func FetchWaveWatchDataMap(loc *Location) *ModelData {
+func (m *ModelData) ToJSON() ([]byte, error) {
+	return json.Marshal(m)
+}
 
-	eastCoastModel := EastCoastModel{}
-	if !eastCoastModel.ContainsLocation(loc) {
-		return nil
+func (m *ModelData) ExportAsJSON(filename string) error {
+	jsonData, jsonErr := m.ToJSON()
+	if jsonErr != nil {
+		return jsonErr
 	}
 
-	// Fetch the raw data
-	modelTime, _ := latestModelDateTime()
-	rawData, err := fetchRawWaveWatchData(loc, &eastCoastModel, &modelTime)
-	if err != nil {
-		return nil
-	}
-
-	// Call to parse the raw data into containers
-	modelDataContainer := parseRawWaveWatchData(rawData)
-	modelData := &ModelData{loc, formatViewingTime(modelTime), modelDataContainer}
-	return modelData
+	fileErr := ioutil.WriteFile(filename, jsonData, 0644)
+	return fileErr
 }

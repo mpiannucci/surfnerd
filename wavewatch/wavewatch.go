@@ -10,8 +10,6 @@ import (
 	"time"
 )
 
-type modelDataMap map[string][]float64
-
 func FetchWaveWatchData(loc *Location) *Forecast {
 
 	eastCoastModel := EastCoastModel{}
@@ -35,6 +33,26 @@ func FetchWaveWatchData(loc *Location) *Forecast {
 	return forecast
 }
 
+func FetchWaveWatchDataMap(loc *Location) *ModelData {
+
+	eastCoastModel := EastCoastModel{}
+	if !eastCoastModel.ContainsLocation(loc) {
+		return nil
+	}
+
+	// Fetch the raw data
+	modelTime, _ := latestModelDateTime()
+	rawData, err := fetchRawWaveWatchData(loc, &eastCoastModel, &modelTime)
+	if err != nil {
+		return nil
+	}
+
+	// Call to parse the raw data into containers
+	modelDataContainer := parseRawWaveWatchData(rawData)
+	modelData := &ModelData{loc, formatViewingTime(modelTime), modelDataContainer}
+	return modelData
+}
+
 func latestModelDateTime() (time.Time, int) {
 	currentTime := time.Now().Local()
 	lastModelHour := currentTime.Hour() - (currentTime.Hour() % 6)
@@ -56,7 +74,6 @@ func fetchRawWaveWatchData(loc *Location, model WaveModel, timestamp *time.Time)
 
 	// Format the url
 	url := fmt.Sprintf(baseMultigridUrl, dateString, model.Name(), hourString, latIndex, lngIndex)
-	fmt.Println(url)
 
 	// Fetch the data
 	resp, httpErr := http.Get(url)
