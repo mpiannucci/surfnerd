@@ -1,7 +1,6 @@
 package wavewatch
 
 type ForecastItem struct {
-	*Location
 	Time                     string
 	SignificantWaveHeight    float64
 	DominantWaveDirection    float64

@@ -12,7 +12,7 @@ import (
 
 type modelDataMap map[string][]float64
 
-func FetchWaveWatchData(loc *Location) modelDataMap {
+func FetchWaveWatchData(loc *Location) []*ForecastItem {
 
 	eastCoastModel := EastCoastModel{}
 	if !eastCoastModel.ContainsLocation(loc) {
@@ -29,13 +29,15 @@ func FetchWaveWatchData(loc *Location) modelDataMap {
 
 	// Call to parse the raw data into containers
 	modelData := parseRawWaveWatchData(rawData)
-	return modelData
+	forecastItems := parseWaveWatchDataIntoForecastItems(modelData)
+	return forecastItems
 }
 
 func latestModelDateTime() (time.Time, int) {
 	currentTime := time.Now().Local()
-	lastModelTime := currentTime.Hour() - (currentTime.Hour() % 6)
-	return currentTime, lastModelTime
+	lastModelHour := currentTime.Hour() - (currentTime.Hour() % 6)
+	currentTime = currentTime.Add(time.Duration(-(currentTime.Hour() % 6) * int(time.Hour)))
+	return currentTime, lastModelHour
 }
 
 func fetchRawWaveWatchData(loc *Location, model WaveModel, timestamp *time.Time) ([]byte, error) {
@@ -87,6 +89,12 @@ func parseRawWaveWatchData(data []byte) modelDataMap {
 			datas := strings.Split(value, ",")
 			f, _ := strconv.ParseFloat(strings.TrimSpace(datas[1]), 64)
 			modelData[currentVar] = append(modelData[currentVar], f)
+		case value[0] >= '0' && value[0] <= '9':
+			timestamps := strings.Split(value, ",")
+			for _, timestamp := range timestamps {
+				timeValue, _ := strconv.ParseFloat(strings.TrimSpace(timestamp), 64)
+				modelData["time"] = append(modelData["time"], timeValue)
+			}
 		default:
 			variables := strings.Split(value, ",")
 			currentVar = variables[0]
@@ -94,4 +102,35 @@ func parseRawWaveWatchData(data []byte) modelDataMap {
 	}
 
 	return modelData
+}
+
+func parseWaveWatchDataIntoForecastItems(data modelDataMap) []*ForecastItem {
+	// Create the list of items
+	itemCount := len(data["dirpwsfc"])
+	items := make([]*ForecastItem, itemCount)
+	modelTime, _ := latestModelDateTime()
+
+	for i := 0; i < itemCount; i++ {
+		thisForecastItem := &ForecastItem{}
+
+		thisForecastItem.Time = modelTime.Add(time.Duration(3 * i * int(time.Hour))).Format("Monday January _2, 2006 Z15")
+		thisForecastItem.SignificantWaveHeight = data["htsgwsfc"][i]
+		thisForecastItem.DominantWaveDirection = data["dirpwsfc"][i]
+		thisForecastItem.MeanWavePeriod = data["perpwsfc"][i]
+		thisForecastItem.PrimarySwellWaveHeight = data["swell_1"][i]
+		thisForecastItem.PrimarySwellDirection = data["swdir_1"][i]
+		thisForecastItem.PrimarySwellPeriod = data["swper_1"][i]
+		thisForecastItem.SecondarySwellWaveHeight = data["swell_2"][i]
+		thisForecastItem.SecondarySwellDirection = data["swdir_2"][i]
+		thisForecastItem.SecondarySwellPeriod = data["swper_2"][i]
+		thisForecastItem.WindSwellWaveHeight = data["wvhgtsfc"][i]
+		thisForecastItem.WindSwellDirection = data["wvdirsfc"][i]
+		thisForecastItem.WindSwellPeriod = data["wvpersfc"][i]
+		thisForecastItem.SurfaceWindSpeed = data["windsfc"][i]
+		thisForecastItem.SurfaceWindDirection = data["wdirsfc"][i]
+
+		items[i] = thisForecastItem
+	}
+
+	return items
 }

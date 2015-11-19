@@ -1,9 +1,11 @@
 package wavewatch
 
 type Forecast struct {
-	forecastData []ForecastItem
+	*Location
+	ModelRun     string
+	forecastData []*ForecastItem
 }
 
 func (f *Forecast) ForecastItem(index int) *ForecastItem {
-	return &f.forecastData[index]
+	return f.forecastData[index]
 }
