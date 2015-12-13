@@ -10,6 +10,28 @@ import (
 	"time"
 )
 
+func GetModelForLocation(loc *Location) WaveModel {
+	models := [...]WaveModel{
+		&EastCoastModel{},
+		&WestCoastModel{},
+		&PacificIslandsModel{},
+	}
+
+	// Check all of the models to see if they contain the lat and long
+	for _, model := range models {
+		if model.ContainsLocation(loc) {
+			return model
+		}
+	}
+
+	return nil
+}
+
+func GetModelForLatLong(lat, lon float64) WaveModel {
+	loc := &Location{lat, lon}
+	return GetModelForLocation(loc)
+}
+
 func FetchWaveWatchData(loc *Location) *Forecast {
 	modelData := FetchWaveWatchDataMap(loc)
 	forecastItems := parseWaveWatchDataIntoForecastItems(modelData.Data)
@@ -19,14 +41,11 @@ func FetchWaveWatchData(loc *Location) *Forecast {
 }
 
 func FetchWaveWatchDataMap(loc *Location) *ModelData {
-	eastCoastModel := EastCoastModel{}
-	if !eastCoastModel.ContainsLocation(loc) {
-		return nil
-	}
+	waveModel := GetModelForLocation(loc)
 
 	// Fetch the raw data
 	modelTime, _ := latestModelDateTime()
-	rawData, err := fetchRawWaveWatchData(loc, &eastCoastModel, &modelTime)
+	rawData, err := fetchRawWaveWatchData(loc, waveModel, &modelTime)
 	if err != nil {
 		return nil
 	}
@@ -35,6 +54,11 @@ func FetchWaveWatchDataMap(loc *Location) *ModelData {
 	modelDataContainer := parseRawWaveWatchData(rawData)
 	modelData := &ModelData{loc, formatViewingTime(modelTime), modelDataContainer}
 	return modelData
+}
+
+func FetchWaveWatchDataMapLatLong(lat, lon float64) *ModelData {
+	loc := &Location{lat, lon}
+	return FetchWaveWatchDataMap(loc)
 }
 
 func latestModelDateTime() (time.Time, int) {
