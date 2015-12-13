@@ -13,10 +13,12 @@ type ModelData struct {
 	Data     ModelDataMap
 }
 
+// Export a ModelData object to a json formatted string
 func (m *ModelData) ToJSON() ([]byte, error) {
 	return json.Marshal(m)
 }
 
+// Export a ModelData object to a json file with a given filename
 func (m *ModelData) ExportAsJSON(filename string) error {
 	jsonData, jsonErr := m.ToJSON()
 	if jsonErr != nil {
