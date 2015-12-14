@@ -1,5 +1,6 @@
 package surfnerd
 
+// Data container for WaveWatch data at a specific timestep and location.
 type WaveWatchForecastItem struct {
 	Time                     string
 	SignificantWaveHeight    float64

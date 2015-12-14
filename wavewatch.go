@@ -8,7 +8,7 @@ func FetchWaveWatchData(loc Location) *WaveWatchForecast {
 	modelData := FetchWaveWatchModelDataMap(loc)
 	forecastItems := WaveWatchForecastItemsFromMap(modelData.Data)
 
-	forecast := &WaveWatchForecast{&loc, modelData.ModelRun, forecastItems}
+	forecast := &WaveWatchForecast{&loc, modelData.ModelRun, modelData.ModelDescription, forecastItems}
 	return forecast
 }
 
@@ -32,7 +32,7 @@ func FetchWaveWatchModelDataMap(loc Location) *ModelData {
 	// Call to parse the raw data into containers
 	modelDataContainer := parseRawModelData(rawData)
 	modelTime, _ := LatestModelDateTime()
-	modelData := &ModelData{&loc, formatViewingTime(modelTime), modelDataContainer}
+	modelData := &ModelData{&loc, formatViewingTime(modelTime), model.Description, modelDataContainer}
 	return modelData
 }
 

@@ -1,3 +1,4 @@
+// A collection of utilities for accessing NOAA Model and Buoy data.
 package surfnerd
 
 import (

@@ -5,10 +5,14 @@ import (
 	"io/ioutil"
 )
 
+// Container holding a complete WaveWatch forecast with the location, model description, run time, and
+// a list of WaveWatchForecastItems holding the data for each timestep. This is more useful for specific front-end
+// applications than ModelData because the data map has been parsed into descriptive types. The underlying data is the same however.
 type WaveWatchForecast struct {
 	*Location
-	ModelRun     string
-	ForecastData []*WaveWatchForecastItem
+	ModelRun         string
+	ModelDescription string
+	ForecastData     []*WaveWatchForecastItem
 }
 
 // Gets a ForecastItem at a given index

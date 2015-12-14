@@ -9,6 +9,8 @@ const (
 	baseMultigridUrl = "http://nomads.ncep.noaa.gov:9090/dods/wave/mww3/%[1]s/%[2]s%[1]s_%[3]s.ascii?time[%[6]d:%[7]d],dirpwsfc.dirpwsfc[%[6]d:%[7]d][%[4]d][%[5]d],htsgwsfc.htsgwsfc[%[6]d:%[7]d][%[4]d][%[5]d],perpwsfc.perpwsfc[%[6]d:%[7]d][%[4]d][%[5]d],swdir_1.swdir_1[%[6]d:%[7]d][%[4]d][%[5]d],swdir_2.swdir_2[%[6]d:%[7]d][%[4]d][%[5]d],swell_1.swell_1[%[6]d:%[7]d][%[4]d][%[5]d],swell_2.swell_2[%[6]d:%[7]d][%[4]d][%[5]d],swper_1.swper_1[%[6]d:%[7]d][%[4]d][%[5]d],swper_2.swper_2[%[6]d:%[7]d][%[4]d][%[5]d],ugrdsfc.ugrdsfc[%[6]d:%[7]d][%[4]d][%[5]d],vgrdsfc.vgrdsfc[%[6]d:%[7]d][%[4]d][%[5]d],wdirsfc.wdirsfc[%[6]d:%[7]d][%[4]d][%[5]d],windsfc.windsfc[%[6]d:%[7]d][%[4]d][%[5]d],wvdirsfc.wvdirsfc[%[6]d:%[7]d][%[4]d][%[5]d],wvhgtsfc.wvhgtsfc[%[6]d:%[7]d][%[4]d][%[5]d],wvpersfc.wvpersfc[%[6]d:%[7]d][%[4]d][%[5]d]"
 )
 
+// A container representing a NOAA WaveWatch III MultiGrid Wave Model. This type has everything needed to construct a url
+// to get the data needed for a correct location.
 type WaveModel struct {
 	Name               string
 	Description        string
@@ -45,6 +47,9 @@ func (w WaveModel) LocationIndices(loc Location) (int, int) {
 	return latIndex, lonIndex
 }
 
+// Create a URL for downloading data from the NOAA GRADS servers
+// The time indices can be calculated assuming every index expands to the TimeResolution in terms of
+// Days. So if model.TimeResolution return 0.167, that means each index is equal to 0.167 days.
 func (w WaveModel) CreateURL(loc Location, startTimeIndex, endTimeIndex int) string {
 	// Get the times
 	timestamp, _ := LatestModelDateTime()
@@ -65,8 +70,8 @@ func NewEastCoastWaveModel() *WaveModel {
 	return &WaveModel{
 		Name:               "multi_1.at_10m",
 		Description:        "Multi-grid wave model: US East Coast 10 arc-min grid",
-		BottomLeftLocation: Location{0.00, 260.00},
-		TopRightLocation:   Location{55.00011, 310.00011},
+		BottomLeftLocation: NewLocationForLatLong(0.00, 260.00),
+		TopRightLocation:   NewLocationForLatLong(55.00011, 310.00011),
 		LocationResolution: 0.167,
 		TimeResolution:     0.125,
 	}
@@ -77,8 +82,8 @@ func NewWestCoastWaveModel() *WaveModel {
 	return &WaveModel{
 		Name:               "multi_1.wc_10m",
 		Description:        "Multi-grid wave model: US West Coast 10 arc-min grid",
-		BottomLeftLocation: Location{25.00, 210.00},
-		TopRightLocation:   Location{50.00005, 250.00008},
+		BottomLeftLocation: NewLocationForLatLong(25.00, 210.00),
+		TopRightLocation:   NewLocationForLatLong(50.00005, 250.00008),
 		LocationResolution: 0.167,
 		TimeResolution:     0.125,
 	}
@@ -89,8 +94,8 @@ func NewPacificIslandsWaveModel() *WaveModel {
 	return &WaveModel{
 		Name:               "multi_1.ep_10m",
 		Description:        "Multi-grid wave model: Pacific Islands (including Hawaii) 10 arc-min grid",
-		BottomLeftLocation: Location{-20.00, 130.00},
-		TopRightLocation:   Location{30.0001, 215.00017},
+		BottomLeftLocation: NewLocationForLatLong(-20.00, 130.00),
+		TopRightLocation:   NewLocationForLatLong(30.0001, 215.00017),
 		LocationResolution: 0.167,
 		TimeResolution:     0.125,
 	}
@@ -123,6 +128,7 @@ func GetWaveModelForLocation(loc Location) *WaveModel {
 	return nil
 }
 
+// Get the time and hour of the latest NOAA WaveWatch model run
 func LatestModelDateTime() (time.Time, int) {
 	currentTime := time.Now().Local()
 	lastModelHour := currentTime.Hour() - (currentTime.Hour() % 6)

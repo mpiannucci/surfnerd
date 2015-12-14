@@ -7,12 +7,17 @@ import (
 	"strings"
 )
 
+// A generic map useful for encapsulating model data from NOAA GRADS servers. This holds the data in a map so
+// the data can be conveinently used for plotting and physics calculations to name a few.
 type ModelDataMap map[string][]float64
 
+// Encapsulated model data with the raw ModelDataMap format but also holds the location of the model data
+// as well as the run time and model description.
 type ModelData struct {
 	*Location
-	ModelRun string
-	Data     ModelDataMap
+	ModelRun         string
+	ModelDescription string
+	Data             ModelDataMap
 }
 
 // Export a ModelData object to a json formatted string

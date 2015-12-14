@@ -5,7 +5,7 @@ import (
 )
 
 func TestWaveWatchFetch(t *testing.T) {
-	riLocation := Location{41.165881, 360 - 71.350888}
+	riLocation := NewLocationForLatLong(41.165881, 360-71.350888)
 	forecast := FetchWaveWatchData(riLocation)
 	if forecast == nil {
 		t.FailNow()
