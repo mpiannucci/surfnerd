@@ -12,12 +12,8 @@ import (
 
 // Returns the WaveWatch Model for a given Location
 // If no model is matched then it returns nil
-func GetWaveModelForLocation(loc *Location) WaveModel {
-	models := [...]WaveModel{
-		&EastCoastWaveModel{},
-		&WestCoastWaveModel{},
-		&PacificIslandsWaveModel{},
-	}
+func GetWaveModelForLocation(loc Location) *WaveModel {
+	models := GetAllAvailableWaveModels()
 
 	// Check all of the models to see if they contain the lat and long
 	for _, model := range models {
@@ -31,31 +27,31 @@ func GetWaveModelForLocation(loc *Location) WaveModel {
 
 // Returns the WaveWatch Model for a given Latitude and Longitude formatted as (N, E)
 // If no model is matched then it returns nil
-func GetWaveModelForLatLon(lat, lon float64) WaveModel {
-	loc := &Location{lat, lon}
+func GetWaveModelForLatLon(lat, lon float64) *WaveModel {
+	loc := Location{lat, lon}
 	return GetWaveModelForLocation(loc)
 }
 
 // Grabs the latest WaveWatch data from NOAA GRADS servers for a given location
 // Data is returned as a Forecast object
-func FetchWaveWatchData(loc *Location) *Forecast {
+func FetchWaveWatchData(loc Location) *Forecast {
 	modelData := FetchWaveWatchDataMap(loc)
 	forecastItems := ParseWaveWatchDataIntoForecastItems(modelData.Data)
 
-	forecast := &Forecast{loc, modelData.ModelRun, forecastItems}
+	forecast := &Forecast{&loc, modelData.ModelRun, forecastItems}
 	return forecast
 }
 
 // Grabs the latest WaveWatch data from NOAA GRADS servers for a given Latitude and Longitude in (N, E)
 // Data is returned as a Forecast object
 func FetchWaveWatchDataLatLon(lat, lon float64) *Forecast {
-	loc := &Location{lat, lon}
+	loc := Location{lat, lon}
 	return FetchWaveWatchData(loc)
 }
 
 // Grabs the latest WaveWatch data from NOAA GRADS servers for a given Location
 // Data is returned as a WaveModelData object which contains a map of raw values.
-func FetchWaveWatchDataMap(loc *Location) *WaveModelData {
+func FetchWaveWatchDataMap(loc Location) *WaveModelData {
 	model := GetWaveModelForLocation(loc)
 	if model == nil {
 		return nil
@@ -70,14 +66,14 @@ func FetchWaveWatchDataMap(loc *Location) *WaveModelData {
 
 	// Call to parse the raw data into containers
 	modelDataContainer := parseRawWaveWatchData(rawData)
-	modelData := &WaveModelData{loc, formatViewingTime(modelTime), modelDataContainer}
+	modelData := &WaveModelData{&loc, formatViewingTime(modelTime), modelDataContainer}
 	return modelData
 }
 
 // Grabs the latest WaveWatch data from NOAA GRADS servers for a given Latitude and Longitude in (N, E)
 // Data is returned as a WaveModelData object which contains a map of raw values.
 func FetchWaveWatchDataMapLatLon(lat, lon float64) *WaveModelData {
-	loc := &Location{lat, lon}
+	loc := Location{lat, lon}
 	return FetchWaveWatchDataMap(loc)
 }
 
@@ -88,7 +84,7 @@ func latestModelDateTime() (time.Time, int) {
 	return currentTime, lastModelHour
 }
 
-func fetchRawWaveWatchData(loc *Location, model WaveModel, timestamp *time.Time) ([]byte, error) {
+func fetchRawWaveWatchData(loc Location, model *WaveModel, timestamp *time.Time) ([]byte, error) {
 	// Get the times
 	dateString := timestamp.Format("20060102")
 	lastModelTime := timestamp.Hour()
@@ -101,7 +97,7 @@ func fetchRawWaveWatchData(loc *Location, model WaveModel, timestamp *time.Time)
 	}
 
 	// Format the url
-	url := fmt.Sprintf(baseMultigridUrl, dateString, model.Name(), hourString, latIndex, lngIndex)
+	url := fmt.Sprintf(baseMultigridUrl, dateString, model.Name, hourString, latIndex, lngIndex)
 
 	// Fetch the data
 	resp, httpErr := http.Get(url)
