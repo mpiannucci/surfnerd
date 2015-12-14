@@ -31,3 +31,6 @@ vendor/**
 
 # Sublime Text Files 
 *.sublime-workspace
+
+# Testing Files
+test.json

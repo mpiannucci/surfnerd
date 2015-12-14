@@ -1,11 +1,11 @@
-package wavewatch
+package surfnerd
 
 import (
 	"testing"
 )
 
-func TestEastCoastModelLocations(t *testing.T) {
-	eastCoastModel := EastCoastModel{}
+func TestEastCoastWaveModelLocations(t *testing.T) {
+	eastCoastModel := EastCoastWaveModel{}
 
 	// Check if the East Coast model contains RI, FL, etc..
 	riLocation := &Location{41.336872, 288.635294}

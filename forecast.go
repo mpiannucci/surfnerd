@@ -1,4 +1,4 @@
-package wavewatch
+package surfnerd
 
 import (
 	"encoding/json"

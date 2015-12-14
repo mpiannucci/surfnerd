@@ -1,4 +1,4 @@
-package wavewatch
+package surfnerd
 
 import (
 	"errors"
@@ -12,11 +12,11 @@ import (
 
 // Returns the WaveWatch Model for a given Location
 // If no model is matched then it returns nil
-func GetModelForLocation(loc *Location) WaveModel {
+func GetWaveModelForLocation(loc *Location) WaveModel {
 	models := [...]WaveModel{
-		&EastCoastModel{},
-		&WestCoastModel{},
-		&PacificIslandsModel{},
+		&EastCoastWaveModel{},
+		&WestCoastWaveModel{},
+		&PacificIslandsWaveModel{},
 	}
 
 	// Check all of the models to see if they contain the lat and long
@@ -31,9 +31,9 @@ func GetModelForLocation(loc *Location) WaveModel {
 
 // Returns the WaveWatch Model for a given Latitude and Longitude formatted as (N, E)
 // If no model is matched then it returns nil
-func GetModelForLatLon(lat, lon float64) WaveModel {
+func GetWaveModelForLatLon(lat, lon float64) WaveModel {
 	loc := &Location{lat, lon}
-	return GetModelForLocation(loc)
+	return GetWaveModelForLocation(loc)
 }
 
 // Grabs the latest WaveWatch data from NOAA GRADS servers for a given location
@@ -54,9 +54,9 @@ func FetchWaveWatchDataLatLon(lat, lon float64) *Forecast {
 }
 
 // Grabs the latest WaveWatch data from NOAA GRADS servers for a given Location
-// Data is returned as a ModelData object which contains a map of raw values.
-func FetchWaveWatchDataMap(loc *Location) *ModelData {
-	model := GetModelForLocation(loc)
+// Data is returned as a WaveModelData object which contains a map of raw values.
+func FetchWaveWatchDataMap(loc *Location) *WaveModelData {
+	model := GetWaveModelForLocation(loc)
 	if model == nil {
 		return nil
 	}
@@ -70,13 +70,13 @@ func FetchWaveWatchDataMap(loc *Location) *ModelData {
 
 	// Call to parse the raw data into containers
 	modelDataContainer := parseRawWaveWatchData(rawData)
-	modelData := &ModelData{loc, formatViewingTime(modelTime), modelDataContainer}
+	modelData := &WaveModelData{loc, formatViewingTime(modelTime), modelDataContainer}
 	return modelData
 }
 
 // Grabs the latest WaveWatch data from NOAA GRADS servers for a given Latitude and Longitude in (N, E)
-// Data is returned as a ModelData object which contains a map of raw values.
-func FetchWaveWatchDataMapLatLon(lat, lon float64) *ModelData {
+// Data is returned as a WaveModelData object which contains a map of raw values.
+func FetchWaveWatchDataMapLatLon(lat, lon float64) *WaveModelData {
 	loc := &Location{lat, lon}
 	return FetchWaveWatchDataMap(loc)
 }
@@ -115,7 +115,7 @@ func fetchRawWaveWatchData(loc *Location, model WaveModel, timestamp *time.Time)
 	return contents, readErr
 }
 
-func parseRawWaveWatchData(data []byte) ModelDataMap {
+func parseRawWaveWatchData(data []byte) WaveModelDataMap {
 	if data == nil {
 		return nil
 	}
@@ -125,7 +125,7 @@ func parseRawWaveWatchData(data []byte) ModelDataMap {
 	splitData := strings.Split(allData, "\n")
 
 	// Create the model data object to parse into
-	modelData := ModelDataMap{}
+	modelData := WaveModelDataMap{}
 	currentVar := ""
 
 	for _, value := range splitData {
@@ -151,8 +151,8 @@ func parseRawWaveWatchData(data []byte) ModelDataMap {
 	return modelData
 }
 
-// Rip data from ModelDataMap to ForecastItems for easy displaying in lists and such.
-func ParseWaveWatchDataIntoForecastItems(data ModelDataMap) []*ForecastItem {
+// Rip data from WaveModelDataMap to ForecastItems for easy displaying in lists and such.
+func ParseWaveWatchDataIntoForecastItems(data WaveModelDataMap) []*ForecastItem {
 	// Create the list of items
 	itemCount := len(data["dirpwsfc"])
 	items := make([]*ForecastItem, itemCount)

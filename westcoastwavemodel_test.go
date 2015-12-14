@@ -1,11 +1,11 @@
-package wavewatch
+package surfnerd
 
 import (
 	"testing"
 )
 
-func TestWestCoastModelLocations(t *testing.T) {
-	westCoastModel := WestCoastModel{}
+func TestWestCoastWaveModelLocations(t *testing.T) {
+	westCoastModel := WestCoastWaveModel{}
 
 	// Check if the West coast model contains SF, LA, etc
 	sfLocation := &Location{37.746555, 237.449909}

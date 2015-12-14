@@ -1,29 +1,29 @@
-package wavewatch
+package surfnerd
 
-type EastCoastModel struct {
+type EastCoastWaveModel struct {
 }
 
-func (e *EastCoastModel) Name() string {
+func (e *EastCoastWaveModel) Name() string {
 	return "multi_1.at_10m"
 }
 
-func (e *EastCoastModel) Description() string {
+func (e *EastCoastWaveModel) Description() string {
 	return "Multi-grid wave model: US East Coast 10 arc-min grid"
 }
 
-func (e *EastCoastModel) BottomLeftCoord() *Location {
+func (e *EastCoastWaveModel) BottomLeftCoord() *Location {
 	return &Location{0.00, 260.00}
 }
 
-func (e *EastCoastModel) TopRightCoord() *Location {
+func (e *EastCoastWaveModel) TopRightCoord() *Location {
 	return &Location{55.00011, 310.00011}
 }
 
-func (e *EastCoastModel) LocationResolution() float64 {
+func (e *EastCoastWaveModel) LocationResolution() float64 {
 	return 0.167
 }
 
-func (e *EastCoastModel) ContainsLocation(loc *Location) bool {
+func (e *EastCoastWaveModel) ContainsLocation(loc *Location) bool {
 	if loc.Latitude > e.BottomLeftCoord().Latitude && loc.Latitude < e.TopRightCoord().Latitude {
 		if loc.Longitude > e.BottomLeftCoord().Longitude && loc.Longitude < e.TopRightCoord().Longitude {
 			return true
@@ -32,11 +32,11 @@ func (e *EastCoastModel) ContainsLocation(loc *Location) bool {
 	return false
 }
 
-func (e *EastCoastModel) TimeResolution() float64 {
+func (e *EastCoastWaveModel) TimeResolution() float64 {
 	return 0.125
 }
 
-func (e *EastCoastModel) LocationIndices(loc *Location) (int, int) {
+func (e *EastCoastWaveModel) LocationIndices(loc *Location) (int, int) {
 	if !e.ContainsLocation(loc) {
 		return -1, -1
 	}

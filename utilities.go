@@ -1,4 +1,10 @@
-package ndbc
+package surfnerd
+
+import (
+	"io/ioutil"
+	"net/http"
+	"strings"
+)
 
 func fetchSpaceDelimitedString(url string) ([]string, error) {
 	// Get the response from the website and find if it can retreive the data

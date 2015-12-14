@@ -1,4 +1,4 @@
-package wavewatch
+package surfnerd
 
 type Location struct {
 	Latitude  float64

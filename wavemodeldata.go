@@ -1,26 +1,26 @@
-package wavewatch
+package surfnerd
 
 import (
 	"encoding/json"
 	"io/ioutil"
 )
 
-type ModelDataMap map[string][]float64
+type WaveModelDataMap map[string][]float64
 
-type ModelData struct {
+type WaveModelData struct {
 	*Location
 	ModelRun string
-	Data     ModelDataMap
+	Data     WaveModelDataMap
 }
 
 // Export a ModelData object to a json formatted string
-func (m *ModelData) ToJSON() ([]byte, error) {
-	return json.Marshal(m)
+func (w *WaveModelData) ToJSON() ([]byte, error) {
+	return json.Marshal(w)
 }
 
 // Export a ModelData object to a json file with a given filename
-func (m *ModelData) ExportAsJSON(filename string) error {
-	jsonData, jsonErr := m.ToJSON()
+func (w *WaveModelData) ExportAsJSON(filename string) error {
+	jsonData, jsonErr := w.ToJSON()
 	if jsonErr != nil {
 		return jsonErr
 	}

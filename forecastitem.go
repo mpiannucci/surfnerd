@@ -1,4 +1,4 @@
-package wavewatch
+package surfnerd
 
 type ForecastItem struct {
 	Time                     string
