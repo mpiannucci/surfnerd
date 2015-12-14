@@ -5,25 +5,25 @@ import (
 	"io/ioutil"
 )
 
-type Forecast struct {
+type WaveWatchForecast struct {
 	*Location
 	ModelRun     string
-	ForecastData []*ForecastItem
+	ForecastData []*WaveWatchForecastItem
 }
 
 // Gets a ForecastItem at a given index
-func (f *Forecast) ForecastItem(index int) *ForecastItem {
-	return f.ForecastData[index]
+func (w *WaveWatchForecast) ForecastItem(index int) *WaveWatchForecastItem {
+	return w.ForecastData[index]
 }
 
 // Convert Forecast object to a json formatted string
-func (f *Forecast) ToJSON() ([]byte, error) {
-	return json.Marshal(f)
+func (w *WaveWatchForecast) ToJSON() ([]byte, error) {
+	return json.Marshal(w)
 }
 
 // Export a Forecast object to json file with a given filename
-func (f *Forecast) ExportAsJSON(filename string) error {
-	jsonData, jsonErr := f.ToJSON()
+func (w *WaveWatchForecast) ExportAsJSON(filename string) error {
+	jsonData, jsonErr := w.ToJSON()
 	if jsonErr != nil {
 		return jsonErr
 	}

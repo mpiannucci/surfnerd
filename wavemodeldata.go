@@ -5,22 +5,22 @@ import (
 	"io/ioutil"
 )
 
-type WaveModelDataMap map[string][]float64
+type ModelDataMap map[string][]float64
 
-type WaveModelData struct {
+type ModelData struct {
 	*Location
 	ModelRun string
-	Data     WaveModelDataMap
+	Data     ModelDataMap
 }
 
 // Export a ModelData object to a json formatted string
-func (w *WaveModelData) ToJSON() ([]byte, error) {
-	return json.Marshal(w)
+func (m *ModelData) ToJSON() ([]byte, error) {
+	return json.Marshal(m)
 }
 
 // Export a ModelData object to a json file with a given filename
-func (w *WaveModelData) ExportAsJSON(filename string) error {
-	jsonData, jsonErr := w.ToJSON()
+func (m *ModelData) ExportAsJSON(filename string) error {
+	jsonData, jsonErr := m.ToJSON()
 	if jsonErr != nil {
 		return jsonErr
 	}

@@ -1,7 +1,12 @@
 package surfnerd
 
+import (
+	"fmt"
+	"time"
+)
+
 const (
-	baseMultigridUrl = "http://nomads.ncep.noaa.gov:9090/dods/wave/mww3/%[1]s/%[2]s%[1]s_%[3]s.ascii?time[0:60],dirpwsfc.dirpwsfc[0:60][%[4]d][%[5]d],htsgwsfc.htsgwsfc[0:60][%[4]d][%[5]d],perpwsfc.perpwsfc[0:60][%[4]d][%[5]d],swdir_1.swdir_1[0:60][%[4]d][%[5]d],swdir_2.swdir_2[0:60][%[4]d][%[5]d],swell_1.swell_1[0:60][%[4]d][%[5]d],swell_2.swell_2[0:60][%[4]d][%[5]d],swper_1.swper_1[0:60][%[4]d][%[5]d],swper_2.swper_2[0:60][%[4]d][%[5]d],ugrdsfc.ugrdsfc[0:60][%[4]d][%[5]d],vgrdsfc.vgrdsfc[0:60][%[4]d][%[5]d],wdirsfc.wdirsfc[0:60][%[4]d][%[5]d],windsfc.windsfc[0:60][%[4]d][%[5]d],wvdirsfc.wvdirsfc[0:60][%[4]d][%[5]d],wvhgtsfc.wvhgtsfc[0:60][%[4]d][%[5]d],wvpersfc.wvpersfc[0:60][%[4]d][%[5]d]"
+	baseMultigridUrl = "http://nomads.ncep.noaa.gov:9090/dods/wave/mww3/%[1]s/%[2]s%[1]s_%[3]s.ascii?time[%[6]d:%[7]d],dirpwsfc.dirpwsfc[%[6]d:%[7]d][%[4]d][%[5]d],htsgwsfc.htsgwsfc[%[6]d:%[7]d][%[4]d][%[5]d],perpwsfc.perpwsfc[%[6]d:%[7]d][%[4]d][%[5]d],swdir_1.swdir_1[%[6]d:%[7]d][%[4]d][%[5]d],swdir_2.swdir_2[%[6]d:%[7]d][%[4]d][%[5]d],swell_1.swell_1[%[6]d:%[7]d][%[4]d][%[5]d],swell_2.swell_2[%[6]d:%[7]d][%[4]d][%[5]d],swper_1.swper_1[%[6]d:%[7]d][%[4]d][%[5]d],swper_2.swper_2[%[6]d:%[7]d][%[4]d][%[5]d],ugrdsfc.ugrdsfc[%[6]d:%[7]d][%[4]d][%[5]d],vgrdsfc.vgrdsfc[%[6]d:%[7]d][%[4]d][%[5]d],wdirsfc.wdirsfc[%[6]d:%[7]d][%[4]d][%[5]d],windsfc.windsfc[%[6]d:%[7]d][%[4]d][%[5]d],wvdirsfc.wvdirsfc[%[6]d:%[7]d][%[4]d][%[5]d],wvhgtsfc.wvhgtsfc[%[6]d:%[7]d][%[4]d][%[5]d],wvpersfc.wvpersfc[%[6]d:%[7]d][%[4]d][%[5]d]"
 )
 
 type WaveModel struct {
@@ -38,6 +43,21 @@ func (w WaveModel) LocationIndices(loc Location) (int, int) {
 	latIndex := int(latOffset / w.LocationResolution)
 	lonIndex := int(lonOffset / w.LocationResolution)
 	return latIndex, lonIndex
+}
+
+func (w WaveModel) CreateURL(loc Location, startTimeIndex, endTimeIndex int) string {
+	// Get the times
+	timestamp, _ := LatestModelDateTime()
+	dateString := timestamp.Format("20060102")
+	lastModelTime := timestamp.Hour()
+	hourString := fmt.Sprintf("%02dz", lastModelTime)
+
+	// Get the location
+	latIndex, lngIndex := w.LocationIndices(loc)
+
+	// Format the url adn return
+	url := fmt.Sprintf(baseMultigridUrl, dateString, w.Name, hourString, latIndex, lngIndex, startTimeIndex, endTimeIndex)
+	return url
 }
 
 // Get the US East Coast Model
@@ -86,4 +106,26 @@ func GetAllAvailableWaveModels() []*WaveModel {
 		westCoastModel,
 		pacificIslandsModel,
 	}
+}
+
+// Returns the WaveWatch Model for a given Location
+// If no model is matched then it returns nil
+func GetWaveModelForLocation(loc Location) *WaveModel {
+	models := GetAllAvailableWaveModels()
+
+	// Check all of the models to see if they contain the lat and long
+	for _, model := range models {
+		if model.ContainsLocation(loc) {
+			return model
+		}
+	}
+
+	return nil
+}
+
+func LatestModelDateTime() (time.Time, int) {
+	currentTime := time.Now().Local()
+	lastModelHour := currentTime.Hour() - (currentTime.Hour() % 6)
+	currentTime = currentTime.Add(time.Duration(-(currentTime.Hour() % 6) * int(time.Hour)))
+	return currentTime, lastModelHour
 }

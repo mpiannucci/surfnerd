@@ -20,3 +20,16 @@ func fetchSpaceDelimitedString(url string) ([]string, error) {
 
 	return strings.Fields(rawString), readError
 }
+
+func fetchRawDataFromURL(url string) ([]byte, error) {
+	// Fetch the data
+	resp, httpErr := http.Get(url)
+	if httpErr != nil {
+		return nil, httpErr
+	}
+	defer resp.Body.Close()
+
+	// Read all of the raw data
+	contents, readErr := ioutil.ReadAll(resp.Body)
+	return contents, readErr
+}

@@ -1,6 +1,6 @@
 package surfnerd
 
-type ForecastItem struct {
+type WaveWatchForecastItem struct {
 	Time                     string
 	SignificantWaveHeight    float64
 	DominantWaveDirection    float64
