@@ -13,6 +13,7 @@ type WaveModel struct {
 	TimeResolution     float64
 }
 
+// Check if a given wave model contains a location as part of its coverage
 func (w WaveModel) ContainsLocation(loc Location) bool {
 	if loc.Latitude > w.BottomLeftLocation.Latitude && loc.Latitude < w.TopRightLocation.Latitude {
 		if loc.Longitude > w.BottomLeftLocation.Longitude && loc.Longitude < w.TopRightLocation.Longitude {
@@ -22,6 +23,8 @@ func (w WaveModel) ContainsLocation(loc Location) bool {
 	return false
 }
 
+// Get the index of a given latitude and longitude for a  wave models coverage area
+// Returns (-1,-1) if the location is not inside of the models coverage area
 func (w WaveModel) LocationIndices(loc Location) (int, int) {
 	if !w.ContainsLocation(loc) {
 		return -1, -1
@@ -37,6 +40,7 @@ func (w WaveModel) LocationIndices(loc Location) (int, int) {
 	return latIndex, lonIndex
 }
 
+// Get the US East Coast Model
 func NewEastCoastWaveModel() *WaveModel {
 	return &WaveModel{
 		Name:               "multi_1.at_10m",
@@ -48,6 +52,7 @@ func NewEastCoastWaveModel() *WaveModel {
 	}
 }
 
+// Get the US West Coast model
 func NewWestCoastWaveModel() *WaveModel {
 	return &WaveModel{
 		Name:               "multi_1.wc_10m",
@@ -59,6 +64,7 @@ func NewWestCoastWaveModel() *WaveModel {
 	}
 }
 
+// Get the Pacific Islands model
 func NewPacificIslandsWaveModel() *WaveModel {
 	return &WaveModel{
 		Name:               "multi_1.ep_10m",
@@ -70,6 +76,7 @@ func NewPacificIslandsWaveModel() *WaveModel {
 	}
 }
 
+// Get a slice containing pointers to all the available wave models.
 func GetAllAvailableWaveModels() []*WaveModel {
 	eastCoastModel := NewEastCoastWaveModel()
 	westCoastModel := NewWestCoastWaveModel()
