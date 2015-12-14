@@ -1,10 +1,6 @@
 package surfnerd
 
-import (
-	"strconv"
-	"strings"
-	"time"
-)
+import "time"
 
 // Grabs the latest WaveWatch data from NOAA GRADS servers for a given location
 // Data is returned as a Forecast object
@@ -37,42 +33,6 @@ func FetchWaveWatchModelDataMap(loc Location) *ModelData {
 	modelDataContainer := parseRawModelData(rawData)
 	modelTime, _ := LatestModelDateTime()
 	modelData := &ModelData{&loc, formatViewingTime(modelTime), modelDataContainer}
-	return modelData
-}
-
-func parseRawModelData(data []byte) ModelDataMap {
-	if data == nil {
-		return nil
-	}
-
-	// Get the data into a better status
-	allData := string(data)
-	splitData := strings.Split(allData, "\n")
-
-	// Create the model data object to parse into
-	modelData := ModelDataMap{}
-	currentVar := ""
-
-	for _, value := range splitData {
-		switch {
-		case len(value) < 1:
-			continue
-		case value[0] == '[':
-			datas := strings.Split(value, ",")
-			f, _ := strconv.ParseFloat(strings.TrimSpace(datas[1]), 64)
-			modelData[currentVar] = append(modelData[currentVar], f)
-		case value[0] >= '0' && value[0] <= '9':
-			timestamps := strings.Split(value, ",")
-			for _, timestamp := range timestamps {
-				timeValue, _ := strconv.ParseFloat(strings.TrimSpace(timestamp), 64)
-				modelData["time"] = append(modelData["time"], timeValue)
-			}
-		default:
-			variables := strings.Split(value, ",")
-			currentVar = variables[0]
-		}
-	}
-
 	return modelData
 }
 
