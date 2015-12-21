@@ -15,11 +15,6 @@ type WaveWatchForecast struct {
 	ForecastData     []*WaveWatchForecastItem
 }
 
-// Gets a ForecastItem at a given index
-func (w *WaveWatchForecast) ForecastItem(index int) *WaveWatchForecastItem {
-	return w.ForecastData[index]
-}
-
 // Convert Forecast object to a json formatted string
 func (w *WaveWatchForecast) ToJSON() ([]byte, error) {
 	return json.Marshal(w)
