@@ -6,6 +6,9 @@ import "time"
 // Data is returned as a Forecast object
 func FetchWaveWatchData(loc Location) *WaveWatchForecast {
 	modelData := FetchWaveWatchModelDataMap(loc)
+	if modelData == nil {
+		return nil
+	}
 	forecastItems := WaveWatchForecastItemsFromMap(modelData.Data)
 
 	forecast := &WaveWatchForecast{&loc, modelData.ModelRun, modelData.ModelDescription, forecastItems}
