@@ -131,7 +131,7 @@ func GetWaveModelForLocation(loc Location) *WaveModel {
 // Get the time and hour of the latest NOAA WaveWatch model run
 func LatestModelDateTime() (time.Time, int64) {
 	currentTime := time.Now().Local()
-	lastModelHour := currentTime.Hour() - (currentTime.Hour() % 6)
-	currentTime = currentTime.Add(time.Duration(-(currentTime.Hour() % 6) * int64(time.Hour)))
+	lastModelHour := int64(currentTime.Hour() - (currentTime.Hour() % 6))
+	currentTime = currentTime.Add(time.Duration(-(int64(currentTime.Hour()) % 6) * int64(time.Hour)))
 	return currentTime, lastModelHour
 }
