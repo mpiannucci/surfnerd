@@ -18,6 +18,7 @@ type WaveModel struct {
 	TopRightLocation   Location
 	LocationResolution float64
 	TimeResolution     float64
+	TimezoneLocation   *time.Location
 }
 
 // Check if a given wave model contains a location as part of its coverage
@@ -52,7 +53,7 @@ func (w WaveModel) LocationIndices(loc Location) (int, int) {
 // Days. So if model.TimeResolution return 0.167, that means each index is equal to 0.167 days.
 func (w WaveModel) CreateURL(loc Location, startTimeIndex, endTimeIndex int) string {
 	// Get the times
-	timestamp, _ := LatestModelDateTime()
+	timestamp, _ := LatestModelDateTime(w.TimezoneLocation)
 	dateString := timestamp.Format("20060102")
 	lastModelTime := timestamp.Hour()
 	hourString := fmt.Sprintf("%02dz", lastModelTime)
@@ -74,6 +75,7 @@ func NewEastCoastWaveModel() *WaveModel {
 		TopRightLocation:   NewLocationForLatLong(55.00011, 310.00011),
 		LocationResolution: 0.167,
 		TimeResolution:     0.125,
+		TimezoneLocation:   fetchTimeLocation("America/New_York"),
 	}
 }
 
@@ -86,6 +88,7 @@ func NewWestCoastWaveModel() *WaveModel {
 		TopRightLocation:   NewLocationForLatLong(50.00005, 250.00008),
 		LocationResolution: 0.167,
 		TimeResolution:     0.125,
+		TimezoneLocation:   fetchTimeLocation("America/Los_Angeles"),
 	}
 }
 
@@ -98,6 +101,7 @@ func NewPacificIslandsWaveModel() *WaveModel {
 		TopRightLocation:   NewLocationForLatLong(30.0001, 215.00017),
 		LocationResolution: 0.167,
 		TimeResolution:     0.125,
+		TimezoneLocation:   fetchTimeLocation("Pacific/Honolulu"),
 	}
 }
 
@@ -129,9 +133,14 @@ func GetWaveModelForLocation(loc Location) *WaveModel {
 }
 
 // Get the time and hour of the latest NOAA WaveWatch model run
-func LatestModelDateTime() (time.Time, int64) {
-	currentTime := time.Now().Local()
+func LatestModelDateTime(loc *time.Location) (time.Time, int64) {
+	currentTime := time.Now().In(loc)
 	lastModelHour := int64(currentTime.Hour() - (currentTime.Hour() % 6))
 	currentTime = currentTime.Add(time.Duration(-(int64(currentTime.Hour()) % 6) * int64(time.Hour)))
 	return currentTime, lastModelHour
+}
+
+func fetchTimeLocation(location string) *time.Location {
+	loc, _ := time.LoadLocation(location)
+	return loc
 }
