@@ -39,6 +39,21 @@ func FetchWaveWatchModelDataMap(loc Location) *ModelData {
 	return modelData
 }
 
+// Takes in raw data and parses it into a ModelData object. Useful for
+// implementing your own network fetching.
+func WaveWaveModelDataFromRaw(loc Location, rawData []byte) *ModelData {
+	model := GetWaveModelForLocation(loc)
+	if model == nil {
+		return nil
+	}
+
+	// Call to parse the raw data into containers
+	modelDataContainer := parseRawModelData(rawData)
+	modelTime, _ := LatestModelDateTime(model.TimezoneLocation)
+	modelData := &ModelData{&loc, formatViewingTime(modelTime), model.Description, modelDataContainer}
+	return modelData
+}
+
 // Rip data from ModelDataMap to WaveWatchForecastItems for easy displaying in lists and such.
 func WaveWatchForecastItemsFromMap(data *ModelData) []*WaveWatchForecastItem {
 	// Create the list of items
