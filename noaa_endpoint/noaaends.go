@@ -77,7 +77,7 @@ func waveWatchFetchHandler(w http.ResponseWriter, r *http.Request) {
 	// new one
 	if entryCount > 0 {
 		var forecasts []surfnerd.WaveWatchForecast
-		keys, keyError := q.GetAll(ctxParent, forecasts)
+		keys, keyError := q.GetAll(ctxParent, &forecasts)
 		if keyError != nil {
 			http.Error(w, keyError.Error(), http.StatusInternalServerError)
 		}
