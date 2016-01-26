@@ -9,20 +9,21 @@ import (
 // a list of WaveWatchForecastItems holding the data for each timestep. This is more useful for specific front-end
 // applications than ModelData because the data map has been parsed into descriptive types. The underlying data is the same however.
 type WaveWatchForecast struct {
-	*Location
+	Location
 	ModelRun         string
 	ModelDescription string
-	ForecastData     []*WaveWatchForecastItem
+	ForecastData     []WaveWatchForecastItem
 }
 
 // Convert Forecast object to a json formatted string
-func (w *WaveWatchForecast) ToJSON() ([]byte, error) {
-	return json.Marshal(w)
+func (w *WaveWatchForecast) ToJSON() string {
+	raw, _ := json.Marshal(w)
+	return string(raw[:])
 }
 
 // Export a Forecast object to json file with a given filename
 func (w *WaveWatchForecast) ExportAsJSON(filename string) error {
-	jsonData, jsonErr := w.ToJSON()
+	jsonData, jsonErr := json.Marshal(w)
 	if jsonErr != nil {
 		return jsonErr
 	}

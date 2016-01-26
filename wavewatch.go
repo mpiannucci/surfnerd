@@ -6,12 +6,7 @@ import "time"
 // Data is returned as a Forecast object
 func FetchWaveWatchData(loc Location) *WaveWatchForecast {
 	modelData := FetchWaveWatchModelDataMap(loc)
-	if modelData == nil {
-		return nil
-	}
-	forecastItems := WaveWatchForecastItemsFromMap(modelData)
-
-	forecast := &WaveWatchForecast{&loc, modelData.ModelRun, modelData.ModelDescription, forecastItems}
+	forecast := WaveWatchForecastFromModelData(modelData)
 	return forecast
 }
 
@@ -35,7 +30,7 @@ func FetchWaveWatchModelDataMap(loc Location) *ModelData {
 	// Call to parse the raw data into containers
 	modelDataContainer := parseRawModelData(rawData)
 	modelTime, _ := LatestModelDateTime(model.TimezoneLocation)
-	modelData := &ModelData{&loc, formatViewingTime(modelTime), model.Description, modelDataContainer}
+	modelData := &ModelData{loc, formatViewingTime(modelTime), model.Description, modelDataContainer}
 	return modelData
 }
 
@@ -50,21 +45,21 @@ func WaveWaveModelDataFromRaw(loc Location, rawData []byte) *ModelData {
 	// Call to parse the raw data into containers
 	modelDataContainer := parseRawModelData(rawData)
 	modelTime, _ := LatestModelDateTime(model.TimezoneLocation)
-	modelData := &ModelData{&loc, formatViewingTime(modelTime), model.Description, modelDataContainer}
+	modelData := &ModelData{loc, formatViewingTime(modelTime), model.Description, modelDataContainer}
 	return modelData
 }
 
 // Rip data from ModelDataMap to WaveWatchForecastItems for easy displaying in lists and such.
-func WaveWatchForecastItemsFromMap(data *ModelData) []*WaveWatchForecastItem {
+func WaveWatchForecastItemsFromMap(data *ModelData) []WaveWatchForecastItem {
 	// Create the list of items
 	itemCount := len(data.Data["dirpwsfc"])
-	items := make([]*WaveWatchForecastItem, itemCount)
+	items := make([]WaveWatchForecastItem, itemCount)
 
-	model := GetWaveModelForLocation(*data.Location)
+	model := GetWaveModelForLocation(data.Location)
 	modelTime, _ := LatestModelDateTime(model.TimezoneLocation)
 
 	for i := 0; i < itemCount; i++ {
-		thisForecastItem := &WaveWatchForecastItem{}
+		thisForecastItem := WaveWatchForecastItem{}
 
 		thisForecastItem.Time = modelTime.Add(time.Duration(3 * int64(i) * int64(time.Hour))).Format("Monday January _2, 2006 15z")
 		thisForecastItem.SignificantWaveHeight = data.Data["htsgwsfc"][i]

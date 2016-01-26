@@ -14,7 +14,7 @@ type ModelDataMap map[string][]float64
 // Encapsulated model data with the raw ModelDataMap format but also holds the location of the model data
 // as well as the run time and model description.
 type ModelData struct {
-	*Location
+	Location
 	ModelRun         string
 	ModelDescription string
 	Data             ModelDataMap
