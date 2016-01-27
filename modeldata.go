@@ -21,13 +21,14 @@ type ModelData struct {
 }
 
 // Export a ModelData object to a json formatted string
-func (m *ModelData) ToJSON() ([]byte, error) {
-	return json.Marshal(m)
+func (m *ModelData) ToJSON() string {
+	raw, _ := json.MarshalIndent(m, "", "    ")
+	return string(raw[:])
 }
 
 // Export a ModelData object to a json file with a given filename
 func (m *ModelData) ExportAsJSON(filename string) error {
-	jsonData, jsonErr := m.ToJSON()
+	jsonData, jsonErr := json.MarshalIndent(m, "", "    ")
 	if jsonErr != nil {
 		return jsonErr
 	}

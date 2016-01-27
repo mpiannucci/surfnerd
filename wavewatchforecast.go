@@ -17,13 +17,13 @@ type WaveWatchForecast struct {
 
 // Convert Forecast object to a json formatted string
 func (w *WaveWatchForecast) ToJSON() string {
-	raw, _ := json.Marshal(w)
+	raw, _ := json.MarshalIndent(w, "", "    ")
 	return string(raw[:])
 }
 
 // Export a Forecast object to json file with a given filename
 func (w *WaveWatchForecast) ExportAsJSON(filename string) error {
-	jsonData, jsonErr := json.Marshal(w)
+	jsonData, jsonErr := json.MarshalIndent(w, "", "    ")
 	if jsonErr != nil {
 		return jsonErr
 	}
