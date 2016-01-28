@@ -30,7 +30,14 @@ func FetchWaveWatchModelDataMap(loc Location) *ModelData {
 	// Call to parse the raw data into containers
 	modelDataContainer := parseRawModelData(rawData)
 	modelTime, _ := LatestModelDateTime(model.TimezoneLocation)
-	modelData := &ModelData{loc, formatViewingTime(modelTime), model.Description, modelDataContainer}
+	modelData := &ModelData{
+		Location:         loc,
+		ModelRun:         formatViewingTime(modelTime),
+		ModelDescription: model.Description,
+		Units:            model.Units,
+		TimeResolution:   model.TimeResolution,
+		Data:             modelDataContainer,
+	}
 	return modelData
 }
 
@@ -45,7 +52,14 @@ func WaveWaveModelDataFromRaw(loc Location, rawData []byte) *ModelData {
 	// Call to parse the raw data into containers
 	modelDataContainer := parseRawModelData(rawData)
 	modelTime, _ := LatestModelDateTime(model.TimezoneLocation)
-	modelData := &ModelData{loc, formatViewingTime(modelTime), model.Description, modelDataContainer}
+	modelData := &ModelData{
+		Location:         loc,
+		ModelRun:         formatViewingTime(modelTime),
+		ModelDescription: model.Description,
+		Units:            model.Units,
+		TimeResolution:   model.TimeResolution,
+		Data:             modelDataContainer,
+	}
 	return modelData
 }
 

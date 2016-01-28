@@ -17,6 +17,8 @@ type ModelData struct {
 	Location
 	ModelRun         string
 	ModelDescription string
+	Units            string
+	TimeResolution   float64
 	Data             ModelDataMap
 }
 

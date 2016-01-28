@@ -18,6 +18,7 @@ type WaveModel struct {
 	TopRightLocation   Location
 	LocationResolution float64
 	TimeResolution     float64
+	Units              string
 	TimezoneLocation   *time.Location
 }
 
@@ -75,6 +76,7 @@ func NewEastCoastWaveModel() *WaveModel {
 		TopRightLocation:   NewLocationForLatLong(55.00011, 310.00011),
 		LocationResolution: 0.167,
 		TimeResolution:     0.125,
+		Units:              "metric",
 		TimezoneLocation:   fetchTimeLocation("America/New_York"),
 	}
 }
@@ -88,6 +90,7 @@ func NewWestCoastWaveModel() *WaveModel {
 		TopRightLocation:   NewLocationForLatLong(50.00005, 250.00008),
 		LocationResolution: 0.167,
 		TimeResolution:     0.125,
+		Units:              "metric",
 		TimezoneLocation:   fetchTimeLocation("America/Los_Angeles"),
 	}
 }
@@ -101,6 +104,7 @@ func NewPacificIslandsWaveModel() *WaveModel {
 		TopRightLocation:   NewLocationForLatLong(30.0001, 215.00017),
 		LocationResolution: 0.167,
 		TimeResolution:     0.125,
+		Units:              "metric",
 		TimezoneLocation:   fetchTimeLocation("Pacific/Honolulu"),
 	}
 }

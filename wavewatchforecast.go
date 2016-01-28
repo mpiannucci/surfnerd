@@ -12,6 +12,7 @@ type WaveWatchForecast struct {
 	Location
 	ModelRun         string
 	ModelDescription string
+	Units            string
 	ForecastData     []WaveWatchForecastItem
 }
 
@@ -74,6 +75,8 @@ func (w *WaveWatchForecast) ToModelData() *ModelData {
 		Location:         w.Location,
 		ModelRun:         w.ModelRun,
 		ModelDescription: w.ModelDescription,
+		Units:            w.Units,
+		TimeResolution:   0.125,
 		Data:             dataMap,
 	}
 
@@ -92,6 +95,7 @@ func WaveWatchForecastFromModelData(modelData *ModelData) *WaveWatchForecast {
 		Location:         modelData.Location,
 		ModelRun:         modelData.ModelRun,
 		ModelDescription: modelData.ModelDescription,
+		Units:            modelData.Units,
 		ForecastData:     forecastItems,
 	}
 
