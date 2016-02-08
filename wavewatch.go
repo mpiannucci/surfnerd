@@ -75,7 +75,9 @@ func WaveWatchForecastItemsFromMap(data *ModelData) []WaveWatchForecastItem {
 	for i := 0; i < itemCount; i++ {
 		thisForecastItem := WaveWatchForecastItem{}
 
-		thisForecastItem.Time = modelTime.Add(time.Duration(3 * int64(i) * int64(time.Hour))).Format("Monday January _2, 2006 15z")
+		forecastTime := modelTime.Add(time.Duration(3 * int64(i) * int64(time.Hour)))
+		thisForecastItem.Date = forecastTime.Format("Monday January _2, 2006")
+		thisForecastItem.Time = forecastTime.Format("15z")
 		thisForecastItem.SignificantWaveHeight = data.Data["htsgwsfc"][i]
 		thisForecastItem.DominantWaveDirection = data.Data["dirpwsfc"][i]
 		thisForecastItem.MeanWavePeriod = data.Data["perpwsfc"][i]
