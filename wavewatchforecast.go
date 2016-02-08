@@ -18,8 +18,8 @@ type WaveWatchForecast struct {
 
 // Converts all of the ForecastItems in the ForecastData member to metric
 func (w *WaveWatchForecast) ConvertToMetricUnits() {
-	for _, forecast := range w.ForecastData {
-		forecast.ConvertToMetricUnits()
+	for index, _ := range w.ForecastData {
+		(&w.ForecastData[index]).ConvertToMetricUnits()
 	}
 
 	w.Units = "metric"
@@ -27,8 +27,8 @@ func (w *WaveWatchForecast) ConvertToMetricUnits() {
 
 // Converts all of the ForecastItems in the ForecastData member to imperial
 func (w *WaveWatchForecast) ConvertToImperialUnits() {
-	for _, forecast := range w.ForecastData {
-		forecast.ConvertToImperialUnits()
+	for index, _ := range w.ForecastData {
+		(&w.ForecastData[index]).ConvertToImperialUnits()
 	}
 
 	w.Units = "imperial"

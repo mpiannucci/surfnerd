@@ -11,6 +11,7 @@ func TestWaveWatchFetch(t *testing.T) {
 		t.FailNow()
 	}
 
+	forecast.ConvertToImperialUnits()
 	forecast.ExportAsJSON("test.json")
 }
 
