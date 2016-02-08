@@ -41,7 +41,7 @@ func MilesPerHourToMetersPerSecond(mphValue float64) float64 {
 	return mphValue / 2.237
 }
 
-func TwentyFourHourToTwelveHourFormat(timeValue string) string {
+func ToTwelveHourFormat(timeValue string) string {
 	hour, _ := strconv.ParseInt(timeValue[:1], 10, 64)
 	convertedHour := hour % 12
 	if convertedHour == 0 {
@@ -58,7 +58,7 @@ func TwentyFourHourToTwelveHourFormat(timeValue string) string {
 	return fmt.Sprintf("%2.0d %s", convertedHour, ampm)
 }
 
-func TwelveHourToTwentyFourHourFormat(timeValue string) string {
+func ToTwentyFourHourFormat(timeValue string) string {
 	hour, _ := strconv.ParseInt(timeValue[:1], 10, 64)
 	ampm := timeValue[3:]
 
