@@ -19,3 +19,21 @@ type WaveWatchForecastItem struct {
 	SurfaceWindSpeed         float64
 	SurfaceWindDirection     float64
 }
+
+// Converts relevant members to metric units
+func (w *WaveWatchForecastItem) ConvertToMetricUnits() {
+	w.SignificantWaveHeight = FeetToMeters(w.SignificantWaveHeight)
+	w.PrimarySwellWaveHeight = FeetToMeters(w.PrimarySwellWaveHeight)
+	w.SecondarySwellWaveHeight = FeetToMeters(w.SecondarySwellWaveHeight)
+	w.WindSwellWaveHeight = FeetToMeters(w.WindSwellWaveHeight)
+	w.SurfaceWindSpeed = MilesPerHourToMetersPerSecond(w.SurfaceWindSpeed)
+}
+
+// Converts relevant members to imperial units
+func (w *WaveWatchForecastItem) ConvertToImperialUnits() {
+	w.SignificantWaveHeight = MetersToFeet(w.SignificantWaveHeight)
+	w.PrimarySwellWaveHeight = MetersToFeet(w.PrimarySwellWaveHeight)
+	w.SecondarySwellWaveHeight = MetersToFeet(w.SecondarySwellWaveHeight)
+	w.WindSwellWaveHeight = MetersToFeet(w.WindSwellWaveHeight)
+	w.SurfaceWindSpeed = MetersPerSecondToMilesPerHour(w.SurfaceWindSpeed)
+}

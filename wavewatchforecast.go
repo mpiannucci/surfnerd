@@ -16,6 +16,24 @@ type WaveWatchForecast struct {
 	ForecastData     []WaveWatchForecastItem
 }
 
+// Converts all of the ForecastItems in the ForecastData member to metric
+func (w *WaveWatchForecast) ConvertToMetricUnits() {
+	for _, forecast := range w.ForecastData {
+		forecast.ConvertToMetricUnits()
+	}
+
+	w.Units = "metric"
+}
+
+// Converts all of the ForecastItems in the ForecastData member to imperial
+func (w *WaveWatchForecast) ConvertToImperialUnits() {
+	for _, forecast := range w.ForecastData {
+		forecast.ConvertToImperialUnits()
+	}
+
+	w.Units = "imperial"
+}
+
 // Convert Forecast object to a json formatted string
 func (w *WaveWatchForecast) ToJSON() ([]byte, error) {
 	return json.MarshalIndent(w, "", "    ")
