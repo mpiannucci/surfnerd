@@ -37,12 +37,19 @@ func (w *WaveWatchForecast) ConvertToImperialUnits() {
 // Goes through all of the data points and solves the breaking characterstics to determine forecasted
 // breaking wvae height
 func (w *WaveWatchForecast) FindBreakingWaveHeights(beachAngle, depth, beachSlope float64) {
+	convertImperial := false
+
 	if w.Units != "metric" {
 		w.ConvertToMetricUnits()
+		convertImperial = true
 	}
 
 	for index, _ := range w.ForecastData {
 		(&w.ForecastData[index]).FindBreakingWaveHeights(beachAngle, depth, beachSlope)
+	}
+
+	if convertImperial {
+		w.ConvertToImperialUnits()
 	}
 }
 
