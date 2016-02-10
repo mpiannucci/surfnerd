@@ -11,6 +11,7 @@ func TestWaveWatchFetch(t *testing.T) {
 		t.FailNow()
 	}
 
+	forecast.FindBreakingWaveHeights(145.0, 30.0, 0.01)
 	forecast.ConvertToImperialUnits()
 	forecast.ExportAsJSON("test.json")
 }
