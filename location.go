@@ -8,6 +8,24 @@ type Location struct {
 	LocationName string  `xml:"name,attr"`
 }
 
+// Get an adjusted longitude that will be + or - 180 degrees
+func (l Location) AdjustedLongitude() float64 {
+	if l.Longitude > 180 {
+		return l.Longitude - 360.0
+	} else {
+		return l.Longitude
+	}
+}
+
+// Get an adjusted latitude that will be + or - 85
+func (l Location) AdjustedLatitude() float64 {
+	if l.Latitude > 85 {
+		return l.Latitude - 360.0
+	} else {
+		return l.Latitude
+	}
+}
+
 // Create a new Location object from a given latitude and longitude pair
 // The latitude must be in degress N
 // The longitude must be in degrees E
