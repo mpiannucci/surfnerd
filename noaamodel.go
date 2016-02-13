@@ -4,18 +4,22 @@ import (
 	"time"
 )
 
+// Represents a NOAA Model and its coverage, timezone, and location.
 type NOAAModel struct {
 	Name               string
 	Description        string
 	BottomLeftLocation Location
 	TopRightLocation   Location
+	MaximumAltitude    float64
+	MinimumAltitude    float64
+	AltitudeResolution float64
 	LocationResolution float64
 	TimeResolution     float64
 	Units              string
 	TimezoneLocation   *time.Location
 }
 
-// Check if a given wave model contains a location as part of its coverage
+// Check if a given model contains a location as part of its coverage
 func (n NOAAModel) ContainsLocation(loc Location) bool {
 	if loc.Latitude > n.BottomLeftLocation.Latitude && loc.Latitude < n.TopRightLocation.Latitude {
 		if loc.Longitude > n.BottomLeftLocation.Longitude && loc.Longitude < n.TopRightLocation.Longitude {
@@ -25,7 +29,7 @@ func (n NOAAModel) ContainsLocation(loc Location) bool {
 	return false
 }
 
-// Get the index of a given latitude and longitude for a  wave models coverage area
+// Get the index of a given latitude and longitude for a model coverage area
 // Returns (-1,-1) if the location is not inside of the models coverage area
 func (n NOAAModel) LocationIndices(loc Location) (int, int) {
 	if !n.ContainsLocation(loc) {
@@ -40,4 +44,31 @@ func (n NOAAModel) LocationIndices(loc Location) (int, int) {
 	latIndex := int(latOffset / n.LocationResolution)
 	lonIndex := int(lonOffset / n.LocationResolution)
 	return latIndex, lonIndex
+}
+
+// Get the index of a given altitude in a models coverage area
+// Returns -1 if the lcoation is not inside the models coverage area
+func (n NOAAModel) AltitudeIndex(altitude float64) int {
+	if (altitude < n.MinimumAltitude) || (altitude > n.MaximumAltitude) {
+		return -1
+	}
+
+	return int(altitude / n.AltitudeResolution)
+}
+
+// Get the time and hour of the latest NOAA WaveWatch model run
+func LatestModelDateTime(loc *time.Location) (time.Time, int64) {
+	currentTime := time.Now().In(loc)
+	lastModelHour := int64(currentTime.Hour() - (currentTime.Hour() % 6))
+	currentTime = currentTime.Add(time.Duration(-(int64(currentTime.Hour()) % 6) * int64(time.Hour)))
+	return currentTime, lastModelHour
+}
+
+func fetchTimeLocation(location string) *time.Location {
+	loc, _ := time.LoadLocation(location)
+	return loc
+}
+
+func formatViewingTime(timestamp time.Time) string {
+	return timestamp.Format("Monday January _2, 2006 15z")
 }

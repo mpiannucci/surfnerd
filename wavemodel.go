@@ -2,7 +2,6 @@ package surfnerd
 
 import (
 	"fmt"
-	"time"
 )
 
 const (
@@ -28,7 +27,7 @@ func (w WaveModel) CreateURL(loc Location, startTimeIndex, endTimeIndex int) str
 	// Get the location
 	latIndex, lngIndex := w.LocationIndices(loc)
 
-	// Format the url adn return
+	// Format the url and return
 	url := fmt.Sprintf(baseMultigridUrl, dateString, w.Name, hourString, latIndex, lngIndex, startTimeIndex, endTimeIndex)
 	return url
 }
@@ -108,19 +107,6 @@ func GetWaveModelForLocation(loc Location) *WaveModel {
 	return nil
 }
 
-// Get the time and hour of the latest NOAA WaveWatch model run
-func LatestModelDateTime(loc *time.Location) (time.Time, int64) {
-	currentTime := time.Now().In(loc)
-	lastModelHour := int64(currentTime.Hour() - (currentTime.Hour() % 6))
-	currentTime = currentTime.Add(time.Duration(-(int64(currentTime.Hour()) % 6) * int64(time.Hour)))
-	return currentTime, lastModelHour
-}
-
-func fetchTimeLocation(location string) *time.Location {
-	loc, _ := time.LoadLocation(location)
-	return loc
-}
-
 // Grabs the latest WaveWatch data from NOAA GRADS servers for a given location
 // Data is returned as a Forecast object
 func FetchWaveForecast(loc Location) *WaveForecast {
@@ -180,8 +166,4 @@ func WaveModelDataFromRaw(loc Location, rawData []byte) *ModelData {
 		Data:             modelDataContainer,
 	}
 	return modelData
-}
-
-func formatViewingTime(timestamp time.Time) string {
-	return timestamp.Format("Monday January _2, 2006 15z")
 }
