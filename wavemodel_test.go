@@ -57,3 +57,15 @@ func TestPacificIslandsModelLocations(t *testing.T) {
 		t.Failed()
 	}
 }
+
+func TestWaveWatchFetch(t *testing.T) {
+	riLocation := NewLocationForLatLong(40.463, 360-71.421)
+	forecast := FetchWaveForecast(riLocation)
+	if forecast == nil {
+		t.FailNow()
+	}
+
+	forecast.FindBreakingWaveHeights(145.0, 30.0, 0.01)
+	forecast.ConvertToImperialUnits()
+	forecast.ExportAsJSON("test.json")
+}

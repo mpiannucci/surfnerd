@@ -3,9 +3,11 @@ package surfnerd
 type WindModelType int64
 
 const (
-    GFS = iota WindModelType,
-    gfsURL = "http://nomads.ncep.noaa.gov:9090/dods/nam/nam20160213/nam_na_12z"
+	GFS WindModelType = iota
+	NAM
+)
 
-    NAM = iota WindModelType,
-    nameURL = "http://nomads.ncep.noaa.gov:9090/dods/nam/nam20160213/nam_na_12z"
+const (
+	gfsURL  = "http://nomads.ncep.noaa.gov:9090/dods/nam/nam20160213/nam_na_12z"
+	nameURL = "http://nomads.ncep.noaa.gov:9090/dods/nam/nam20160213/nam_na_12z"
 )

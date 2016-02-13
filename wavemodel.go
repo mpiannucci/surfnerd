@@ -12,41 +12,7 @@ const (
 // A container representing a NOAA WaveWatch III MultiGrid Wave Model. This type has everything needed to construct a url
 // to get the data needed for a correct location.
 type WaveModel struct {
-	Name               string
-	Description        string
-	BottomLeftLocation Location
-	TopRightLocation   Location
-	LocationResolution float64
-	TimeResolution     float64
-	Units              string
-	TimezoneLocation   *time.Location
-}
-
-// Check if a given wave model contains a location as part of its coverage
-func (w WaveModel) ContainsLocation(loc Location) bool {
-	if loc.Latitude > w.BottomLeftLocation.Latitude && loc.Latitude < w.TopRightLocation.Latitude {
-		if loc.Longitude > w.BottomLeftLocation.Longitude && loc.Longitude < w.TopRightLocation.Longitude {
-			return true
-		}
-	}
-	return false
-}
-
-// Get the index of a given latitude and longitude for a  wave models coverage area
-// Returns (-1,-1) if the location is not inside of the models coverage area
-func (w WaveModel) LocationIndices(loc Location) (int, int) {
-	if !w.ContainsLocation(loc) {
-		return -1, -1
-	}
-
-	// Find the offsets from the minimum lat and long
-	latOffset := loc.Latitude - w.BottomLeftLocation.Latitude
-	lonOffset := loc.Longitude - w.BottomLeftLocation.Longitude
-
-	// Get the indexes and return them
-	latIndex := int(latOffset / w.LocationResolution)
-	lonIndex := int(lonOffset / w.LocationResolution)
-	return latIndex, lonIndex
+	NOAAModel
 }
 
 // Create a URL for downloading data from the NOAA GRADS servers
@@ -70,42 +36,48 @@ func (w WaveModel) CreateURL(loc Location, startTimeIndex, endTimeIndex int) str
 // Get the US East Coast Model
 func NewEastCoastWaveModel() *WaveModel {
 	return &WaveModel{
-		Name:               "multi_1.at_10m",
-		Description:        "Multi-grid wave model: US East Coast 10 arc-min grid",
-		BottomLeftLocation: NewLocationForLatLong(0.00, 260.00),
-		TopRightLocation:   NewLocationForLatLong(55.00011, 310.00011),
-		LocationResolution: 0.167,
-		TimeResolution:     0.125,
-		Units:              "metric",
-		TimezoneLocation:   fetchTimeLocation("America/New_York"),
+		NOAAModel{
+			Name:               "multi_1.at_10m",
+			Description:        "Multi-grid wave model: US East Coast 10 arc-min grid",
+			BottomLeftLocation: NewLocationForLatLong(0.00, 260.00),
+			TopRightLocation:   NewLocationForLatLong(55.00011, 310.00011),
+			LocationResolution: 0.167,
+			TimeResolution:     0.125,
+			Units:              "metric",
+			TimezoneLocation:   fetchTimeLocation("America/New_York"),
+		},
 	}
 }
 
 // Get the US West Coast model
 func NewWestCoastWaveModel() *WaveModel {
 	return &WaveModel{
-		Name:               "multi_1.wc_10m",
-		Description:        "Multi-grid wave model: US West Coast 10 arc-min grid",
-		BottomLeftLocation: NewLocationForLatLong(25.00, 210.00),
-		TopRightLocation:   NewLocationForLatLong(50.00005, 250.00008),
-		LocationResolution: 0.167,
-		TimeResolution:     0.125,
-		Units:              "metric",
-		TimezoneLocation:   fetchTimeLocation("America/Los_Angeles"),
+		NOAAModel{
+			Name:               "multi_1.wc_10m",
+			Description:        "Multi-grid wave model: US West Coast 10 arc-min grid",
+			BottomLeftLocation: NewLocationForLatLong(25.00, 210.00),
+			TopRightLocation:   NewLocationForLatLong(50.00005, 250.00008),
+			LocationResolution: 0.167,
+			TimeResolution:     0.125,
+			Units:              "metric",
+			TimezoneLocation:   fetchTimeLocation("America/Los_Angeles"),
+		},
 	}
 }
 
 // Get the Pacific Islands model
 func NewPacificIslandsWaveModel() *WaveModel {
 	return &WaveModel{
-		Name:               "multi_1.ep_10m",
-		Description:        "Multi-grid wave model: Pacific Islands (including Hawaii) 10 arc-min grid",
-		BottomLeftLocation: NewLocationForLatLong(-20.00, 130.00),
-		TopRightLocation:   NewLocationForLatLong(30.0001, 215.00017),
-		LocationResolution: 0.167,
-		TimeResolution:     0.125,
-		Units:              "metric",
-		TimezoneLocation:   fetchTimeLocation("Pacific/Honolulu"),
+		NOAAModel{
+			Name:               "multi_1.ep_10m",
+			Description:        "Multi-grid wave model: Pacific Islands (including Hawaii) 10 arc-min grid",
+			BottomLeftLocation: NewLocationForLatLong(-20.00, 130.00),
+			TopRightLocation:   NewLocationForLatLong(30.0001, 215.00017),
+			LocationResolution: 0.167,
+			TimeResolution:     0.125,
+			Units:              "metric",
+			TimezoneLocation:   fetchTimeLocation("Pacific/Honolulu"),
+		},
 	}
 }
 
@@ -147,4 +119,69 @@ func LatestModelDateTime(loc *time.Location) (time.Time, int64) {
 func fetchTimeLocation(location string) *time.Location {
 	loc, _ := time.LoadLocation(location)
 	return loc
+}
+
+// Grabs the latest WaveWatch data from NOAA GRADS servers for a given location
+// Data is returned as a Forecast object
+func FetchWaveForecast(loc Location) *WaveForecast {
+	modelData := FetchWaveModelData(loc)
+	forecast := WaveForecastFromModelData(modelData)
+	return forecast
+}
+
+// Grabs the latest WaveWatch data from NOAA GRADS servers for a given Location
+// Data is returned as a WaveModelData object which contains a map of raw values.
+func FetchWaveModelData(loc Location) *ModelData {
+	model := GetWaveModelForLocation(loc)
+	if model == nil {
+		return nil
+	}
+
+	// Create the url
+	url := model.CreateURL(loc, 0, 60)
+
+	// Fetch the raw data
+	rawData, err := fetchRawDataFromURL(url)
+	if err != nil {
+		return nil
+	}
+
+	// Call to parse the raw data into containers
+	modelDataContainer := parseRawModelData(rawData)
+	modelTime, _ := LatestModelDateTime(model.TimezoneLocation)
+	modelData := &ModelData{
+		Location:         loc,
+		ModelRun:         formatViewingTime(modelTime),
+		ModelDescription: model.Description,
+		Units:            model.Units,
+		TimeResolution:   model.TimeResolution,
+		Data:             modelDataContainer,
+	}
+	return modelData
+}
+
+// Takes in raw data and parses it into a ModelData object. Useful for
+// implementing your own network fetching.
+func WaveModelDataFromRaw(loc Location, rawData []byte) *ModelData {
+	model := GetWaveModelForLocation(loc)
+	if model == nil {
+		return nil
+	}
+
+	// Call to parse the raw data into containers
+	modelDataContainer := parseRawModelData(rawData)
+	modelTime, _ := LatestModelDateTime(model.TimezoneLocation)
+	modelData := &ModelData{
+		Location:         loc,
+		ModelRun:         formatViewingTime(modelTime),
+		ModelDescription: model.Description,
+		Units:            model.Units,
+		TimeResolution:   model.TimeResolution,
+		Data:             modelDataContainer,
+	}
+	return modelData
+}
+
+func formatViewingTime(timestamp time.Time) string {
+	return timestamp.Format("Monday January _2, 2006 15z")
 }

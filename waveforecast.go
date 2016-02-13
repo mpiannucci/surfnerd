@@ -3,21 +3,22 @@ package surfnerd
 import (
 	"encoding/json"
 	"io/ioutil"
+	"time"
 )
 
 // Container holding a complete WaveWatch forecast with the location, model description, run time, and
 // a list of WaveWatchForecastItems holding the data for each timestep. This is more useful for specific front-end
 // applications than ModelData because the data map has been parsed into descriptive types. The underlying data is the same however.
-type WaveWatchForecast struct {
+type WaveForecast struct {
 	Location
 	ModelRun         string
 	ModelDescription string
 	Units            string
-	ForecastData     []WaveWatchForecastItem
+	ForecastData     []WaveForecastItem
 }
 
 // Converts all of the ForecastItems in the ForecastData member to metric
-func (w *WaveWatchForecast) ConvertToMetricUnits() {
+func (w *WaveForecast) ConvertToMetricUnits() {
 	for index, _ := range w.ForecastData {
 		(&w.ForecastData[index]).ConvertToMetricUnits()
 	}
@@ -26,7 +27,7 @@ func (w *WaveWatchForecast) ConvertToMetricUnits() {
 }
 
 // Converts all of the ForecastItems in the ForecastData member to imperial
-func (w *WaveWatchForecast) ConvertToImperialUnits() {
+func (w *WaveForecast) ConvertToImperialUnits() {
 	for index, _ := range w.ForecastData {
 		(&w.ForecastData[index]).ConvertToImperialUnits()
 	}
@@ -36,7 +37,7 @@ func (w *WaveWatchForecast) ConvertToImperialUnits() {
 
 // Goes through all of the data points and solves the breaking characterstics to determine forecasted
 // breaking wvae height
-func (w *WaveWatchForecast) FindBreakingWaveHeights(beachAngle, depth, beachSlope float64) {
+func (w *WaveForecast) FindBreakingWaveHeights(beachAngle, depth, beachSlope float64) {
 	convertImperial := false
 
 	if w.Units != "metric" {
@@ -54,12 +55,12 @@ func (w *WaveWatchForecast) FindBreakingWaveHeights(beachAngle, depth, beachSlop
 }
 
 // Convert Forecast object to a json formatted string
-func (w *WaveWatchForecast) ToJSON() ([]byte, error) {
+func (w *WaveForecast) ToJSON() ([]byte, error) {
 	return json.MarshalIndent(w, "", "    ")
 }
 
 // Export a Forecast object to json file with a given filename
-func (w *WaveWatchForecast) ExportAsJSON(filename string) error {
+func (w *WaveForecast) ExportAsJSON(filename string) error {
 	jsonData, jsonErr := w.ToJSON()
 	if jsonErr != nil {
 		return jsonErr
@@ -69,9 +70,9 @@ func (w *WaveWatchForecast) ExportAsJSON(filename string) error {
 	return fileErr
 }
 
-// Convert the WaveWatchForecast object into a ModelData container. Usefult for converting to
+// Convert the WaveForecast object into a ModelData container. Usefult for converting to
 // a more plottable format
-func (w *WaveWatchForecast) ToModelData() *ModelData {
+func (w *WaveForecast) ToModelData() *ModelData {
 	dataCount := len(w.ForecastData)
 
 	// Create and initialize the map with the correct variables
@@ -121,14 +122,14 @@ func (w *WaveWatchForecast) ToModelData() *ModelData {
 }
 
 // Create a new WaveWatchForecastObject from an existing ModelData object
-func WaveWatchForecastFromModelData(modelData *ModelData) *WaveWatchForecast {
+func WaveForecastFromModelData(modelData *ModelData) *WaveForecast {
 	if modelData == nil {
 		return nil
 	}
 
-	forecastItems := WaveWatchForecastItemsFromMap(modelData)
+	forecastItems := WaveForecastItemsFromModelData(modelData)
 
-	forecast := &WaveWatchForecast{
+	forecast := &WaveForecast{
 		Location:         modelData.Location,
 		ModelRun:         modelData.ModelRun,
 		ModelDescription: modelData.ModelDescription,
@@ -137,4 +138,40 @@ func WaveWatchForecastFromModelData(modelData *ModelData) *WaveWatchForecast {
 	}
 
 	return forecast
+}
+
+// Rip data from ModelDataMap to WaveForecastItems for easy displaying in lists and such.
+func WaveForecastItemsFromModelData(data *ModelData) []WaveForecastItem {
+	// Create the list of items
+	itemCount := len(data.Data["dirpwsfc"])
+	items := make([]WaveForecastItem, itemCount)
+
+	model := GetWaveModelForLocation(data.Location)
+	modelTime, _ := LatestModelDateTime(model.TimezoneLocation)
+
+	for i := 0; i < itemCount; i++ {
+		thisForecastItem := WaveForecastItem{}
+
+		forecastTime := modelTime.Add(time.Duration(3 * int64(i) * int64(time.Hour)))
+		thisForecastItem.Date = forecastTime.Format("Monday January _2, 2006")
+		thisForecastItem.Time = forecastTime.Format("15z")
+		thisForecastItem.SignificantWaveHeight = data.Data["htsgwsfc"][i]
+		thisForecastItem.DominantWaveDirection = data.Data["dirpwsfc"][i]
+		thisForecastItem.MeanWavePeriod = data.Data["perpwsfc"][i]
+		thisForecastItem.PrimarySwellWaveHeight = data.Data["swell_1"][i]
+		thisForecastItem.PrimarySwellDirection = data.Data["swdir_1"][i]
+		thisForecastItem.PrimarySwellPeriod = data.Data["swper_1"][i]
+		thisForecastItem.SecondarySwellWaveHeight = data.Data["swell_2"][i]
+		thisForecastItem.SecondarySwellDirection = data.Data["swdir_2"][i]
+		thisForecastItem.SecondarySwellPeriod = data.Data["swper_2"][i]
+		thisForecastItem.WindSwellWaveHeight = data.Data["wvhgtsfc"][i]
+		thisForecastItem.WindSwellDirection = data.Data["wvdirsfc"][i]
+		thisForecastItem.WindSwellPeriod = data.Data["wvpersfc"][i]
+		thisForecastItem.SurfaceWindSpeed = data.Data["windsfc"][i]
+		thisForecastItem.SurfaceWindDirection = data.Data["wdirsfc"][i]
+
+		items[i] = thisForecastItem
+	}
+
+	return items
 }

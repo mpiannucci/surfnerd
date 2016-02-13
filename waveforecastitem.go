@@ -5,7 +5,7 @@ import (
 )
 
 // Data container for WaveWatch data at a specific timestep and location.
-type WaveWatchForecastItem struct {
+type WaveForecastItem struct {
 	Date                     string
 	Time                     string
 	MinimumBreakingHeight    float64
@@ -27,7 +27,7 @@ type WaveWatchForecastItem struct {
 }
 
 // Converts relevant members to metric units
-func (w *WaveWatchForecastItem) ConvertToMetricUnits() {
+func (w *WaveForecastItem) ConvertToMetricUnits() {
 	w.MinimumBreakingHeight = FeetToMeters(w.MinimumBreakingHeight)
 	w.MaximumBreakingHeight = FeetToMeters(w.MaximumBreakingHeight)
 	w.SignificantWaveHeight = FeetToMeters(w.SignificantWaveHeight)
@@ -38,7 +38,7 @@ func (w *WaveWatchForecastItem) ConvertToMetricUnits() {
 }
 
 // Converts relevant members to imperial units
-func (w *WaveWatchForecastItem) ConvertToImperialUnits() {
+func (w *WaveForecastItem) ConvertToImperialUnits() {
 	w.MinimumBreakingHeight = MetersToFeet(w.MinimumBreakingHeight)
 	w.MaximumBreakingHeight = MetersToFeet(w.MaximumBreakingHeight)
 	w.SignificantWaveHeight = MetersToFeet(w.SignificantWaveHeight)
@@ -50,7 +50,7 @@ func (w *WaveWatchForecastItem) ConvertToImperialUnits() {
 
 // Interpolates the approximate breaking wave heights using the contained swell data. Data must
 // be in metric units prior to calling this function. The depth argument must be in meters.
-func (w *WaveWatchForecastItem) FindBreakingWaveHeights(beachAngle, depth, beachSlope float64) {
+func (w *WaveForecastItem) FindBreakingWaveHeights(beachAngle, depth, beachSlope float64) {
 	var windWaveBreakHeight float64 = 0.0
 	var primarySwellBreakHeight float64 = 0.0
 	var secondarySwellBreakHeight float64 = 0.0
