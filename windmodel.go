@@ -44,3 +44,41 @@ func (w WindModel) CreateURL(loc Location, startTimeIndex, endTimeIndex int) str
 	url := fmt.Sprintf(baseURL, w.Name, dateString, hourString, altIndex, latIndex, lngIndex, startTimeIndex, endTimeIndex)
 	return url
 }
+
+func NewGFSWindModel() *WindModel {
+	return &WindModel{
+		NOAAModel{
+			Name:               "gfs_0p50",
+			Description:        "GFS 0.5 deg",
+			BottomLeftLocation: NewLocationForLatLong(-90.00000, 0.00000),
+			TopRightLocation:   NewLocationForLatLong(90.0000, 359.5000),
+			MaximumAltitude:    1000.0,
+			MinimumAltitude:    1.0,
+			AltitudeResolution: 21.717,
+			LocationResolution: 0.5,
+			TimeResolution:     0.125,
+			Units:              "metric",
+			TimezoneLocation:   fetchTimeLocation("America/Los_Angeles"),
+		},
+		GFS,
+	}
+}
+
+func NewNAMCONUSNestWindModel() *WindModel {
+	return &WindModel{
+		NOAAModel{
+			Name:               "nam_conusnest",
+			Description:        "NAM CONUS Nest",
+			BottomLeftLocation: NewLocationForLatLong(12.20246900, -152.8529970),
+			TopRightLocation:   NewLocationForLatLong(61.19173263636, -49.44943227060),
+			MaximumAltitude:    1000.0,
+			MinimumAltitude:    10.0,
+			AltitudeResolution: 24.146,
+			LocationResolution: 0.046,
+			TimeResolution:     0.125,
+			Units:              "metric",
+			TimezoneLocation:   fetchTimeLocation("America/Los_Angeles"),
+		},
+		NAM,
+	}
+}
