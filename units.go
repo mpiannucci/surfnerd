@@ -19,6 +19,10 @@ var (
 // Convert degrees to a string indicating drection on a compass
 // Result is abbreviated in the form "NNE" for North-Northeast
 func DegreeToDirection(degree float64) string {
+	if degree > 361 {
+		return "NULL"
+	}
+
 	windIndex := int(degree) / (360 / len(windDirs))
 	if windIndex >= len(windDirs) {
 		windIndex = 0
