@@ -45,7 +45,6 @@ func (w WindModel) CreateURL(loc Location, startTimeIndex, endTimeIndex int) str
 		baseURL = namURL
 	}
 	url := fmt.Sprintf(baseURL, w.Name, dateString, hourString, altIndex, latIndex, lngIndex, startTimeIndex, endTimeIndex)
-	fmt.Println(url)
 	return url
 }
 
@@ -71,33 +70,32 @@ func NewGFSWindModel() *WindModel {
 }
 
 // Create a new NAM CONUS Nest model
-func NewNAMCONUSNestWindModel() *WindModel {
-	return &WindModel{
-		NOAAModel{
-			Name:               "nam_conusnest",
-			Description:        "NAM CONUS Nest",
-			BottomLeftLocation: NewLocationForLatLong(12.20246900, -152.8529970),
-			TopRightLocation:   NewLocationForLatLong(61.19173263636, -49.44943227060),
-			MaximumAltitude:    10.0,
-			MinimumAltitude:    1000.0,
-			AltitudeResolution: 24.146,
-			LocationResolution: 0.046,
-			TimeResolution:     0.125,
-			Units:              "metric",
-			TimezoneLocation:   fetchTimeLocation("America/New_York"),
-		},
-		41,
-		NAM,
-	}
-}
+// func NewNAMCONUSNestWindModel() *WindModel {
+// 	return &WindModel{
+// 		NOAAModel{
+// 			Name:               "nam_conusnest",
+// 			Description:        "NAM CONUS Nest",
+// 			BottomLeftLocation: NewLocationForLatLong(12.20246900, -152.8529970),
+// 			TopRightLocation:   NewLocationForLatLong(61.19173263636, -49.44943227060),
+// 			MaximumAltitude:    10.0,
+// 			MinimumAltitude:    1000.0,
+// 			AltitudeResolution: 24.146,
+// 			LocationResolution: 0.046,
+// 			TimeResolution:     0.125,
+// 			Units:              "metric",
+// 			TimezoneLocation:   fetchTimeLocation("America/New_York"),
+// 		},
+// 		41,
+// 		NAM,
+// 	}
+// }
 
 // Get a slice containing pointers to all the available wind models.
 func GetAllAvailableWindModels() []*WindModel {
 	gfsModel := NewGFSWindModel()
-	namConusModel := NewNAMCONUSNestWindModel()
+	//namConusModel := NewNAMCONUSNestWindModel()
 	return []*WindModel{
 		gfsModel,
-		namConusModel,
 	}
 }
 
@@ -241,5 +239,6 @@ func WindModelDataFromRaw(loc Location, rawData []byte) *ModelData {
 		TimeResolution:   model.TimeResolution,
 		Data:             modelDataContainer,
 	}
+	fmt.Println(modelData)
 	return modelData
 }
