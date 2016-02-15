@@ -35,25 +35,6 @@ func (w *WaveForecast) ConvertToImperialUnits() {
 	w.Units = "imperial"
 }
 
-// Goes through all of the data points and solves the breaking characterstics to determine forecasted
-// breaking wvae height
-func (w *WaveForecast) FindBreakingWaveHeights(beachAngle, depth, beachSlope float64) {
-	convertImperial := false
-
-	if w.Units != "metric" {
-		w.ConvertToMetricUnits()
-		convertImperial = true
-	}
-
-	for index, _ := range w.ForecastData {
-		(&w.ForecastData[index]).FindBreakingWaveHeights(beachAngle, depth, beachSlope)
-	}
-
-	if convertImperial {
-		w.ConvertToImperialUnits()
-	}
-}
-
 // Convert Forecast object to a json formatted string
 func (w *WaveForecast) ToJSON() ([]byte, error) {
 	return json.MarshalIndent(w, "", "    ")

@@ -1,5 +1,6 @@
 package surfnerd
 
+// A single timestep in a wind forecast
 type WindForecastItem struct {
 	Date          string
 	Time          string
