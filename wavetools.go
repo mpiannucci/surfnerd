@@ -4,6 +4,13 @@ import (
 	"math"
 )
 
+// Computes speed and heading given the u and vvector components
+func ScalarFromUV(ucomponent, vcomponent float64) (speed, heading float64) {
+	heading = math.Mod((270.0 - (math.Atan2(vcomponent, ucomponent) * (180 / math.Pi))), 360)
+	speed = math.Sqrt(math.Pow(math.Abs(vcomponent), 2) + math.Pow(math.Abs(ucomponent), 2))
+	return
+}
+
 // Computes the wavelength for a wave with the given period
 // and depth. Units are metric, gravity is 9.81.
 func LDis(period, depth float64) float64 {

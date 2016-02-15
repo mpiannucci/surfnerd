@@ -36,9 +36,27 @@ func TestRefractionSolver(t *testing.T) {
 	}
 }
 
-func testShoalingSolver(t *testing.T) {
+func TestShoalingSolver(t *testing.T) {
 	Ks := SolveShoalingCoefficient(150.0, 10.0)
 	if math.Abs(Ks-1.1553) > 0.0001 {
+		t.Fail()
+	}
+}
+
+func TestUVScalarConversion(t *testing.T) {
+	firstSpeed, firstDirection := ScalarFromUV(10.0, 10.0)
+	if firstSpeed-14.142 > 0.001 {
+		t.Fail()
+	}
+	if firstDirection-225 > 0.0001 {
+		t.Fail()
+	}
+
+	secondSpeed, secondDirection := ScalarFromUV(5.0, 16.4)
+	if secondSpeed-17.145 > 0.001 {
+		t.Fail()
+	}
+	if secondDirection-196.96 > 0.0001 {
 		t.Fail()
 	}
 }

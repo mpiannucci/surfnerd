@@ -92,7 +92,7 @@ func GetAllAvailableWaveModels() []*WaveModel {
 	}
 }
 
-// Returns the WaveWatch Model for a given Location
+// Returns the WaveModel for a given Location
 // If no model is matched then it returns nil
 func GetWaveModelForLocation(loc Location) *WaveModel {
 	models := GetAllAvailableWaveModels()
@@ -107,7 +107,7 @@ func GetWaveModelForLocation(loc Location) *WaveModel {
 	return nil
 }
 
-// Grabs the latest WaveWatch data from NOAA GRADS servers for a given location
+// Grabs the latest wave data from NOAA GRADS servers for a given location
 // Data is returned as a Forecast object
 func FetchWaveForecast(loc Location) *WaveForecast {
 	modelData := FetchWaveModelData(loc)

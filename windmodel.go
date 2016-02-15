@@ -16,11 +16,13 @@ const (
 	namURL = "http://nomads.ncep.noaa.gov:9090/dods/nam/nam%[2]s/%[1]s_%[3]s.ascii?time[%[7]d:%[8]d],ugrdprs[%[7]d:%[8]d][%[4]d][%[5]d][%[6]d],vgrdprs[%[7]d:%[8]d][%[4]d][%[5]d][%[6]d]"
 )
 
+// Represents a NOAA Wind Model
 type WindModel struct {
 	NOAAModel
 	ModelType WindModelType
 }
 
+// Create the URL for fetching the data from the wind model
 func (w WindModel) CreateURL(loc Location, startTimeIndex, endTimeIndex int) string {
 	// Get the times
 	timestamp, _ := LatestModelDateTime(w.TimezoneLocation)
@@ -45,6 +47,7 @@ func (w WindModel) CreateURL(loc Location, startTimeIndex, endTimeIndex int) str
 	return url
 }
 
+// Create a new GFS Model
 func NewGFSWindModel() *WindModel {
 	return &WindModel{
 		NOAAModel{
@@ -64,6 +67,7 @@ func NewGFSWindModel() *WindModel {
 	}
 }
 
+// Create a new NAM CONUS Nest model
 func NewNAMCONUSNestWindModel() *WindModel {
 	return &WindModel{
 		NOAAModel{
@@ -81,4 +85,29 @@ func NewNAMCONUSNestWindModel() *WindModel {
 		},
 		NAM,
 	}
+}
+
+// Get a slice containing pointers to all the available wind models.
+func GetAllAvailableWindModels() []*WindModel {
+	gfsModel := NewGFSWindModel()
+	namConusModel := NewNAMCONUSNestWindModel()
+	return []*WindModel{
+		gfsModel,
+		namConusModel,
+	}
+}
+
+// Returns the WindModel for a given Location
+// If no model is matched then it returns nil
+func GetWindModelForLocation(loc Location) *WindModel {
+	models := GetAllAvailableWindModels()
+
+	// Check all of the models to see if they contain the lat and long
+	for _, model := range models {
+		if model.ContainsLocation(loc) {
+			return model
+		}
+	}
+
+	return nil
 }
