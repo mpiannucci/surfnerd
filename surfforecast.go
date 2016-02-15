@@ -92,64 +92,67 @@ func NewSurfForecast(loc Location, beachAngle, beachSlope float64, waveForecast 
 		surfForecastItem.WindGustSpeed = windForecast.ForecastData[i].WindGustSpeed
 		surfForecastItem.WindDirection = windForecast.ForecastData[i].WindDirection
 
-		// swellOne := Swell{}
-		// swellOne.WaveHeight = waveForecast.ForecastData[i].PrimarySwellWaveHeight
-		// swellOne.Period = waveForecast.ForecastData[i].PrimarySwellPeriod
-		// swellOne.Direction = waveForecast.ForecastData[i].PrimarySwellDirection
-		// swellOne.CompassDirection = DegreeToDirection(waveForecast.ForecastData[i].PrimarySwellDirection)
-		// swellOneMin, swellOneMax := swellOne.BreakingWaveHeights(surfForecast.BeachAngle, surfForecast.WaveModelLocation.Elevation, surfForecast.BeachSlope)
+		swellOne := Swell{}
+		swellOne.WaveHeight = waveForecast.ForecastData[i].PrimarySwellWaveHeight
+		swellOne.Period = waveForecast.ForecastData[i].PrimarySwellPeriod
+		swellOne.Direction = waveForecast.ForecastData[i].PrimarySwellDirection
+		//swellOne.CompassDirection = DegreeToDirection(waveForecast.ForecastData[i].PrimarySwellDirection)
+		swellOneMin, swellOneMax := swellOne.BreakingWaveHeights(surfForecast.BeachAngle, surfForecast.WaveModelLocation.Elevation, surfForecast.BeachSlope)
 
-		// swellTwo := Swell{}
-		// swellTwo.WaveHeight = waveForecast.ForecastData[i].SecondarySwellWaveHeight
-		// swellTwo.Period = waveForecast.ForecastData[i].SecondarySwellPeriod
-		// swellTwo.Direction = waveForecast.ForecastData[i].SecondarySwellDirection
-		// swellTwo.CompassDirection = DegreeToDirection(waveForecast.ForecastData[i].SecondarySwellDirection)
-		// swellTwoMin, swellTwoMax := swellTwo.BreakingWaveHeights(surfForecast.BeachAngle, surfForecast.WaveModelLocation.Elevation, surfForecast.BeachSlope)
+		swellTwo := Swell{}
+		swellTwo.WaveHeight = waveForecast.ForecastData[i].SecondarySwellWaveHeight
+		swellTwo.Period = waveForecast.ForecastData[i].SecondarySwellPeriod
+		swellTwo.Direction = waveForecast.ForecastData[i].SecondarySwellDirection
+		//swellTwo.CompassDirection = DegreeToDirection(waveForecast.ForecastData[i].SecondarySwellDirection)
+		swellTwoMin, swellTwoMax := swellTwo.BreakingWaveHeights(surfForecast.BeachAngle, surfForecast.WaveModelLocation.Elevation, surfForecast.BeachSlope)
 
-		// swellThree := Swell{}
-		// swellThree.WaveHeight = waveForecast.ForecastData[i].WindSwellWaveHeight
-		// swellThree.Period = waveForecast.ForecastData[i].WindSwellPeriod
-		// swellThree.Direction = waveForecast.ForecastData[i].WindSwellDirection
-		// swellThree.CompassDirection = DegreeToDirection(waveForecast.ForecastData[i].WindSwellDirection)
-		// swellThreeMin, swellThreeMax := swellThree.BreakingWaveHeights(surfForecast.BeachAngle, surfForecast.WaveModelLocation.Elevation, surfForecast.BeachSlope)
+		swellThree := Swell{}
+		swellThree.WaveHeight = waveForecast.ForecastData[i].WindSwellWaveHeight
+		swellThree.Period = waveForecast.ForecastData[i].WindSwellPeriod
+		swellThree.Direction = waveForecast.ForecastData[i].WindSwellDirection
+		//swellThree.CompassDirection = DegreeToDirection(waveForecast.ForecastData[i].WindSwellDirection)
+		swellThreeMin, swellThreeMax := swellThree.BreakingWaveHeights(surfForecast.BeachAngle, surfForecast.WaveModelLocation.Elevation, surfForecast.BeachSlope)
 
-		// // Put the swells in order and set the estimated breaking wave height
-		// if swellOneMax > swellTwoMax {
-		// 	if swellOneMax > swellThreeMax {
-		// 		surfForecastItem.PrimarySwellComponent = swellOne
-		// 		surfForecastItem.MinimumBreakingHeight = swellOneMin
-		// 		surfForecastItem.MaximumBreakingHeight = swellOneMax
+		// Put the swells in order and set the estimated breaking wave height
+		if swellOneMax > swellTwoMax {
+			if swellOneMax > swellThreeMax {
+				surfForecastItem.PrimarySwellComponent = swellOne
+				surfForecastItem.MinimumBreakingHeight = swellOneMin
+				surfForecastItem.MaximumBreakingHeight = swellOneMax
 
-		// 		if swellTwoMax > swellThreeMax {
-		// 			surfForecastItem.SecondarySwellComponent = swellTwo
-		// 			surfForecastItem.TertiarySwellComponent = swellThree
-		// 		}
-		// 	} else {
-		// 		surfForecastItem.PrimarySwellComponent = swellThree
-		// 		surfForecastItem.MinimumBreakingHeight = swellThreeMin
-		// 		surfForecastItem.MaximumBreakingHeight = swellThreeMax
-		// 		surfForecastItem.SecondarySwellComponent = swellOne
-		// 		surfForecastItem.TertiarySwellComponent = swellTwo
-		// 	}
-		// } else if swellTwoMax > swellThreeMax {
-		// 	surfForecastItem.PrimarySwellComponent = swellTwo
-		// 	surfForecastItem.MinimumBreakingHeight = swellTwoMin
-		// 	surfForecastItem.MaximumBreakingHeight = swellTwoMax
+				if swellTwoMax > swellThreeMax {
+					surfForecastItem.SecondarySwellComponent = swellTwo
+					surfForecastItem.TertiarySwellComponent = swellThree
+				} else {
+					surfForecastItem.SecondarySwellComponent = swellThree
+					surfForecastItem.TertiarySwellComponent = swellTwo
+				}
+			} else {
+				surfForecastItem.PrimarySwellComponent = swellThree
+				surfForecastItem.MinimumBreakingHeight = swellThreeMin
+				surfForecastItem.MaximumBreakingHeight = swellThreeMax
+				surfForecastItem.SecondarySwellComponent = swellOne
+				surfForecastItem.TertiarySwellComponent = swellTwo
+			}
+		} else if swellTwoMax > swellThreeMax {
+			surfForecastItem.PrimarySwellComponent = swellTwo
+			surfForecastItem.MinimumBreakingHeight = swellTwoMin
+			surfForecastItem.MaximumBreakingHeight = swellTwoMax
 
-		// 	if swellOneMax > swellThreeMax {
-		// 		surfForecastItem.SecondarySwellComponent = swellOne
-		// 		surfForecastItem.TertiarySwellComponent = swellThree
-		// 	} else {
-		// 		surfForecastItem.SecondarySwellComponent = swellThree
-		// 		surfForecastItem.TertiarySwellComponent = swellOne
-		// 	}
-		// } else {
-		// 	surfForecastItem.PrimarySwellComponent = swellThree
-		// 	surfForecastItem.MinimumBreakingHeight = swellThreeMin
-		// 	surfForecastItem.MaximumBreakingHeight = swellThreeMax
-		// 	surfForecastItem.SecondarySwellComponent = swellTwo
-		// 	surfForecastItem.TertiarySwellComponent = swellOne
-		// }
+			if swellOneMax > swellThreeMax {
+				surfForecastItem.SecondarySwellComponent = swellOne
+				surfForecastItem.TertiarySwellComponent = swellThree
+			} else {
+				surfForecastItem.SecondarySwellComponent = swellThree
+				surfForecastItem.TertiarySwellComponent = swellOne
+			}
+		} else {
+			surfForecastItem.PrimarySwellComponent = swellThree
+			surfForecastItem.MinimumBreakingHeight = swellThreeMin
+			surfForecastItem.MaximumBreakingHeight = swellThreeMax
+			surfForecastItem.SecondarySwellComponent = swellTwo
+			surfForecastItem.TertiarySwellComponent = swellOne
+		}
 
 		// Add the forecast item
 		surfForecast.ForecastData[i] = surfForecastItem

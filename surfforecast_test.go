@@ -5,7 +5,7 @@ import (
 )
 
 func TestSurfForecastFetch(t *testing.T) {
-	riWaveLocation := NewLocationForLatLong(40.463, 360-71.421)
+	riWaveLocation := NewLocationForLatLong(41.323, 360-71.396)
 	riWaveLocation.Elevation = 30
 	waveForecast := FetchWaveForecast(riWaveLocation)
 	if waveForecast == nil {
