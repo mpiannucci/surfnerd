@@ -33,4 +33,4 @@ vendor/**
 *.sublime-workspace
 
 # Testing Files
-test.json
+*.json
