@@ -1,0 +1,438 @@
+{
+    "Latitude": 41.6,
+    "Longitude": 288.541,
+    "Elevation": 1,
+    "LocationName": "",
+    "ModelRun": "Monday February 15, 2016 06z",
+    "ModelDescription": "GFS 0.5 deg",
+    "Units": "imperial",
+    "ForecastData": [
+        {
+            "Date": "Monday February 15, 2016",
+            "Time": "06z",
+            "WindSpeed": 5.118478771216214,
+            "WindGustSpeed": 6.4873,
+            "WindDirection": 320.6753578222424
+        },
+        {
+            "Date": "Monday February 15, 2016",
+            "Time": "09z",
+            "WindSpeed": 3.9816714843015366,
+            "WindGustSpeed": 5.3688,
+            "WindDirection": 310.67112493280956
+        },
+        {
+            "Date": "Monday February 15, 2016",
+            "Time": "12z",
+            "WindSpeed": 2.2923520167762828,
+            "WindGustSpeed": 3.1318,
+            "WindDirection": 331.4341641883733
+        },
+        {
+            "Date": "Monday February 15, 2016",
+            "Time": "15z",
+            "WindSpeed": 3.490365228812023,
+            "WindGustSpeed": 4.0266002237,
+            "WindDirection": 91.10170611520635
+        },
+        {
+            "Date": "Monday February 15, 2016",
+            "Time": "18z",
+            "WindSpeed": 8.174605285596364,
+            "WindGustSpeed": 14.0931,
+            "WindDirection": 139.7728487900384
+        },
+        {
+            "Date": "Monday February 15, 2016",
+            "Time": "21z",
+            "WindSpeed": 10.930325974314018,
+            "WindGustSpeed": 17.4486,
+            "WindDirection": 135.24875167794065
+        },
+        {
+            "Date": "Tuesday February 16, 2016",
+            "Time": "00z",
+            "WindSpeed": 15.714410938545136,
+            "WindGustSpeed": 25.501802237,
+            "WindDirection": 120.54411845660223
+        },
+        {
+            "Date": "Tuesday February 16, 2016",
+            "Time": "03z",
+            "WindSpeed": 15.718008620885712,
+            "WindGustSpeed": 30.4232,
+            "WindDirection": 114.37646922015475
+        },
+        {
+            "Date": "Tuesday February 16, 2016",
+            "Time": "06z",
+            "WindSpeed": 15.619402971064547,
+            "WindGustSpeed": 34.2261,
+            "WindDirection": 201.4204591192099
+        },
+        {
+            "Date": "Tuesday February 16, 2016",
+            "Time": "09z",
+            "WindSpeed": 16.149481645042528,
+            "WindGustSpeed": 35.792,
+            "WindDirection": 190.85854926852363
+        },
+        {
+            "Date": "Tuesday February 16, 2016",
+            "Time": "12z",
+            "WindSpeed": 23.625569031798506,
+            "WindGustSpeed": 55.03020000000001,
+            "WindDirection": 176.36275250847098
+        },
+        {
+            "Date": "Tuesday February 16, 2016",
+            "Time": "15z",
+            "WindSpeed": 26.640894991249827,
+            "WindGustSpeed": 55.03020000000001,
+            "WindDirection": 164.21320792791073
+        },
+        {
+            "Date": "Tuesday February 16, 2016",
+            "Time": "18z",
+            "WindSpeed": 26.093710855876743,
+            "WindGustSpeed": 53.0169,
+            "WindDirection": 159.84063806546573
+        },
+        {
+            "Date": "Tuesday February 16, 2016",
+            "Time": "21z",
+            "WindSpeed": 38.37494983952376,
+            "WindGustSpeed": 64.6493,
+            "WindDirection": 149.7579906408869
+        },
+        {
+            "Date": "Wednesday February 17, 2016",
+            "Time": "00z",
+            "WindSpeed": 27.93082403470761,
+            "WindGustSpeed": 50.7799,
+            "WindDirection": 199.2185808322061
+        },
+        {
+            "Date": "Wednesday February 17, 2016",
+            "Time": "03z",
+            "WindSpeed": 28.348545232567048,
+            "WindGustSpeed": 49.43770000000001,
+            "WindDirection": 237.60162806392455
+        },
+        {
+            "Date": "Wednesday February 17, 2016",
+            "Time": "06z",
+            "WindSpeed": 19.218030415341737,
+            "WindGustSpeed": 31.094302237,
+            "WindDirection": 252.87275422477896
+        },
+        {
+            "Date": "Wednesday February 17, 2016",
+            "Time": "09z",
+            "WindSpeed": 12.10967258201476,
+            "WindGustSpeed": 23.9359,
+            "WindDirection": 274.02528957982736
+        },
+        {
+            "Date": "Wednesday February 17, 2016",
+            "Time": "12z",
+            "WindSpeed": 7.139254589685972,
+            "WindGustSpeed": 8.5006,
+            "WindDirection": 265.1469036670109
+        },
+        {
+            "Date": "Wednesday February 17, 2016",
+            "Time": "15z",
+            "WindSpeed": 7.291727890219162,
+            "WindGustSpeed": 8.948,
+            "WindDirection": 249.3410899366925
+        },
+        {
+            "Date": "Wednesday February 17, 2016",
+            "Time": "18z",
+            "WindSpeed": 5.729515567654913,
+            "WindGustSpeed": 8.0532002237,
+            "WindDirection": 255.5297058999341
+        },
+        {
+            "Date": "Wednesday February 17, 2016",
+            "Time": "21z",
+            "WindSpeed": 7.22883356998209,
+            "WindGustSpeed": 10.066500000000001,
+            "WindDirection": 298.86516878855116
+        },
+        {
+            "Date": "Thursday February 18, 2016",
+            "Time": "00z",
+            "WindSpeed": 9.072241539905697,
+            "WindGustSpeed": 14.3168,
+            "WindDirection": 310.80050249031376
+        },
+        {
+            "Date": "Thursday February 18, 2016",
+            "Time": "03z",
+            "WindSpeed": 12.111449151631184,
+            "WindGustSpeed": 20.5804,
+            "WindDirection": 330.45201248238186
+        },
+        {
+            "Date": "Thursday February 18, 2016",
+            "Time": "06z",
+            "WindSpeed": 11.569248423160428,
+            "WindGustSpeed": 19.909302237,
+            "WindDirection": 331.84931141182506
+        },
+        {
+            "Date": "Thursday February 18, 2016",
+            "Time": "09z",
+            "WindSpeed": 10.470235425533659,
+            "WindGustSpeed": 18.790802237,
+            "WindDirection": 339.3579896843628
+        },
+        {
+            "Date": "Thursday February 18, 2016",
+            "Time": "12z",
+            "WindSpeed": 10.338376581553753,
+            "WindGustSpeed": 19.2382,
+            "WindDirection": 349.9058389455869
+        },
+        {
+            "Date": "Thursday February 18, 2016",
+            "Time": "15z",
+            "WindSpeed": 13.803450145731682,
+            "WindGustSpeed": 16.7775,
+            "WindDirection": 359.2571465925004
+        },
+        {
+            "Date": "Thursday February 18, 2016",
+            "Time": "18z",
+            "WindSpeed": 12.467336386937976,
+            "WindGustSpeed": 14.9879006711,
+            "WindDirection": 358.0463232832638
+        },
+        {
+            "Date": "Thursday February 18, 2016",
+            "Time": "21z",
+            "WindSpeed": 11.023848843811312,
+            "WindGustSpeed": 14.9879006711,
+            "WindDirection": 3.257221940666966
+        },
+        {
+            "Date": "Friday February 19, 2016",
+            "Time": "00z",
+            "WindSpeed": 10.20699736674797,
+            "WindGustSpeed": 19.4619,
+            "WindDirection": 357.99044618697883
+        },
+        {
+            "Date": "Friday February 19, 2016",
+            "Time": "03z",
+            "WindSpeed": 9.90334326447892,
+            "WindGustSpeed": 19.2382,
+            "WindDirection": 3.237262281571759
+        },
+        {
+            "Date": "Friday February 19, 2016",
+            "Time": "06z",
+            "WindSpeed": 8.817213870987244,
+            "WindGustSpeed": 14.7642,
+            "WindDirection": 358.4007869771326
+        },
+        {
+            "Date": "Friday February 19, 2016",
+            "Time": "09z",
+            "WindSpeed": 6.293130664989925,
+            "WindGustSpeed": 8.948,
+            "WindDirection": 16.309084147335852
+        },
+        {
+            "Date": "Friday February 19, 2016",
+            "Time": "12z",
+            "WindSpeed": 2.0164044306875684,
+            "WindGustSpeed": 2.01330008948,
+            "WindDirection": 342.57013744324837
+        },
+        {
+            "Date": "Friday February 19, 2016",
+            "Time": "15z",
+            "WindSpeed": 8.60341009987319,
+            "WindGustSpeed": 10.066500000000001,
+            "WindDirection": 174.77859568017496
+        },
+        {
+            "Date": "Friday February 19, 2016",
+            "Time": "18z",
+            "WindSpeed": 13.329591360519716,
+            "WindGustSpeed": 16.1064006711,
+            "WindDirection": 190.44245197657324
+        },
+        {
+            "Date": "Friday February 19, 2016",
+            "Time": "21z",
+            "WindSpeed": 18.246036667111415,
+            "WindGustSpeed": 25.278100000000002,
+            "WindDirection": 191.24105014052134
+        },
+        {
+            "Date": "Saturday February 20, 2016",
+            "Time": "00z",
+            "WindSpeed": 19.097810227366384,
+            "WindGustSpeed": 33.555,
+            "WindDirection": 189.50645528577002
+        },
+        {
+            "Date": "Saturday February 20, 2016",
+            "Time": "03z",
+            "WindSpeed": 21.829784873344494,
+            "WindGustSpeed": 42.055602237,
+            "WindDirection": 204.06979548018842
+        },
+        {
+            "Date": "Saturday February 20, 2016",
+            "Time": "06z",
+            "WindSpeed": 24.560202199774334,
+            "WindGustSpeed": 43.3978,
+            "WindDirection": 217.67359333983046
+        },
+        {
+            "Date": "Saturday February 20, 2016",
+            "Time": "09z",
+            "WindSpeed": 23.617306377745997,
+            "WindGustSpeed": 41.1608,
+            "WindDirection": 219.04120775071948
+        },
+        {
+            "Date": "Saturday February 20, 2016",
+            "Time": "12z",
+            "WindSpeed": 20.53183352012538,
+            "WindGustSpeed": 39.81860223700001,
+            "WindDirection": 224.8234350923019
+        },
+        {
+            "Date": "Saturday February 20, 2016",
+            "Time": "15z",
+            "WindSpeed": 26.80416845279612,
+            "WindGustSpeed": 40.7134,
+            "WindDirection": 245.80931760772017
+        },
+        {
+            "Date": "Saturday February 20, 2016",
+            "Time": "18z",
+            "WindSpeed": 24.821879276425772,
+            "WindGustSpeed": 32.8839,
+            "WindDirection": 254.26029352130107
+        },
+        {
+            "Date": "Saturday February 20, 2016",
+            "Time": "21z",
+            "WindSpeed": 20.48351898002392,
+            "WindGustSpeed": 29.081000000000003,
+            "WindDirection": 267.80942613596176
+        },
+        {
+            "Date": "Sunday February 21, 2016",
+            "Time": "00z",
+            "WindSpeed": 15.133300419522744,
+            "WindGustSpeed": 30.4232,
+            "WindDirection": 267.7974017731328
+        },
+        {
+            "Date": "Sunday February 21, 2016",
+            "Time": "03z",
+            "WindSpeed": 13.255805907827709,
+            "WindGustSpeed": 26.1729,
+            "WindDirection": 267.48524735252715
+        },
+        {
+            "Date": "Sunday February 21, 2016",
+            "Time": "06z",
+            "WindSpeed": 11.474326855138195,
+            "WindGustSpeed": 21.922600000000003,
+            "WindDirection": 257.61658150903156
+        },
+        {
+            "Date": "Sunday February 21, 2016",
+            "Time": "09z",
+            "WindSpeed": 11.828506361269795,
+            "WindGustSpeed": 20.133000000000003,
+            "WindDirection": 263.15722658736905
+        },
+        {
+            "Date": "Sunday February 21, 2016",
+            "Time": "12z",
+            "WindSpeed": 11.634551433682683,
+            "WindGustSpeed": 22.8174,
+            "WindDirection": 271.10170605166206
+        },
+        {
+            "Date": "Sunday February 21, 2016",
+            "Time": "15z",
+            "WindSpeed": 14.220354123289303,
+            "WindGustSpeed": 20.3567,
+            "WindDirection": 289.2900470699056
+        },
+        {
+            "Date": "Sunday February 21, 2016",
+            "Time": "18z",
+            "WindSpeed": 13.282000985825297,
+            "WindGustSpeed": 16.7775,
+            "WindDirection": 283.6383593205468
+        },
+        {
+            "Date": "Sunday February 21, 2016",
+            "Time": "21z",
+            "WindSpeed": 10.580324216676916,
+            "WindGustSpeed": 14.3168,
+            "WindDirection": 256.55138494831345
+        },
+        {
+            "Date": "Monday February 22, 2016",
+            "Time": "00z",
+            "WindSpeed": 12.223931014308974,
+            "WindGustSpeed": 20.133000000000003,
+            "WindDirection": 214.562525512348
+        },
+        {
+            "Date": "Monday February 22, 2016",
+            "Time": "03z",
+            "WindSpeed": 10.29107512095545,
+            "WindGustSpeed": 18.790802237,
+            "WindDirection": 212.0317874518197
+        },
+        {
+            "Date": "Monday February 22, 2016",
+            "Time": "06z",
+            "WindSpeed": 12.905473828670532,
+            "WindGustSpeed": 24.383302237,
+            "WindDirection": 206.34297562438454
+        },
+        {
+            "Date": "Monday February 22, 2016",
+            "Time": "09z",
+            "WindSpeed": 15.085011748036528,
+            "WindGustSpeed": 28.4099,
+            "WindDirection": 197.25265216682124
+        },
+        {
+            "Date": "Monday February 22, 2016",
+            "Time": "12z",
+            "WindSpeed": 15.221810998106417,
+            "WindGustSpeed": 27.738802237,
+            "WindDirection": 209.88065230208994
+        },
+        {
+            "Date": "Monday February 22, 2016",
+            "Time": "15z",
+            "WindSpeed": 13.565592964319697,
+            "WindGustSpeed": 19.909302237,
+            "WindDirection": 233.58362148011395
+        },
+        {
+            "Date": "Monday February 22, 2016",
+            "Time": "18z",
+            "WindSpeed": 18.71207287828018,
+            "WindGustSpeed": 25.278100000000002,
+            "WindDirection": 242.20955684908097
+        }
+    ]
+}
