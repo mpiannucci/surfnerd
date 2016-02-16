@@ -13,17 +13,37 @@ type Swell struct {
 
 // Converts relevant members to metric units
 func (s *Swell) ConvertToMetricUnits() {
+	if !s.IsValid() {
+		return
+	}
+
 	s.WaveHeight = FeetToMeters(s.WaveHeight)
 }
 
 // Converts relevant members to imperial units
 func (s *Swell) ConvertToImperialUnits() {
+	if !s.IsValid() {
+		return
+	}
+
 	s.WaveHeight = MetersToFeet(s.WaveHeight)
+}
+
+// Tests if the swell has valid numbers or if it is just maxed out to show null
+func (s *Swell) IsValid() bool {
+	if s.WaveHeight > 1000 {
+		return false
+	}
+	return true
 }
 
 // Interpolates the approximate breaking wave heights using the contained swell data. Data must
 // be in metric units prior to calling this function. The depth argument must be in meters.
 func (s *Swell) BreakingWaveHeights(beachAngle, depth, beachSlope float64) (minimumBreakHeight, maximumBreakHeight float64) {
+	if !s.IsValid() {
+		return
+	}
+
 	var waveBreakingHeight float64 = 0.0
 
 	if s.WaveHeight < 1000 {

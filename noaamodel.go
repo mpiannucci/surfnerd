@@ -59,9 +59,9 @@ func (n NOAAModel) AltitudeIndex(altitude float64) int {
 
 // Get the time and hour of the latest NOAA WaveWatch model run
 func LatestModelDateTime() (time.Time, int64) {
-	currentTime := time.Now()
-	lastModelHour := int64(currentTime.Hour() - (currentTime.Hour() % 6))
-	currentTime = currentTime.Add(time.Duration(-(int64(currentTime.Hour()) % 6) * int64(time.Hour)))
+	currentTime := time.Now().UTC()
+	lastModelHour := int64((currentTime.Hour() - 5) - ((currentTime.Hour() - 5) % 6))
+	currentTime = currentTime.Add(time.Duration(-(int64(currentTime.Hour()) - lastModelHour) * int64(time.Hour)))
 	return currentTime, lastModelHour
 }
 

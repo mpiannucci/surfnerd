@@ -23,12 +23,12 @@ func TestSurfForecastFetch(t *testing.T) {
 	}
 	windForecast.ExportAsJSON("test_wind.json")
 
-	// riForecastLocation := Location{
-	// 	Latitude:     42.395,
-	// 	Longitude:    -71.453,
-	// 	LocationName: "Narragansett",
-	// }
-	// surfForecast := NewSurfForecast(riForecastLocation, 145.0, 0.02, waveForecast, windForecast)
-	// surfForecast.ConvertToImperialUnits()
-	// surfForecast.ExportAsJSON("test_forecast.json")
+	riForecastLocation := Location{
+		Latitude:     42.395,
+		Longitude:    -71.453,
+		LocationName: "Narragansett",
+	}
+	surfForecast := NewSurfForecast(riForecastLocation, 145.0, 0.02, waveForecast, windForecast)
+	surfForecast.ConvertToImperialUnits()
+	surfForecast.ExportAsJSON("test_forecast.json")
 }

@@ -12,13 +12,13 @@ type SurfForecast struct {
 	BeachSlope float64
 	Units      string
 
+	ForecastData []SurfForecastItem
+
 	WaveModel         NOAAModel
 	WaveModelLocation Location
 
 	WindModel         NOAAModel
 	WindModelLocation Location
-
-	ForecastData []SurfForecastItem
 }
 
 // Converts relevant members to metric units
@@ -33,7 +33,7 @@ func (s *SurfForecast) ConvertToMetricUnits() {
 // Converts relevant members to imperial units
 func (s *SurfForecast) ConvertToImperialUnits() {
 	for index, _ := range s.ForecastData {
-		(&s.ForecastData[index]).ConvertToMetricUnits()
+		(&s.ForecastData[index]).ConvertToImperialUnits()
 	}
 
 	s.Units = "imperial"
