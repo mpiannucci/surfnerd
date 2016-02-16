@@ -11,10 +11,8 @@ import (
 // applications than ModelData because the data map has been parsed into descriptive types. The underlying data is the same however.
 type WaveForecast struct {
 	Location
-	ModelRun         string
-	ModelDescription string
-	Units            string
-	ForecastData     []WaveForecastItem
+	Model        NOAAModel
+	ForecastData []WaveForecastItem
 }
 
 // Converts all of the ForecastItems in the ForecastData member to metric
@@ -23,7 +21,7 @@ func (w *WaveForecast) ConvertToMetricUnits() {
 		(&w.ForecastData[index]).ConvertToMetricUnits()
 	}
 
-	w.Units = "metric"
+	w.Model.Units = "metric"
 }
 
 // Converts all of the ForecastItems in the ForecastData member to imperial
@@ -32,7 +30,7 @@ func (w *WaveForecast) ConvertToImperialUnits() {
 		(&w.ForecastData[index]).ConvertToImperialUnits()
 	}
 
-	w.Units = "imperial"
+	w.Model.Units = "imperial"
 }
 
 // Convert Forecast object to a json formatted string
@@ -91,12 +89,9 @@ func (w *WaveForecast) ToModelData() *ModelData {
 	}
 
 	modelData := &ModelData{
-		Location:         w.Location,
-		ModelRun:         w.ModelRun,
-		ModelDescription: w.ModelDescription,
-		Units:            w.Units,
-		TimeResolution:   0.125,
-		Data:             dataMap,
+		Location: w.Location,
+		Model:    w.Model,
+		Data:     dataMap,
 	}
 
 	return modelData
@@ -111,15 +106,14 @@ func WaveForecastFromModelData(modelData *ModelData) *WaveForecast {
 	itemCount := len(modelData.Data["dirpwsfc"])
 	forecastItems := make([]WaveForecastItem, itemCount)
 
-	model := GetWaveModelForLocation(modelData.Location)
-	modelTime, _ := LatestModelDateTime(model.TimezoneLocation)
+	modelTime, _ := LatestModelDateTime()
 
 	for i := 0; i < itemCount; i++ {
 		thisForecastItem := WaveForecastItem{}
 
 		forecastTime := modelTime.Add(time.Duration(3 * int64(i) * int64(time.Hour)))
-		thisForecastItem.Date = forecastTime.Format("Monday January _2, 2006")
-		thisForecastItem.Time = forecastTime.Format("15z")
+		thisForecastItem.Date = forecastTime.In(modelData.Model.TimezoneLocation).Format("Monday January _2, 2006")
+		thisForecastItem.Time = forecastTime.In(modelData.Model.TimezoneLocation).Format("03:04 PM")
 		thisForecastItem.SignificantWaveHeight = modelData.Data["htsgwsfc"][i]
 		thisForecastItem.DominantWaveDirection = modelData.Data["dirpwsfc"][i]
 		thisForecastItem.MeanWavePeriod = modelData.Data["perpwsfc"][i]
@@ -139,11 +133,9 @@ func WaveForecastFromModelData(modelData *ModelData) *WaveForecast {
 	}
 
 	forecast := &WaveForecast{
-		Location:         modelData.Location,
-		ModelRun:         modelData.ModelRun,
-		ModelDescription: modelData.ModelDescription,
-		Units:            modelData.Units,
-		ForecastData:     forecastItems,
+		Location:     modelData.Location,
+		Model:        modelData.Model,
+		ForecastData: forecastItems,
 	}
 
 	return forecast

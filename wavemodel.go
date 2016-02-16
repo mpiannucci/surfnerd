@@ -19,7 +19,8 @@ type WaveModel struct {
 // Days. So if model.TimeResolution return 0.167, that means each index is equal to 0.167 days.
 func (w WaveModel) CreateURL(loc Location, startTimeIndex, endTimeIndex int) string {
 	// Get the times
-	timestamp, _ := LatestModelDateTime(w.TimezoneLocation)
+	timestamp, _ := LatestModelDateTime()
+	w.ModelRun = timestamp
 	dateString := timestamp.Format("20060102")
 	lastModelTime := timestamp.Hour()
 	hourString := fmt.Sprintf("%02dz", lastModelTime)
@@ -43,7 +44,7 @@ func NewEastCoastWaveModel() *WaveModel {
 			LocationResolution: 0.167,
 			TimeResolution:     0.125,
 			Units:              "metric",
-			TimezoneLocation:   fetchTimeLocation("America/New_York"),
+			TimezoneLocation:   FetchTimeLocation("America/New_York"),
 		},
 	}
 }
@@ -59,7 +60,7 @@ func NewWestCoastWaveModel() *WaveModel {
 			LocationResolution: 0.167,
 			TimeResolution:     0.125,
 			Units:              "metric",
-			TimezoneLocation:   fetchTimeLocation("America/Los_Angeles"),
+			TimezoneLocation:   FetchTimeLocation("America/Los_Angeles"),
 		},
 	}
 }
@@ -75,7 +76,7 @@ func NewPacificIslandsWaveModel() *WaveModel {
 			LocationResolution: 0.167,
 			TimeResolution:     0.125,
 			Units:              "metric",
-			TimezoneLocation:   fetchTimeLocation("Pacific/Honolulu"),
+			TimezoneLocation:   FetchTimeLocation("Pacific/Honolulu"),
 		},
 	}
 }
@@ -134,36 +135,27 @@ func FetchWaveModelData(loc Location) *ModelData {
 
 	// Call to parse the raw data into containers
 	modelDataContainer := parseRawModelData(rawData)
-	modelTime, _ := LatestModelDateTime(model.TimezoneLocation)
 	modelData := &ModelData{
-		Location:         loc,
-		ModelRun:         formatViewingTime(modelTime),
-		ModelDescription: model.Description,
-		Units:            model.Units,
-		TimeResolution:   model.TimeResolution,
-		Data:             modelDataContainer,
+		Location: loc,
+		Model:    model.NOAAModel,
+		Data:     modelDataContainer,
 	}
 	return modelData
 }
 
 // Takes in raw data and parses it into a ModelData object. Useful for
 // implementing your own network fetching.
-func WaveModelDataFromRaw(loc Location, rawData []byte) *ModelData {
-	model := GetWaveModelForLocation(loc)
+func WaveModelDataFromRaw(loc Location, model *NOAAModel, rawData []byte) *ModelData {
 	if model == nil {
 		return nil
 	}
 
 	// Call to parse the raw data into containers
 	modelDataContainer := parseRawModelData(rawData)
-	modelTime, _ := LatestModelDateTime(model.TimezoneLocation)
 	modelData := &ModelData{
-		Location:         loc,
-		ModelRun:         formatViewingTime(modelTime),
-		ModelDescription: model.Description,
-		Units:            model.Units,
-		TimeResolution:   model.TimeResolution,
-		Data:             modelDataContainer,
+		Location: loc,
+		Model:    *model,
+		Data:     modelDataContainer,
 	}
 	return modelData
 }

@@ -12,13 +12,11 @@ type SurfForecast struct {
 	BeachSlope float64
 	Units      string
 
-	WaveModelLocation    Location
-	WaveModelRun         string
-	WaveModelDescription string
+	WaveModel         NOAAModel
+	WaveModelLocation Location
 
-	WindModelLocation    Location
-	WindModelRun         string
-	WindModelDescription string
+	WindModel         NOAAModel
+	WindModelLocation Location
 
 	ForecastData []SurfForecastItem
 }
@@ -65,20 +63,18 @@ func NewSurfForecast(loc Location, beachAngle, beachSlope float64, waveForecast 
 	surfForecast.Units = "metric"
 
 	// Make sure all of the units match up
-	if waveForecast.Units != "metric" {
+	if waveForecast.Model.Units != "metric" {
 		waveForecast.ConvertToMetricUnits()
 	}
-	if windForecast.Units != "metric" {
+	if windForecast.Model.Units != "metric" {
 		windForecast.ConvertToMetricUnits()
 	}
 
 	// Save the model metadata
+	surfForecast.WaveModel = waveForecast.Model
 	surfForecast.WaveModelLocation = waveForecast.Location
-	surfForecast.WaveModelRun = waveForecast.ModelRun
-	surfForecast.WaveModelDescription = waveForecast.ModelDescription
+	surfForecast.WindModel = windForecast.Model
 	surfForecast.WindModelLocation = windForecast.Location
-	surfForecast.WindModelRun = windForecast.ModelRun
-	surfForecast.WindModelDescription = windForecast.ModelDescription
 
 	// Initialize the surf forecast data slice
 	surfForecast.ForecastData = make([]SurfForecastItem, len(waveForecast.ForecastData))

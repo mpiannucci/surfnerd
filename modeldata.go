@@ -15,11 +15,8 @@ type ModelDataMap map[string][]float64
 // as well as the run time and model description.
 type ModelData struct {
 	Location
-	ModelRun         string
-	ModelDescription string
-	Units            string
-	TimeResolution   float64
-	Data             ModelDataMap
+	Model NOAAModel
+	Data  ModelDataMap
 }
 
 // Export a ModelData object to a json formatted string

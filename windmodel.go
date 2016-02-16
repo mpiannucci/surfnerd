@@ -26,7 +26,8 @@ type WindModel struct {
 // Create the URL for fetching the data from the wind model
 func (w WindModel) CreateURL(loc Location, startTimeIndex, endTimeIndex int) string {
 	// Get the times
-	timestamp, _ := LatestModelDateTime(w.TimezoneLocation)
+	timestamp, _ := LatestModelDateTime()
+	w.ModelRun = timestamp
 	dateString := timestamp.Format("20060102")
 	lastModelTime := timestamp.Hour()
 	hourString := fmt.Sprintf("%02dz", lastModelTime)
@@ -62,7 +63,7 @@ func NewGFSWindModel() *WindModel {
 			LocationResolution: 0.5,
 			TimeResolution:     0.125,
 			Units:              "metric",
-			TimezoneLocation:   fetchTimeLocation("America/New_York"),
+			TimezoneLocation:   FetchTimeLocation("GMT"),
 		},
 		46,
 		GFS,
@@ -172,14 +173,10 @@ func FetchWindModelData(loc Location) *ModelData {
 
 	// Call to parse the raw data into containers
 	modelDataContainer := parseRawModelData(rawData)
-	modelTime, _ := LatestModelDateTime(model.TimezoneLocation)
 	modelData := &ModelData{
-		Location:         loc,
-		ModelRun:         formatViewingTime(modelTime),
-		ModelDescription: model.Description,
-		Units:            model.Units,
-		TimeResolution:   model.TimeResolution,
-		Data:             modelDataContainer,
+		Location: loc,
+		Model:    model.NOAAModel,
+		Data:     modelDataContainer,
 	}
 	return modelData
 }
@@ -208,14 +205,10 @@ func FetchWindModelDataForModel(loc Location, model *WindModel) *ModelData {
 
 	// Call to parse the raw data into containers
 	modelDataContainer := parseRawModelData(rawData)
-	modelTime, _ := LatestModelDateTime(model.TimezoneLocation)
 	modelData := &ModelData{
-		Location:         loc,
-		ModelRun:         formatViewingTime(modelTime),
-		ModelDescription: model.Description,
-		Units:            model.Units,
-		TimeResolution:   model.TimeResolution,
-		Data:             modelDataContainer,
+		Location: loc,
+		Model:    model.NOAAModel,
+		Data:     modelDataContainer,
 	}
 	return modelData
 }
@@ -230,15 +223,10 @@ func WindModelDataFromRaw(loc Location, rawData []byte) *ModelData {
 
 	// Call to parse the raw data into containers
 	modelDataContainer := parseRawModelData(rawData)
-	modelTime, _ := LatestModelDateTime(model.TimezoneLocation)
 	modelData := &ModelData{
-		Location:         loc,
-		ModelRun:         formatViewingTime(modelTime),
-		ModelDescription: model.Description,
-		Units:            model.Units,
-		TimeResolution:   model.TimeResolution,
-		Data:             modelDataContainer,
+		Location: loc,
+		Model:    model.NOAAModel,
+		Data:     modelDataContainer,
 	}
-	fmt.Println(modelData)
 	return modelData
 }

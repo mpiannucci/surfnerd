@@ -17,6 +17,7 @@ type NOAAModel struct {
 	TimeResolution     float64
 	Units              string
 	TimezoneLocation   *time.Location
+	ModelRun           time.Time
 }
 
 // Check if a given model contains a location as part of its coverage
@@ -57,14 +58,14 @@ func (n NOAAModel) AltitudeIndex(altitude float64) int {
 }
 
 // Get the time and hour of the latest NOAA WaveWatch model run
-func LatestModelDateTime(loc *time.Location) (time.Time, int64) {
-	currentTime := time.Now().In(loc)
+func LatestModelDateTime() (time.Time, int64) {
+	currentTime := time.Now()
 	lastModelHour := int64(currentTime.Hour() - (currentTime.Hour() % 6))
 	currentTime = currentTime.Add(time.Duration(-(int64(currentTime.Hour()) % 6) * int64(time.Hour)))
 	return currentTime, lastModelHour
 }
 
-func fetchTimeLocation(location string) *time.Location {
+func FetchTimeLocation(location string) *time.Location {
 	loc, _ := time.LoadLocation(location)
 	return loc
 }
