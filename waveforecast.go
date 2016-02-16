@@ -112,8 +112,8 @@ func WaveForecastFromModelData(modelData *ModelData) *WaveForecast {
 		thisForecastItem := WaveForecastItem{}
 
 		forecastTime := modelTime.Add(time.Duration(3 * int64(i) * int64(time.Hour)))
-		thisForecastItem.Date = forecastTime.In(modelData.Model.TimezoneLocation).Format("Monday January _2, 2006")
-		thisForecastItem.Time = forecastTime.In(modelData.Model.TimezoneLocation).Format("03 PM")
+		thisForecastItem.Date = forecastTime.In(modelData.Model.TimezoneLocation()).Format("Monday January _2, 2006")
+		thisForecastItem.Time = forecastTime.In(modelData.Model.TimezoneLocation()).Format("03 PM")
 		thisForecastItem.SignificantWaveHeight = modelData.Data["htsgwsfc"][i]
 		thisForecastItem.DominantWaveDirection = modelData.Data["dirpwsfc"][i]
 		thisForecastItem.MeanWavePeriod = modelData.Data["perpwsfc"][i]

@@ -87,8 +87,8 @@ func WindForecastFromModelData(modelData *ModelData) *WindForecast {
 		thisForecastItem := WindForecastItem{}
 
 		forecastTime := modelTime.Add(time.Duration(3 * int64(i) * int64(time.Hour)))
-		thisForecastItem.Date = forecastTime.In(modelData.Model.TimezoneLocation).Format("Monday January _2, 2006")
-		thisForecastItem.Time = forecastTime.In(modelData.Model.TimezoneLocation).Format("03 PM")
+		thisForecastItem.Date = forecastTime.In(modelData.Model.TimezoneLocation()).Format("Monday January _2, 2006")
+		thisForecastItem.Time = forecastTime.In(modelData.Model.TimezoneLocation()).Format("03 PM")
 
 		speed, direction := ScalarFromUV(modelData.Data["ugrd10m"][i], modelData.Data["vgrd10m"][i])
 		thisForecastItem.WindSpeed = speed

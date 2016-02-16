@@ -16,7 +16,7 @@ func TestSurfForecastFetch(t *testing.T) {
 	riWindLocation := NewLocationForLatLong(41.6, 360-71.459)
 	riWindLocation.Elevation = 1.0
 	gfsModel := NewGFSWindModel()
-	gfsModel.TimezoneLocation = FetchTimeLocation("America/New_York")
+	gfsModel.TimeLocation = "America/New_York"
 	windForecast := FetchWindForecastForModel(riWindLocation, gfsModel)
 	if windForecast == nil {
 		t.FailNow()

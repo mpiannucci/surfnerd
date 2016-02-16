@@ -17,10 +17,10 @@ type WaveModel struct {
 // Create a URL for downloading data from the NOAA GRADS servers
 // The time indices can be calculated assuming every index expands to the TimeResolution in terms of
 // Days. So if model.TimeResolution return 0.167, that means each index is equal to 0.167 days.
-func (w WaveModel) CreateURL(loc Location, startTimeIndex, endTimeIndex int) string {
+func (w *WaveModel) CreateURL(loc Location, startTimeIndex, endTimeIndex int) string {
 	// Get the times
 	timestamp, _ := LatestModelDateTime()
-	w.ModelRun = timestamp
+	w.ModelRun = FormatViewingTime(timestamp)
 	dateString := timestamp.Format("20060102")
 	lastModelTime := timestamp.Hour()
 	hourString := fmt.Sprintf("%02dz", lastModelTime)
@@ -44,7 +44,7 @@ func NewEastCoastWaveModel() *WaveModel {
 			LocationResolution: 0.167,
 			TimeResolution:     0.125,
 			Units:              "metric",
-			TimezoneLocation:   FetchTimeLocation("America/New_York"),
+			TimeLocation:       "America/New_York",
 		},
 	}
 }
@@ -60,7 +60,7 @@ func NewWestCoastWaveModel() *WaveModel {
 			LocationResolution: 0.167,
 			TimeResolution:     0.125,
 			Units:              "metric",
-			TimezoneLocation:   FetchTimeLocation("America/Los_Angeles"),
+			TimeLocation:       "America/Los_Angeles",
 		},
 	}
 }
@@ -76,7 +76,7 @@ func NewPacificIslandsWaveModel() *WaveModel {
 			LocationResolution: 0.167,
 			TimeResolution:     0.125,
 			Units:              "metric",
-			TimezoneLocation:   FetchTimeLocation("Pacific/Honolulu"),
+			TimeLocation:       "Pacific/Honolulu",
 		},
 	}
 }

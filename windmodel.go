@@ -24,10 +24,10 @@ type WindModel struct {
 }
 
 // Create the URL for fetching the data from the wind model
-func (w WindModel) CreateURL(loc Location, startTimeIndex, endTimeIndex int) string {
+func (w *WindModel) CreateURL(loc Location, startTimeIndex, endTimeIndex int) string {
 	// Get the times
 	timestamp, _ := LatestModelDateTime()
-	w.ModelRun = timestamp
+	w.ModelRun = FormatViewingTime(timestamp)
 	dateString := timestamp.Format("20060102")
 	lastModelTime := timestamp.Hour()
 	hourString := fmt.Sprintf("%02dz", lastModelTime)
@@ -63,7 +63,7 @@ func NewGFSWindModel() *WindModel {
 			LocationResolution: 0.5,
 			TimeResolution:     0.125,
 			Units:              "metric",
-			TimezoneLocation:   FetchTimeLocation("GMT"),
+			TimeLocation:       "GMT",
 		},
 		46,
 		GFS,
