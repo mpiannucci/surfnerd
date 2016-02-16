@@ -215,17 +215,12 @@ func FetchWindModelDataForModel(loc Location, model *WindModel) *ModelData {
 
 // Takes in raw data and parses it into a ModelData object. Useful for
 // implementing your own network fetching.
-func WindModelDataFromRaw(loc Location, rawData []byte) *ModelData {
-	model := GetWindModelForLocation(loc)
-	if model == nil {
-		return nil
-	}
-
+func WindModelDataFromRaw(loc Location, model NOAAModel, rawData []byte) *ModelData {
 	// Call to parse the raw data into containers
 	modelDataContainer := parseRawModelData(rawData)
 	modelData := &ModelData{
 		Location: loc,
-		Model:    model.NOAAModel,
+		Model:    model,
 		Data:     modelDataContainer,
 	}
 	return modelData

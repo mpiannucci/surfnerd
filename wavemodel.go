@@ -145,16 +145,12 @@ func FetchWaveModelData(loc Location) *ModelData {
 
 // Takes in raw data and parses it into a ModelData object. Useful for
 // implementing your own network fetching.
-func WaveModelDataFromRaw(loc Location, model *NOAAModel, rawData []byte) *ModelData {
-	if model == nil {
-		return nil
-	}
-
+func WaveModelDataFromRaw(loc Location, model NOAAModel, rawData []byte) *ModelData {
 	// Call to parse the raw data into containers
 	modelDataContainer := parseRawModelData(rawData)
 	modelData := &ModelData{
 		Location: loc,
-		Model:    *model,
+		Model:    model,
 		Data:     modelDataContainer,
 	}
 	return modelData
