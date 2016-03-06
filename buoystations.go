@@ -19,14 +19,14 @@ type BuoyStations struct {
 
 // Fetch all of the buoy stations in xml format from the NOAA endpoint and parse them into buoy objects.
 // Returns true if the buoys were successfully parsed into the Stations variable
-func (b *BuoyStations) GetAllActiveBuoyStations() bool {
+func (b *BuoyStations) GetAllActiveBuoyStations() error {
 	rawStations, dlErr := fetchRawDataFromURL(activeBuoysURL)
 	if dlErr != nil {
-		return false
+		return dlErr
 	}
 
 	xml.Unmarshal(rawStations, b)
-	return true
+	return nil
 }
 
 // Searches the list of buoys linearly to find a buoy matching the given station id.

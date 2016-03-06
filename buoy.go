@@ -5,11 +5,13 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
+	"github.com/quarnster/completion/util/errors"
 )
 
 const (
 	baseDataURL             = "http://www.ndbc.noaa.gov/data/realtime2/%s%s"
 	baseSpectraPlotURL      = "http://www.ndbc.noaa.gov/spec_plot.php?station=%s"
+	baseLatestReadingURL    = "http://www.ndbc.noaa.gov/get_observation_as_xml.php?station=%s"
 	standardDataPostfix     = ".txt"
 	detailedWaveDataPostfix = ".spec"
 )
@@ -90,6 +92,43 @@ func (b Buoy) CreateSpectraPlotURL() string {
 	return fmt.Sprintf(baseSpectraPlotURL, b.StationID)
 }
 
+// Creates and returns the url of the latest buoy buoy reading xml
+func (b Buoy) CreateLatestReadingURL() string {
+	return fmt.Sprintf(baseLatestReadingURL, b.StationID)
+}
+
+// Fetches the latest buoy reading data from the buoy and fills the
+// BuoyData member with the latest value
+func (b *Buoy) FetchLatestBuoyReading() error {
+	rawData, error := fetchRawDataFromURL(b.CreateLatestReadingURL())
+	if error != nil {
+		return error
+	}
+
+	if rawData == nil {
+		return errors.New("Failed to fetch latest buoy XML data")
+	}
+
+	buoyDataItem := &BuoyItem{}
+	marshallError := xml.Unmarshal(rawData, buoyDataItem)
+	if marshallError != nil {
+		return marshallError
+	}
+	if b.BuoyData == nil {
+		b.BuoyData = make([]*BuoyItem, 1)
+	} else if len(b.BuoyData) == 0 {
+		b.BuoyData = make([]*BuoyItem, 1)
+	}
+
+	if b.BuoyData[0] == nil {
+		b.BuoyData[0] = buoyDataItem
+	} else {
+		b.BuoyData[0].MergeLatestBuoyReading(*buoyDataItem)
+	}
+
+	return nil
+}
+
 // Convert a Buoy object to a json formatted string
 func (b *Buoy) ToJSON() ([]byte, error) {
 	return json.Marshal(b)
@@ -104,4 +143,13 @@ func (b *Buoy) ExportAsJSON(filename string) error {
 
 	fileErr := ioutil.WriteFile(filename, jsonData, 0644)
 	return fileErr
+}
+
+func GetBuoyByID(stationID string) *Buoy {
+	buoy := BuoyStations{}
+	fetchError := buoy.GetAllActiveBuoyStations()
+	if fetchError != nil {
+		return nil
+	}
+	return buoy.FindBuoyByID(stationID)
 }

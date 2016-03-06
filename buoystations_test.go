@@ -7,8 +7,8 @@ import (
 
 func TestFetchingAllBuoyStations(t *testing.T) {
 	buoy := BuoyStations{}
-	success := buoy.GetAllActiveBuoyStations()
-	if !success {
+	fetchError := buoy.GetAllActiveBuoyStations()
+	if fetchError != nil {
 		fmt.Println("Failed to fetch buoy list from NOAA")
 		t.FailNow()
 	}
@@ -21,8 +21,8 @@ func TestFetchingAllBuoyStations(t *testing.T) {
 
 func TestFindingBuoyByStationID(t *testing.T) {
 	buoy := BuoyStations{}
-	success := buoy.GetAllActiveBuoyStations()
-	if !success {
+	fetchError := buoy.GetAllActiveBuoyStations()
+	if fetchError != nil {
 		fmt.Println("Failed to fetch buoy list from NOAA")
 		t.FailNow()
 	}
