@@ -35,6 +35,7 @@ type BuoyItem struct {
 	WaterLevel          float64
 }
 
+// Merges the latest buoy observations xml data with an existing BuoyItem.
 func (b *BuoyItem) MergeLatestBuoyReading(newBuoyData BuoyItem) {
 	b.Time = newBuoyData.Time
 	b.WindDirection = newBuoyData.WindDirection
@@ -50,6 +51,7 @@ func (b *BuoyItem) MergeLatestBuoyReading(newBuoyData BuoyItem) {
 	b.DewpointTemperature = newBuoyData.DewpointTemperature
 }
 
+// Merges the standard meteorological data buoy data with an existing buoyitem data set
 func (b *BuoyItem) MergeStandardDataReading(newBuoyData BuoyItem) {
 	b.WindDirection = newBuoyData.WindDirection
 	b.WindSpeed = newBuoyData.WindSpeed
@@ -67,6 +69,7 @@ func (b *BuoyItem) MergeStandardDataReading(newBuoyData BuoyItem) {
 	b.WaterLevel = newBuoyData.WaterLevel
 }
 
+// Merges the detailed spectral wave data with an existing buoy item data set
 func (b *BuoyItem) MergeDetailedWaveDataReading(newBuoyData BuoyItem) {
 	b.Time = newBuoyData.Time
 	b.SignificantWaveHeight = newBuoyData.SignificantWaveHeight

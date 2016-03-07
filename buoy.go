@@ -141,10 +141,9 @@ func (b *Buoy) FetchStandardData() error {
 
 	const dataLineLength = 19
 	const headerLines = 2
-	const headerOffset = headerLines * dataLineLength
 	dataLineCount := (len(rawData) / dataLineLength)  - headerLines
 
-	for line := 0; line < dataLineCount; line++ {
+	for line := headerLines; line < dataLineCount; line++ {
 
 	}
 
