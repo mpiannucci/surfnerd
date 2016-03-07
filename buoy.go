@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"io/ioutil"
 	"github.com/quarnster/completion/util/errors"
+	"io/ioutil"
+	"strconv"
 )
 
 const (
@@ -131,26 +132,64 @@ func (b *Buoy) FetchLatestBuoyReading() error {
 
 // Grabs the latest data as a time series of BuoyItem objects. This data contains thing like
 // wave heights, periods, water temps, and wind
-func (b *Buoy) FetchStandardData() error {
+func (b *Buoy) FetchStandardData(dataCountLimit int) error {
 	rawData, fetchError := fetchSpaceDelimitedString(b.CreateStandardDataURL())
 	if fetchError != nil {
 		return fetchError
 	} else if rawData == nil {
-		return errors.New("")
+		return errors.New("No data received from NOAA Buoy")
 	}
 
 	const dataLineLength = 19
 	const headerLines = 2
-	dataLineCount := (len(rawData) / dataLineLength)  - headerLines
+	dataLineCount := (len(rawData) / dataLineLength) - headerLines
+	if dataCountLimit < dataLineCount {
+		dataLineCount = dataCountLimit
+	}
+
+	if b.BuoyData == nil {
+		b.BuoyData = make([]*BuoyItem, dataLineCount)
+	} else if len(b.BuoyData) == 0 {
+		b.BuoyData = make([]*BuoyItem, dataLineCount)
+	}
 
 	for line := headerLines; line < dataLineCount; line++ {
+		lineBeginIndex := line * dataLineLength
+		if lineBeginIndex > len(rawData) {
+			break
+		}
+		itemIndex := line - headerLines
 
+		newBuoyData := &BuoyItem{}
+		newBuoyData.Time = fmt.Sprintf("%s-%s-%s %s:%s", rawData[0], rawData[1], rawData[2], rawData[3], rawData[4])
+		newBuoyData.WindDirection, _ = strconv.ParseFloat(rawData[5], 64)
+		newBuoyData.WindSpeed, _ = strconv.ParseFloat(rawData[6], 64)
+		newBuoyData.WindGust, _ = strconv.ParseFloat(rawData[7], 64)
+		newBuoyData.SignificantWaveHeight, _ = strconv.ParseFloat(rawData[8], 64)
+		newBuoyData.DominantWavePeriod, _ = strconv.ParseFloat(rawData[9], 64)
+		newBuoyData.AveragePeriod, _ = strconv.ParseFloat(rawData[10], 64)
+		newBuoyData.MeanWaveDirection, _ = strconv.ParseFloat(rawData[11], 64)
+		newBuoyData.Pressure, _ = strconv.ParseFloat(rawData[12], 64)
+		newBuoyData.AirTemperature, _ = strconv.ParseFloat(rawData[13], 64)
+		newBuoyData.WaterTemperature, _ = strconv.ParseFloat(rawData[14], 64)
+		newBuoyData.DewpointTemperature, _ = strconv.ParseFloat(rawData[15], 64)
+		newBuoyData.Visibility, _ = strconv.ParseFloat(rawData[16], 64)
+		newBuoyData.PressureTendency, _ = strconv.ParseFloat(rawData[17], 64)
+		newBuoyData.WaterLevel, _ = strconv.ParseFloat(rawData[18], 64)
+
+		if len(b.BuoyData) <= itemIndex {
+			b.BuoyData = append(b.BuoyData, newBuoyData)
+		} else if b.BuoyData[itemIndex] == nil {
+			b.BuoyData[itemIndex] = newBuoyData
+		} else {
+			b.BuoyData[itemIndex].MergeStandardDataReading(*newBuoyData)
+		}
 	}
 
 	return nil
 }
 
-// Grabs the latest spectral wave data as a time series of BuoyItem obbjects. This data contains things
+// Grabs the latest spectral wave data as a time series of BuoyItem objects. This data contains things
 // like the primary and secondary swell components, and significant wave height.
 func (b *Buoy) FetchDetailedWaveData() error {
 	return nil
