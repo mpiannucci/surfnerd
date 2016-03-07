@@ -49,3 +49,34 @@ func (b *BuoyItem) MergeLatestBuoyReading(newBuoyData BuoyItem) {
 	b.WaterTemperature = newBuoyData.WaterTemperature
 	b.DewpointTemperature = newBuoyData.DewpointTemperature
 }
+
+func (b *BuoyItem) MergeStandardDataReading(newBuoyData BuoyItem) {
+	b.WindDirection = newBuoyData.WindDirection
+	b.WindSpeed = newBuoyData.WindSpeed
+	b.WindGust = newBuoyData.WindGust
+	b.SignificantWaveHeight = newBuoyData.SignificantWaveHeight
+	b.DominantWavePeriod = newBuoyData.DominantWavePeriod
+	b.AveragePeriod = newBuoyData.AveragePeriod
+	b.MeanWaveDirection = newBuoyData.MeanWaveDirection
+	b.Pressure = newBuoyData.Pressure
+	b.AirTemperature = newBuoyData.AirTemperature
+	b.WaterTemperature = newBuoyData.WaterTemperature
+	b.DewpointTemperature = newBuoyData.DewpointTemperature
+	b.Visibility = newBuoyData.Visibility
+	b.PressureTendency = newBuoyData.PressureTendency
+	b.WaterLevel = newBuoyData.WaterLevel
+}
+
+func (b *BuoyItem) MergeDetailedWaveDataReading(newBuoyData BuoyItem) {
+	b.Time = newBuoyData.Time
+	b.SignificantWaveHeight = newBuoyData.SignificantWaveHeight
+	b.SwellWaveHeight = newBuoyData.SwellWaveHeight
+	b.SwellWavePeriod = newBuoyData.SwellWavePeriod
+	b.WindSwellWaveHeight = newBuoyData.WindSwellWaveHeight
+	b.WindSwellWavePeriod = newBuoyData.WindSwellWavePeriod
+	b.SwellWaveDirection = newBuoyData.SwellWaveDirection
+	b.WindSwellDirection = newBuoyData.WindSwellDirection
+	b.Steepness = newBuoyData.Steepness
+	b.AveragePeriod = newBuoyData.AveragePeriod
+	b.MeanWaveDirection = newBuoyData.MeanWaveDirection
+}

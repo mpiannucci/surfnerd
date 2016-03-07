@@ -129,6 +129,34 @@ func (b *Buoy) FetchLatestBuoyReading() error {
 	return nil
 }
 
+// Grabs the latest data as a time series of BuoyItem objects. This data contains thing like
+// wave heights, periods, water temps, and wind
+func (b *Buoy) FetchStandardData() error {
+	rawData, fetchError := fetchSpaceDelimitedString(b.CreateStandardDataURL())
+	if fetchError != nil {
+		return fetchError
+	} else if rawData == nil {
+		return errors.New("")
+	}
+
+	const dataLineLength = 19
+	const headerLines = 2
+	const headerOffset = headerLines * dataLineLength
+	dataLineCount := (len(rawData) / dataLineLength)  - headerLines
+
+	for line := 0; line < dataLineCount; line++ {
+
+	}
+
+	return nil
+}
+
+// Grabs the latest spectral wave data as a time series of BuoyItem obbjects. This data contains things
+// like the primary and secondary swell components, and significant wave height.
+func (b *Buoy) FetchDetailedWaveData() error {
+	return nil
+}
+
 // Convert a Buoy object to a json formatted string
 func (b *Buoy) ToJSON() ([]byte, error) {
 	return json.Marshal(b)
