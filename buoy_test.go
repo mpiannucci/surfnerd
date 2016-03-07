@@ -32,3 +32,17 @@ func TestStandardDataFetch(t *testing.T) {
 		t.FailNow()
 	}
 }
+
+func TestDetailedWaveDataFetch(t *testing.T) {
+	buoy := GetBuoyByID("44017")
+	if buoy == nil {
+		fmt.Println("Could not find the buoy for the given ID")
+		t.FailNow()
+	}
+
+	fetchError := buoy.FetchDetailedWaveData(60)
+	if fetchError != nil {
+		fmt.Println("Failed to fetch the latest buoy data")
+		t.FailNow()
+	}
+}
