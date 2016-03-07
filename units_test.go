@@ -1,7 +1,6 @@
 package surfnerd
 
 import (
-	"fmt"
 	"testing"
 )
 

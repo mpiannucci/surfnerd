@@ -2,6 +2,7 @@ package surfnerd
 
 import (
 	"encoding/xml"
+	"strings"
 )
 
 const (
@@ -32,7 +33,7 @@ func (b *BuoyStations) GetAllActiveBuoyStations() error {
 // Searches the list of buoys linearly to find a buoy matching the given station id.
 func (b *BuoyStations) FindBuoyByID(stationID string) *Buoy {
 	for _, buoy := range b.Stations {
-		if buoy.StationID == stationID {
+		if strings.ToLower(buoy.StationID) == strings.ToLower(stationID) {
 			return buoy
 		}
 	}
