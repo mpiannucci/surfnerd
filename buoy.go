@@ -31,7 +31,7 @@ type Buoy struct {
 	Currents     string   `xml:"currents,attr"`
 	WaterQuality string   `xml:"waterquality,attr"`
 	Dart         string   `xml:"dart,attr"`
-	BuoyData     []*BuoyItem
+	BuoyData     []BuoyItem
 }
 
 // Returns if the buoy is active. This is functionally a check if the buoy
@@ -110,22 +110,18 @@ func (b *Buoy) FetchLatestBuoyReading() error {
 		return errors.New("Failed to fetch latest buoy XML data")
 	}
 
-	buoyDataItem := &BuoyItem{}
-	marshallError := xml.Unmarshal(rawData, buoyDataItem)
+	buoyDataItem := BuoyItem{}
+	marshallError := xml.Unmarshal(rawData, &buoyDataItem)
 	if marshallError != nil {
 		return marshallError
 	}
 	if b.BuoyData == nil {
-		b.BuoyData = make([]*BuoyItem, 1)
+		b.BuoyData = make([]BuoyItem, 1)
 	} else if len(b.BuoyData) == 0 {
-		b.BuoyData = make([]*BuoyItem, 1)
+		b.BuoyData = make([]BuoyItem, 1)
 	}
 
-	if b.BuoyData[0] == nil {
-		b.BuoyData[0] = buoyDataItem
-	} else {
-		b.BuoyData[0].MergeLatestBuoyReading(*buoyDataItem)
-	}
+	b.BuoyData[0].MergeLatestBuoyReading(buoyDataItem)
 
 	return nil
 }
@@ -149,9 +145,9 @@ func (b *Buoy) FetchStandardData(dataCountLimit int) error {
 	}
 
 	if b.BuoyData == nil {
-		b.BuoyData = make([]*BuoyItem, dataLineCount)
+		b.BuoyData = make([]BuoyItem, dataLineCount)
 	} else if len(b.BuoyData) == 0 {
-		b.BuoyData = make([]*BuoyItem, dataLineCount)
+		b.BuoyData = make([]BuoyItem, dataLineCount)
 	}
 
 	for line := headerLines; line < dataLineCount; line++ {
@@ -161,7 +157,7 @@ func (b *Buoy) FetchStandardData(dataCountLimit int) error {
 		}
 		itemIndex := line - headerLines
 
-		newBuoyData := &BuoyItem{}
+		newBuoyData := BuoyItem{}
 		newBuoyData.Time = fmt.Sprintf("%s-%s-%s %s:%s", rawData[lineBeginIndex+0], rawData[lineBeginIndex+1], rawData[lineBeginIndex+2], rawData[lineBeginIndex+3], rawData[lineBeginIndex+4])
 		newBuoyData.WindDirection, _ = strconv.ParseFloat(rawData[lineBeginIndex+5], 64)
 		newBuoyData.WindSpeed, _ = strconv.ParseFloat(rawData[lineBeginIndex+6], 64)
@@ -180,10 +176,8 @@ func (b *Buoy) FetchStandardData(dataCountLimit int) error {
 
 		if len(b.BuoyData) <= itemIndex {
 			b.BuoyData = append(b.BuoyData, newBuoyData)
-		} else if b.BuoyData[itemIndex] == nil {
-			b.BuoyData[itemIndex] = newBuoyData
 		} else {
-			b.BuoyData[itemIndex].MergeStandardDataReading(*newBuoyData)
+			b.BuoyData[itemIndex].MergeStandardDataReading(newBuoyData)
 		}
 	}
 
@@ -209,9 +203,9 @@ func (b *Buoy) FetchDetailedWaveData(dataCountLimit int) error {
 	}
 
 	if b.BuoyData == nil {
-		b.BuoyData = make([]*BuoyItem, dataLineCount)
+		b.BuoyData = make([]BuoyItem, dataLineCount)
 	} else if len(b.BuoyData) == 0 {
-		b.BuoyData = make([]*BuoyItem, dataLineCount)
+		b.BuoyData = make([]BuoyItem, dataLineCount)
 	}
 
 	for line := headerLines; line < dataLineCount; line++ {
@@ -221,7 +215,7 @@ func (b *Buoy) FetchDetailedWaveData(dataCountLimit int) error {
 		}
 		itemIndex := line - headerLines
 
-		newBuoyData := &BuoyItem{}
+		newBuoyData := BuoyItem{}
 		newBuoyData.Time = fmt.Sprintf("%s-%s-%s %s:%s", rawData[lineBeginIndex+0], rawData[lineBeginIndex+1], rawData[lineBeginIndex+2], rawData[lineBeginIndex+3], rawData[lineBeginIndex+4])
 		newBuoyData.SignificantWaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+5], 64)
 		newBuoyData.SwellWaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+6], 64)
@@ -236,10 +230,8 @@ func (b *Buoy) FetchDetailedWaveData(dataCountLimit int) error {
 
 		if len(b.BuoyData) <= itemIndex {
 			b.BuoyData = append(b.BuoyData, newBuoyData)
-		} else if b.BuoyData[itemIndex] == nil {
-			b.BuoyData[itemIndex] = newBuoyData
 		} else {
-			b.BuoyData[itemIndex].MergeDetailedWaveDataReading(*newBuoyData)
+			b.BuoyData[itemIndex].MergeDetailedWaveDataReading(newBuoyData)
 		}
 	}
 
