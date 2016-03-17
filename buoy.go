@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"github.com/quarnster/completion/util/errors"
+	"errors"
 	"io/ioutil"
 	"strconv"
 )
