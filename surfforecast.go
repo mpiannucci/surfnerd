@@ -79,6 +79,10 @@ func NewSurfForecast(loc Location, beachAngle, beachSlope float64, waveForecast 
 	// Initialize the surf forecast data slice
 	surfForecast.ForecastData = make([]SurfForecastItem, len(waveForecast.ForecastData))
 
+	if waveForecast.ForecastData == nil {
+		return nil
+	}
+
 	// Get the wind and wave data from the two model runs
 	for i, _ := range waveForecast.ForecastData {
 		surfForecastItem := SurfForecastItem{}
