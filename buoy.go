@@ -3,16 +3,18 @@ package surfnerd
 import (
 	"encoding/json"
 	"encoding/xml"
-	"fmt"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"strconv"
+	"strings"
 )
 
 const (
-	baseDataURL             = "http://www.ndbc.noaa.gov/data/realtime2/%s%s"
-	baseSpectraPlotURL      = "http://www.ndbc.noaa.gov/spec_plot.php?station=%s"
-	baseLatestReadingURL    = "http://www.ndbc.noaa.gov/get_observation_as_xml.php?station=%s"
+	baseDataURL          = "http://www.ndbc.noaa.gov/data/realtime2/%s%s"
+	baseSpectraPlotURL   = "http://www.ndbc.noaa.gov/spec_plot.php?station=%s"
+	baseLatestReadingURL = "http://www.ndbc.noaa.gov/data/latest_obs/%s.txt"
+	// Old URL for latest was "http://www.ndbc.noaa.gov/get_observation_as_xml.php?station=%s"
 	standardDataPostfix     = ".txt"
 	detailedWaveDataPostfix = ".spec"
 )
@@ -107,14 +109,75 @@ func (b *Buoy) FetchLatestBuoyReading() error {
 	}
 
 	if rawData == nil {
-		return errors.New("Failed to fetch latest buoy XML data")
+		return errors.New("Failed to fetch latest buoy data")
 	}
 
-	buoyDataItem := BuoyItem{}
-	marshallError := xml.Unmarshal(rawData, &buoyDataItem)
-	if marshallError != nil {
-		return marshallError
+	// Old XML parsing code
+	// buoyDataItem := BuoyItem{}
+	// marshallError := xml.Unmarshal(rawData, &buoyDataItem)
+	// if marshallError != nil {
+	// 	return marshallError
+	// }
+
+	rawBuoyData := string(rawData[:])
+	rawBuoyLineData := strings.Split(rawBuoyData, "\n")
+	if len(rawBuoyLineData) < 6 {
+		return errors.New("Could not parse latest buoy data")
 	}
+
+	// Make a new buoy data item
+	buoyDataItem := BuoyItem{}
+
+	// For now be cheap and don't use date objects. We will eventually.
+	buoyDataItem.Time = rawBuoyLineData[3]
+
+	swellPeriodRead := false
+	swellDirectionRead := false
+	for i := 5; i < len(rawBuoyData); i++ {
+		comps := strings.Split(rawBuoyLineData[i], ":")
+		if len(comps) < 2 {
+			continue
+		}
+
+		variable := comps[0]
+		rawValue := strings.Split(comps[1], " ")[0]
+
+		switch variable {
+		case "Seas":
+			buoyDataItem.SignificantWaveHeight, _ = strconv.ParseFloat(rawValue, 64)
+		case "Peak Period":
+			buoyDataItem.DominantWavePeriod, _ = strconv.ParseFloat(rawValue, 64)
+		case "Pres":
+			buoyDataItem.Pressure, _ = strconv.ParseFloat(rawValue, 64)
+		case "Air Temp":
+			buoyDataItem.AirTemperature, _ = strconv.ParseFloat(rawValue, 64)
+		case "Water Temp":
+			buoyDataItem.WaterTemperature, _ = strconv.ParseFloat(rawValue, 64)
+		case "Dew Point":
+			buoyDataItem.DewpointTemperature, _ = strconv.ParseFloat(rawValue, 64)
+		case "Swell":
+			buoyDataItem.SwellWaveHeight, _ = strconv.ParseFloat(rawValue, 64)
+		case "Wind Wave":
+			buoyDataItem.WindSwellWaveHeight, _ = strconv.ParseFloat(rawValue, 64)
+		case "Period":
+			if !swellPeriodRead {
+				buoyDataItem.SwellWavePeriod, _ = strconv.ParseFloat(rawValue, 64)
+				swellPeriodRead = true
+			} else {
+				buoyDataItem.WindSwellWavePeriod, _ = strconv.ParseFloat(rawValue, 64)
+			}
+		case "Direction":
+			if !swellDirectionRead {
+				buoyDataItem.SwellWaveDirection = 0
+				swellDirectionRead = true
+			} else {
+				buoyDataItem.WindSwellDirection = 0
+			}
+		default:
+			// Do Nothing
+		}
+	}
+
 	if b.BuoyData == nil {
 		b.BuoyData = make([]BuoyItem, 1)
 	} else if len(b.BuoyData) == 0 {
