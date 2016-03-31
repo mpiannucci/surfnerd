@@ -79,8 +79,18 @@ func NewSurfForecast(loc Location, beachAngle, beachSlope float64, waveForecast 
 	// Initialize the surf forecast data slice
 	surfForecast.ForecastData = make([]SurfForecastItem, len(waveForecast.ForecastData))
 
+	// Require that there is wave data
 	if waveForecast.ForecastData == nil {
 		return nil
+	} else if len(waveForecast.ForecastData) < 1 {
+		return nil
+	}
+
+	noWindData := false
+	if windForecast.ForecastData == nil {
+		noWindData = true
+	} else if len(windForecast.ForecastData) < 1 {
+		noWindData = true
 	}
 
 	// Get the wind and wave data from the two model runs
@@ -88,10 +98,18 @@ func NewSurfForecast(loc Location, beachAngle, beachSlope float64, waveForecast 
 		surfForecastItem := SurfForecastItem{}
 		surfForecastItem.Date = waveForecast.ForecastData[i].Date
 		surfForecastItem.Time = waveForecast.ForecastData[i].Time
-		surfForecastItem.WindSpeed = windForecast.ForecastData[i].WindSpeed
-		surfForecastItem.WindGustSpeed = windForecast.ForecastData[i].WindGustSpeed
-		surfForecastItem.WindDirection = windForecast.ForecastData[i].WindDirection
-		surfForecastItem.WindCompassDirection = DegreeToDirection(windForecast.ForecastData[i].WindDirection)
+
+		if !noWindData {
+			surfForecastItem.WindSpeed = windForecast.ForecastData[i].WindSpeed
+			surfForecastItem.WindGustSpeed = windForecast.ForecastData[i].WindGustSpeed
+			surfForecastItem.WindDirection = windForecast.ForecastData[i].WindDirection
+			surfForecastItem.WindCompassDirection = DegreeToDirection(windForecast.ForecastData[i].WindDirection)
+		} else {
+			surfForecastItem.WindSpeed = waveForecast.ForecastData[i].SurfaceWindSpeed
+			surfForecastItem.WindGustSpeed = -1
+			surfForecastItem.WindDirection = waveForecast.ForecastData[i].SurfaceWindDirection
+			surfForecastItem.WindCompassDirection = DegreeToDirection(waveForecast.ForecastData[i].SurfaceWindDirection)
+		}
 
 		swellOne := Swell{}
 		swellOne.WaveHeight = waveForecast.ForecastData[i].PrimarySwellWaveHeight
