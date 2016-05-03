@@ -133,7 +133,7 @@ func (b *Buoy) FetchLatestBuoyReading() error {
 
 	swellPeriodRead := false
 	swellDirectionRead := false
-	for i := 5; i < len(rawBuoyData); i++ {
+	for i := 5; i < len(rawBuoyLineData); i++ {
 		comps := strings.Split(rawBuoyLineData[i], ":")
 		if len(comps) < 2 {
 			continue
@@ -168,10 +168,10 @@ func (b *Buoy) FetchLatestBuoyReading() error {
 			}
 		case "Direction":
 			if !swellDirectionRead {
-				buoyDataItem.SwellWaveDirection = 0
+				buoyDataItem.SwellWaveDirection = DirectionToDegree(rawValue)
 				swellDirectionRead = true
 			} else {
-				buoyDataItem.WindSwellDirection = 0
+				buoyDataItem.WindSwellDirection = DirectionToDegree(rawValue)
 			}
 		default:
 			// Do Nothing
