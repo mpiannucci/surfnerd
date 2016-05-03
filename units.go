@@ -2,6 +2,7 @@ package surfnerd
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -19,6 +20,10 @@ var (
 // Convert degrees to a string indicating drection on a compass
 // Result is abbreviated in the form "NNE" for North-Northeast
 func DegreeToDirection(degree float64) string {
+	// Normalize to a positive float
+	degree = math.Abs(degree)
+
+	// Make sure its in the range
 	if degree > 361 {
 		return "NULL"
 	}
@@ -28,6 +33,46 @@ func DegreeToDirection(degree float64) string {
 		windIndex = 0
 	}
 	return windDirs[windIndex]
+}
+
+// Converts a direction to the given degree value that it represents
+func DirectionToDegree(direction string) float64 {
+	switch direction {
+	case "N", "North", "n", "north":
+		return 0.0
+	case "NNE", "North-Northeast", "nne", "north-northeast":
+		return 22.5
+	case "NE", "Northeast", "ne", "northeast":
+		return 45.0
+	case "ENE", "East-Northeast", "ene", "east-northeast":
+		return 67.5
+	case "E", "East", "e", "east":
+		return 90.0
+	case "ESE", "East-Southeast", "ese", "east-southeast":
+		return 112.5
+	case "SE", "Southeast", "se", "southeast":
+		return 135.0
+	case "SSE", "South-Southeast", "sse", "south-southeast":
+		return 157.5
+	case "S", "South", "s", "south":
+		return 180.0
+	case "SSW", "South-Southwest", "ssw", "south-southwest":
+		return 202.5
+	case "SW", "Southwest", "sw", "southwest":
+		return 225
+	case "WSW", "West-Southwest", "wsw", "west-southwest":
+		return 247.5
+	case "W", "West", "w", "west":
+		return 270.0
+	case "WNW", "West-Northwest", "wnw", "west-northwest":
+		return 292.5
+	case "NW", "Northwest", "nw", "northwest":
+		return 315.0
+	case "NNW", "North-Northwest", "nnw", "north-northwest":
+		return 337.5
+	default:
+		return -1.0
+	}
 }
 
 // Converts a given input from meters to feet
