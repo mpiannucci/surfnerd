@@ -33,3 +33,16 @@ func TestFindingBuoyByStationID(t *testing.T) {
 		t.FailNow()
 	}
 }
+
+func TestFindingClosestBuoy(t *testing.T) {
+	stations := BuoyStations{}
+	fetchError := stations.GetAllActiveBuoyStations()
+	if fetchError != nil {
+		fmt.Println("Failed to fetch buoy list from NOAA")
+		t.FailNow()
+	}
+
+	loc := NewLocationForLatLong(40.695, 287.952)
+	closestBuoy := stations.FindClosestActiveBuoy(loc)
+	fmt.Println(closestBuoy.StationID)
+}
