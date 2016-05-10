@@ -2,7 +2,6 @@ package surfnerd
 
 import (
 	"encoding/xml"
-	"fmt"
 	"strings"
 )
 
@@ -42,6 +41,7 @@ func (b *BuoyStations) FindBuoyByID(stationID string) *Buoy {
 }
 
 // Finds and returns the closest buoy to a given location
+// Lat and long should be in relative, not absolute (41.0, -71) not (41.5, 289)
 func (b *BuoyStations) FindClosestActiveBuoy(loc Location) *Buoy {
 	if len(b.Stations) < 1 {
 		return nil
@@ -59,7 +59,6 @@ func (b *BuoyStations) FindClosestActiveBuoy(loc Location) *Buoy {
 		if dist < closestDistance {
 			closestBuoy = buoy
 			closestDistance = dist
-			fmt.Println(buoy.StationID)
 		}
 	}
 

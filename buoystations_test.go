@@ -42,7 +42,10 @@ func TestFindingClosestBuoy(t *testing.T) {
 		t.FailNow()
 	}
 
-	loc := NewLocationForLatLong(40.695, 287.952)
+	loc := NewLocationForLatLong(40.695, -72.048)
 	closestBuoy := stations.FindClosestActiveBuoy(loc)
-	fmt.Println(closestBuoy.StationID)
+	if closestBuoy.StationID != "44017" {
+		fmt.Println("Failed to find the correct closest active buoy")
+		t.FailNow()
+	}
 }
