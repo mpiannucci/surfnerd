@@ -1,5 +1,9 @@
 package surfnerd
 
+import (
+	"math"
+)
+
 // Container holding location information.
 type Location struct {
 	Latitude     float64 `xml:"lat,attr"`
@@ -24,6 +28,19 @@ func (l Location) AdjustedLatitude() float64 {
 	} else {
 		return l.Latitude
 	}
+}
+
+// Get the lat and long components of the distance between two locations
+func (l Location) ComponentDistanceTo(otherLoc Location) (latDist, lonDist float64) {
+	latDist = math.Abs(l.Latitude - otherLoc.Latitude)
+	lonDist = math.Abs(l.Longitude - otherLoc.Longitude)
+	return
+}
+
+// Get the estimated distance vector between two location points
+func (l Location) DistanceTo(otherLoc Location) float64 {
+	latDist, lonDist := l.ComponentDistanceTo(otherLoc)
+	return math.Sqrt(math.Pow(latDist, 2) + math.Pow(lonDist, 2))
 }
 
 // Create a new Location object from a given latitude and longitude pair

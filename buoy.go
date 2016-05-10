@@ -36,6 +36,16 @@ type Buoy struct {
 	BuoyData     []BuoyItem
 }
 
+// Finds a buoy for a given identification string
+func GetBuoyByID(stationID string) *Buoy {
+	buoy := BuoyStations{}
+	fetchError := buoy.GetAllActiveBuoyStations()
+	if fetchError != nil {
+		return nil
+	}
+	return buoy.FindBuoyByID(stationID)
+}
+
 // Returns if the buoy is active. This is functionally a check if the buoy
 // has reported meteorological data in the last 8 hours.
 func (b Buoy) IsBuoyActive() bool {
@@ -315,13 +325,4 @@ func (b *Buoy) ExportAsJSON(filename string) error {
 
 	fileErr := ioutil.WriteFile(filename, jsonData, 0644)
 	return fileErr
-}
-
-func GetBuoyByID(stationID string) *Buoy {
-	buoy := BuoyStations{}
-	fetchError := buoy.GetAllActiveBuoyStations()
-	if fetchError != nil {
-		return nil
-	}
-	return buoy.FindBuoyByID(stationID)
 }

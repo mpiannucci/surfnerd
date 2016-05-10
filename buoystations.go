@@ -39,3 +39,13 @@ func (b *BuoyStations) FindBuoyByID(stationID string) *Buoy {
 	}
 	return nil
 }
+
+func (b *BuoyStations) FindClosestActiveBuoy(loc Location) *Buoy {
+	if len(b.Stations) < 1 {
+		return nil
+	}
+
+	// TODO: Find the closest buoy
+
+	return nil
+}
