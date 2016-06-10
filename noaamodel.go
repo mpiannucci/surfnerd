@@ -76,5 +76,5 @@ func FetchTimeLocation(location string) *time.Location {
 }
 
 func FormatViewingTime(timestamp time.Time) string {
-	return timestamp.Format("Monday January _2, 2006 15z")
+	return timestamp.Format("Monday January 02, 2006 15z")
 }
