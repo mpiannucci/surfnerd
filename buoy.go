@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -325,9 +326,26 @@ func (b *Buoy) FetchDetailedWaveData(dataCountLimit int) error {
 	return nil
 }
 
-// func (b *Buoy) FindConditionsForDateAndTime(datestring string) *BuoyDataItem {
+func (b *Buoy) FindConditionsForDateAndTime(date time.Time) (BuoyItem, time.Duration) {
+	if b.BuoyData == nil {
+		return BuoyItem{}, -1
+	} else if len(b.BuoyData) < 1 {
+		return BuoyItem{}, -1
+	}
 
-// }
+	minBuoy := b.BuoyData[0]
+	minDuration := date.Sub(b.BuoyData[0].Date)
+
+	for index := 1; index < len(b.BuoyData); index++ {
+		newDuration := date.Sub(b.BuoyData[index].Date)
+		if math.Abs(newDuration.Seconds()) < math.Abs(minDuration.Seconds()) {
+			minBuoy = b.BuoyData[index]
+			minDuration = newDuration
+		}
+	}
+
+	return minBuoy, minDuration
+}
 
 // Convert a Buoy object to a json formatted string
 func (b *Buoy) ToJSON() ([]byte, error) {
