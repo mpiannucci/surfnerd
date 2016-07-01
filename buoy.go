@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -17,6 +18,8 @@ const (
 	// Old URL for latest was "http://www.ndbc.noaa.gov/get_observation_as_xml.php?station=%s"
 	standardDataPostfix     = ".txt"
 	detailedWaveDataPostfix = ".spec"
+	latestDateLayout        = "1504 MST 01/02/06"
+	standardDateLayout      = "1504 MST 01/02/2006"
 )
 
 // Holds the latest report grabbed from the NOAA data portal for the given station ID. Typically not
@@ -139,7 +142,8 @@ func (b *Buoy) FetchLatestBuoyReading() error {
 	buoyDataItem := BuoyItem{}
 
 	// For now be cheap and don't use date objects. We will eventually.
-	buoyDataItem.Time = rawBuoyLineData[3]
+	rawTime := rawBuoyLineData[4]
+	buoyDataItem.Date, _ = time.Parse(latestDateLayout, rawTime)
 
 	swellPeriodRead := false
 	swellDirectionRead := false
@@ -223,15 +227,16 @@ func (b *Buoy) FetchStandardData(dataCountLimit int) error {
 		b.BuoyData = make([]BuoyItem, dataLineCount)
 	}
 
+	itemIndex := 0
 	for line := headerLines; line < dataLineCount; line++ {
 		lineBeginIndex := line * dataLineLength
 		if lineBeginIndex > len(rawData) {
 			break
 		}
-		itemIndex := line - headerLines
-
 		newBuoyData := BuoyItem{}
-		newBuoyData.Time = fmt.Sprintf("%s-%s-%s %s:%s", rawData[lineBeginIndex+0], rawData[lineBeginIndex+1], rawData[lineBeginIndex+2], rawData[lineBeginIndex+3], rawData[lineBeginIndex+4])
+
+		rawDate := fmt.Sprintf("%s%s GMT %s/%s/%s", rawData[lineBeginIndex+3], rawData[lineBeginIndex+4], rawData[lineBeginIndex+1], rawData[lineBeginIndex+2], rawData[lineBeginIndex+0])
+		newBuoyData.Date, _ = time.Parse(standardDateLayout, rawDate)
 		newBuoyData.WindDirection, _ = strconv.ParseFloat(rawData[lineBeginIndex+5], 64)
 		newBuoyData.WindSpeed, _ = strconv.ParseFloat(rawData[lineBeginIndex+6], 64)
 		newBuoyData.WindGust, _ = strconv.ParseFloat(rawData[lineBeginIndex+7], 64)
@@ -249,9 +254,13 @@ func (b *Buoy) FetchStandardData(dataCountLimit int) error {
 
 		if len(b.BuoyData) <= itemIndex {
 			b.BuoyData = append(b.BuoyData, newBuoyData)
-		} else {
+		} else if len(b.BuoyData[itemIndex].Steepness) > 0 {
 			b.BuoyData[itemIndex].MergeStandardDataReading(newBuoyData)
+		} else {
+			b.BuoyData[itemIndex] = newBuoyData
 		}
+
+		itemIndex++
 	}
 
 	return nil
@@ -281,15 +290,16 @@ func (b *Buoy) FetchDetailedWaveData(dataCountLimit int) error {
 		b.BuoyData = make([]BuoyItem, dataLineCount)
 	}
 
+	itemIndex := 0
 	for line := headerLines; line < dataLineCount; line++ {
 		lineBeginIndex := line * dataLineLength
 		if lineBeginIndex > len(rawData) {
 			break
 		}
-		itemIndex := line - headerLines
 
 		newBuoyData := BuoyItem{}
-		newBuoyData.Time = fmt.Sprintf("%s-%s-%s %s:%s", rawData[lineBeginIndex+0], rawData[lineBeginIndex+1], rawData[lineBeginIndex+2], rawData[lineBeginIndex+3], rawData[lineBeginIndex+4])
+		rawDate := fmt.Sprintf("%s%s GMT %s/%s/%s", rawData[lineBeginIndex+3], rawData[lineBeginIndex+4], rawData[lineBeginIndex+1], rawData[lineBeginIndex+2], rawData[lineBeginIndex+0])
+		newBuoyData.Date, _ = time.Parse(standardDateLayout, rawDate)
 		newBuoyData.SignificantWaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+5], 64)
 		newBuoyData.SwellWaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+6], 64)
 		newBuoyData.SwellWavePeriod, _ = strconv.ParseFloat(rawData[lineBeginIndex+7], 64)
@@ -303,13 +313,21 @@ func (b *Buoy) FetchDetailedWaveData(dataCountLimit int) error {
 
 		if len(b.BuoyData) <= itemIndex {
 			b.BuoyData = append(b.BuoyData, newBuoyData)
-		} else {
+		} else if b.BuoyData[itemIndex].DominantWavePeriod > 0 {
 			b.BuoyData[itemIndex].MergeDetailedWaveDataReading(newBuoyData)
+		} else {
+			b.BuoyData[itemIndex] = newBuoyData
 		}
+
+		itemIndex++
 	}
 
 	return nil
 }
+
+// func (b *Buoy) FindConditionsForDateAndTime(datestring string) *BuoyDataItem {
+
+// }
 
 // Convert a Buoy object to a json formatted string
 func (b *Buoy) ToJSON() ([]byte, error) {

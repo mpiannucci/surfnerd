@@ -1,8 +1,8 @@
 package surfnerd
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
 func TestLatestBuoyReadingFetch(t *testing.T) {
