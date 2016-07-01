@@ -326,6 +326,8 @@ func (b *Buoy) FetchDetailedWaveData(dataCountLimit int) error {
 	return nil
 }
 
+// Finds the closest BuoyItem to a given time and returns the data at that data point.
+// If it fails, the duration returned is -1.
 func (b *Buoy) FindConditionsForDateAndTime(date time.Time) (BuoyItem, time.Duration) {
 	if b.BuoyData == nil {
 		return BuoyItem{}, -1
