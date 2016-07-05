@@ -91,6 +91,11 @@ func (b Buoy) DoesBuoyHaveDartData() bool {
 	return true
 }
 
+// Creates and returns the url of the latest buoy buoy reading xml
+func (b Buoy) CreateLatestReadingURL() string {
+	return fmt.Sprintf(baseLatestReadingURL, b.StationID)
+}
+
 // Creates and returns the url for fetching the buoys standard meterology report.
 // The url returns tab delimited ascii data.
 func (b Buoy) CreateStandardDataURL() string {
@@ -109,31 +114,7 @@ func (b Buoy) CreateSpectraPlotURL() string {
 	return fmt.Sprintf(baseSpectraPlotURL, b.StationID)
 }
 
-// Creates and returns the url of the latest buoy buoy reading xml
-func (b Buoy) CreateLatestReadingURL() string {
-	return fmt.Sprintf(baseLatestReadingURL, b.StationID)
-}
-
-// Fetches the latest buoy reading data from the buoy and fills the
-// BuoyData member with the latest value
-func (b *Buoy) FetchLatestBuoyReading() error {
-	rawData, error := fetchRawDataFromURL(b.CreateLatestReadingURL())
-	if error != nil {
-		return error
-	}
-
-	if rawData == nil {
-		return errors.New("Failed to fetch latest buoy data")
-	}
-
-	// Old XML parsing code
-	// buoyDataItem := BuoyItem{}
-	// marshallError := xml.Unmarshal(rawData, &buoyDataItem)
-	// if marshallError != nil {
-	// 	return marshallError
-	// }
-
-	rawBuoyData := string(rawData[:])
+func (b *Buoy) ParseRawLatestBuoyData(rawBuoyData string) error {
 	rawBuoyLineData := strings.Split(rawBuoyData, "\n")
 	if len(rawBuoyLineData) < 6 {
 		return errors.New("Could not parse latest buoy data")
@@ -204,17 +185,7 @@ func (b *Buoy) FetchLatestBuoyReading() error {
 	return nil
 }
 
-// Grabs the latest data as a time series of BuoyItem objects. This data contains thing like
-// wave heights, periods, water temps, and wind. Input a negative integer or zero to download all
-// available data points.
-func (b *Buoy) FetchStandardData(dataCountLimit int) error {
-	rawData, fetchError := fetchSpaceDelimitedString(b.CreateStandardDataURL())
-	if fetchError != nil {
-		return fetchError
-	} else if rawData == nil {
-		return errors.New("No data received from NOAA Buoy")
-	}
-
+func (b *Buoy) ParseRawStandardData(rawData []string, dataCountLimit int) error {
 	const dataLineLength = 19
 	const headerLines = 2
 	dataLineCount := (len(rawData) / dataLineLength) - headerLines
@@ -267,17 +238,7 @@ func (b *Buoy) FetchStandardData(dataCountLimit int) error {
 	return nil
 }
 
-// Grabs the latest spectral wave data as a time series of BuoyItem objects. This data contains things
-// like the primary and secondary swell components, and significant wave height. Input a negative integer
-// or zero to download all available data points
-func (b *Buoy) FetchDetailedWaveData(dataCountLimit int) error {
-	rawData, fetchError := fetchSpaceDelimitedString(b.CreateDetailedWaveDataURL())
-	if fetchError != nil {
-		return fetchError
-	} else if rawData == nil {
-		return errors.New("No data received from NOAA Buoy")
-	}
-
+func (b *Buoy) ParseRawDetailedWaveData(rawData []string, dataCountLimit int) error {
 	const dataLineLength = 15
 	const headerLines = 2
 	dataLineCount := (len(rawData) / dataLineLength) - headerLines
@@ -324,6 +285,50 @@ func (b *Buoy) FetchDetailedWaveData(dataCountLimit int) error {
 	}
 
 	return nil
+}
+
+// Fetches the latest buoy reading data from the buoy and fills the
+// BuoyData member with the latest value
+func (b *Buoy) FetchLatestBuoyReading() error {
+	rawData, error := fetchRawDataFromURL(b.CreateLatestReadingURL())
+	if error != nil {
+		return error
+	}
+
+	if rawData == nil {
+		return errors.New("Failed to fetch latest buoy data")
+	}
+
+	rawBuoyData := string(rawData[:])
+	return b.ParseRawLatestBuoyData(rawBuoyData)
+}
+
+// Grabs the latest data as a time series of BuoyItem objects. This data contains thing like
+// wave heights, periods, water temps, and wind. Input a negative integer or zero to download all
+// available data points.
+func (b *Buoy) FetchStandardData(dataCountLimit int) error {
+	rawData, fetchError := fetchSpaceDelimitedString(b.CreateStandardDataURL())
+	if fetchError != nil {
+		return fetchError
+	} else if rawData == nil {
+		return errors.New("No data received from NOAA Buoy")
+	}
+
+	return b.ParseRawStandardData(rawData, dataCountLimit)
+}
+
+// Grabs the latest spectral wave data as a time series of BuoyItem objects. This data contains things
+// like the primary and secondary swell components, and significant wave height. Input a negative integer
+// or zero to download all available data points
+func (b *Buoy) FetchDetailedWaveData(dataCountLimit int) error {
+	rawData, fetchError := fetchSpaceDelimitedString(b.CreateDetailedWaveDataURL())
+	if fetchError != nil {
+		return fetchError
+	} else if rawData == nil {
+		return errors.New("No data received from NOAA Buoy")
+	}
+
+	return b.ParseRawDetailedWaveData(rawData, dataCountLimit)
 }
 
 // Finds the closest BuoyItem to a given time and returns the data at that data point.
