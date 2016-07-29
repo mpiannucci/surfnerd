@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	activeBuoysURL = "http://www.ndbc.noaa.gov/activestations.xml"
+	ActiveBuoysURL = "http://www.ndbc.noaa.gov/activestations.xml"
 )
 
 // Container to hold all of the buoy locations that are reported by NOAA in their
@@ -21,7 +21,7 @@ type BuoyStations struct {
 // Fetch all of the buoy stations in xml format from the NOAA endpoint and parse them into buoy objects.
 // Returns true if the buoys were successfully parsed into the Stations variable
 func (b *BuoyStations) GetAllActiveBuoyStations() error {
-	rawStations, dlErr := fetchRawDataFromURL(activeBuoysURL)
+	rawStations, dlErr := fetchRawDataFromURL(ActiveBuoysURL)
 	if dlErr != nil {
 		return dlErr
 	}
