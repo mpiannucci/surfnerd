@@ -91,3 +91,34 @@ func (b *BuoyStations) FindClosestActiveWaveBuoy(loc Location) *Buoy {
 
 	return closestBuoy
 }
+
+// Finds and returns the 3 closest buoys with wave data to a given location
+// Lat and long should be in relative, not absolute (41.0, -71) not (41.5, 289)
+func (b *BuoyStations) FindClosestActiveWaveBuoys(loc Location) []*Buoy {
+	if len(b.Stations) < 1 {
+		return nil
+	}
+
+	closestBuoys := make([]*Buoy, 3, 3)
+	closestDistances := [...]float64{9999999.999, 9999999.999, 9999999.999}
+
+	for _, buoy := range b.Stations {
+		if !buoy.IsBuoyActive() {
+			continue
+		} else if buoy.Type != "buoy" {
+			continue
+		}
+
+		dist := loc.DistanceTo(*buoy.Location)
+
+		for i := 0; i < 3; i++ {
+			if dist < closestDistances[i] {
+				closestBuoys[i] = buoy
+				closestDistances[i] = dist
+				break
+			}
+		}
+	}
+
+	return closestBuoys
+}
