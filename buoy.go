@@ -356,7 +356,7 @@ func (b *Buoy) FindConditionsForDateAndTime(date time.Time) (BuoyItem, time.Dura
 
 // Convert a Buoy object to a json formatted string
 func (b *Buoy) ToJSON() ([]byte, error) {
-	return json.Marshal(b)
+	return json.MarshalIndent(b, "", "    ")
 }
 
 // Export a Buoy object to json file with a given filename
