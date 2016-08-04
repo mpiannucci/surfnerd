@@ -136,7 +136,7 @@ func (b *Buoy) ParseRawLatestBuoyData(rawBuoyData string) error {
 		}
 
 		variable := comps[0]
-		rawValue := strings.Split(comps[1], " ")[0]
+		rawValue := strings.Split(strings.TrimSpace(comps[1]), " ")[0]
 
 		switch variable {
 		case "Seas":
@@ -176,11 +176,13 @@ func (b *Buoy) ParseRawLatestBuoyData(rawBuoyData string) error {
 
 	if b.BuoyData == nil {
 		b.BuoyData = make([]BuoyItem, 1)
+		b.BuoyData[0] = buoyDataItem
 	} else if len(b.BuoyData) == 0 {
 		b.BuoyData = make([]BuoyItem, 1)
+		b.BuoyData[0] = buoyDataItem
+	} else {
+		b.BuoyData[0].MergeLatestBuoyReading(buoyDataItem)
 	}
-
-	b.BuoyData[0].MergeLatestBuoyReading(buoyDataItem)
 
 	return nil
 }

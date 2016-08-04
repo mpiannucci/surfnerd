@@ -7,7 +7,7 @@ import (
 )
 
 func TestLatestBuoyReadingFetch(t *testing.T) {
-	buoy := GetBuoyByID("44017")
+	buoy := GetBuoyByID("44097")
 	if buoy == nil {
 		fmt.Println("Could not find the buoy for the given ID")
 		t.FailNow()
@@ -61,7 +61,7 @@ func TestClosestBuoyDataFinder(t *testing.T) {
 		t.FailNow()
 	}
 
-	closestData, dur := buoy.FindConditionsForDateAndTime(time.Now())
+	_, dur := buoy.FindConditionsForDateAndTime(time.Now())
 	if dur < 0 {
 		fmt.Println("Failed to find buoy data for the given date")
 		t.FailNow()
