@@ -164,15 +164,17 @@ func (b *Buoy) ParseRawLatestBuoyData(rawBuoyData string) error {
 			}
 		case "Direction":
 			if !swellDirectionRead {
-				buoyDataItem.SwellWaveDirection = DirectionToDegree(rawValue)
+				buoyDataItem.SwellWaveDirection = rawValue
 				swellDirectionRead = true
 			} else {
-				buoyDataItem.WindSwellDirection = DirectionToDegree(rawValue)
+				buoyDataItem.WindSwellDirection = rawValue
 			}
 		default:
 			// Do Nothing
 		}
 	}
+
+	buoyDataItem.InterpolateDominantWaveDirection()
 
 	if b.BuoyData == nil {
 		b.BuoyData = make([]BuoyItem, 1)
@@ -269,11 +271,12 @@ func (b *Buoy) ParseRawDetailedWaveData(rawData []string, dataCountLimit int) er
 		newBuoyData.SwellWavePeriod, _ = strconv.ParseFloat(rawData[lineBeginIndex+7], 64)
 		newBuoyData.WindSwellWaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+8], 64)
 		newBuoyData.WindSwellWavePeriod, _ = strconv.ParseFloat(rawData[lineBeginIndex+9], 64)
-		newBuoyData.SwellWaveDirection, _ = strconv.ParseFloat(rawData[lineBeginIndex+10], 64)
-		newBuoyData.WindSwellDirection, _ = strconv.ParseFloat(rawData[lineBeginIndex+11], 64)
+		newBuoyData.SwellWaveDirection = rawData[lineBeginIndex+10]
+		newBuoyData.WindSwellDirection = rawData[lineBeginIndex+11]
 		newBuoyData.Steepness = rawData[lineBeginIndex+12]
 		newBuoyData.AveragePeriod, _ = strconv.ParseFloat(rawData[lineBeginIndex+13], 64)
 		newBuoyData.MeanWaveDirection, _ = strconv.ParseFloat(rawData[lineBeginIndex+14], 64)
+		newBuoyData.InterpolateDominantWaveDirection()
 
 		if len(b.BuoyData) <= itemIndex {
 			b.BuoyData = append(b.BuoyData, newBuoyData)

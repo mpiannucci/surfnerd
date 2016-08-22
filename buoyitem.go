@@ -1,6 +1,9 @@
 package surfnerd
 
-import "time"
+import (
+	"math"
+	"time"
+)
 
 // Holds all of the data that a buoy could report in either the Standard Meteorological Data
 // or the Detailed Wave Data reports. Refer to http://www.ndbc.noaa.gov/data/realtime2/ for
@@ -17,14 +20,14 @@ type BuoyItem struct {
 	SignificantWaveHeight float64
 	DominantWavePeriod    float64
 	AveragePeriod         float64
-	DominantWaveDirection float64
+	DominantWaveDirection string
 	MeanWaveDirection     float64
 	SwellWaveHeight       float64
 	SwellWavePeriod       float64
-	SwellWaveDirection    float64
+	SwellWaveDirection    string
 	WindSwellWaveHeight   float64
 	WindSwellWavePeriod   float64
-	WindSwellDirection    float64
+	WindSwellDirection    string
 	Steepness             string
 
 	// Meteorology
@@ -84,4 +87,14 @@ func (b *BuoyItem) MergeDetailedWaveDataReading(newBuoyData BuoyItem) {
 	b.Steepness = newBuoyData.Steepness
 	b.AveragePeriod = newBuoyData.AveragePeriod
 	b.MeanWaveDirection = newBuoyData.MeanWaveDirection
+}
+
+// Finds the dominant wave direction
+func (b *BuoyItem) InterpolateDominantWaveDirection() {
+	if math.Abs(b.SwellWavePeriod-b.DominantWavePeriod) <
+		math.Abs(b.WindSwellWavePeriod-b.DominantWavePeriod) {
+		b.DominantWaveDirection = b.SwellWaveDirection
+	} else {
+		b.DominantWaveDirection = b.WindSwellDirection
+	}
 }
