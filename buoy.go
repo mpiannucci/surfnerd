@@ -276,6 +276,7 @@ func (b *Buoy) ParseRawDetailedWaveData(rawData []string, dataCountLimit int) er
 		newBuoyData.Steepness = rawData[lineBeginIndex+12]
 		newBuoyData.AveragePeriod, _ = strconv.ParseFloat(rawData[lineBeginIndex+13], 64)
 		newBuoyData.MeanWaveDirection, _ = strconv.ParseFloat(rawData[lineBeginIndex+14], 64)
+		newBuoyData.InterpolateDominantPeriod()
 		newBuoyData.InterpolateDominantWaveDirection()
 
 		if len(b.BuoyData) <= itemIndex {

@@ -98,3 +98,13 @@ func (b *BuoyItem) InterpolateDominantWaveDirection() {
 		b.DominantWaveDirection = b.WindSwellDirection
 	}
 }
+
+// Finds the dominant wave period
+func (b *BuoyItem) InterpolateDominantPeriod() {
+	if math.Abs(b.SwellWaveHeight-b.SignificantWaveHeight) <
+		math.Abs(b.WindSwellWaveHeight-b.SignificantWaveHeight) {
+		b.DominantWavePeriod = b.SwellWavePeriod
+	} else {
+		b.DominantWavePeriod = b.WindSwellWavePeriod
+	}
+}
