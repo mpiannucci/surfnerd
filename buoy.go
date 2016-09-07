@@ -16,6 +16,8 @@ const (
 	baseDataURL          = "http://www.ndbc.noaa.gov/data/realtime2/%s%s"
 	baseSpectraPlotURL   = "http://www.ndbc.noaa.gov/spec_plot.php?station=%s"
 	baseLatestReadingURL = "http://www.ndbc.noaa.gov/data/latest_obs/%s.txt"
+	baseAlphaSpectraURL  = "http://www.ndbc.noaa.gov/data/realtime2/%s.swdir"
+	baseEnergyURL        = "http://www.ndbc.noaa.gov/data/realtime2/%s.data_spec"
 	// Old URL for latest was "http://www.ndbc.noaa.gov/get_observation_as_xml.php?station=%s"
 	standardDataPostfix     = ".txt"
 	detailedWaveDataPostfix = ".spec"
@@ -38,6 +40,7 @@ type Buoy struct {
 	WaterQuality string   `xml:"waterquality,attr"`
 	Dart         string   `xml:"dart,attr"`
 	BuoyData     []BuoyItem
+	WaveSpectra  []BuoySpectraItem
 }
 
 // Finds a buoy for a given identification string
@@ -290,6 +293,25 @@ func (b *Buoy) ParseRawDetailedWaveData(rawData []string, dataCountLimit int) er
 		itemIndex++
 	}
 
+	return nil
+}
+
+func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData []string, rawEnergyData []string, dataCountLimit int) error {
+	const headerLines = 1
+	const firstAlphaDataIndex = 5
+	const seperationFrequencyIndex = 5
+	const firstEnergyDataIndex = 6
+	const frequencyMax = 0.580
+	const frequencyMin = 0.025
+	const frequencyStep = 0.005
+	const frequencyCount = (frequencyMax - frequencyMin) / frequencyStep
+
+	frequencies := make([]float64, frequencyCount)
+	for i := 0; i <= frequencyCount; i += 1 {
+		frequencies[i] = frequencyMin + (float64(i) * frequencyStep)
+	}
+
+	// TODO: Parse the raw alpha data then the raw energy data
 	return nil
 }
 
