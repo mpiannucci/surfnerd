@@ -207,7 +207,7 @@ func (b *Buoy) ParseRawStandardData(rawData []string, dataCountLimit int) error 
 	}
 
 	itemIndex := 0
-	for line := headerLines; line < dataLineCount; line++ {
+	for line := headerLines; line < dataLineCount+headerLines; line++ {
 		lineBeginIndex := line * dataLineLength
 		if lineBeginIndex > len(rawData) {
 			break
@@ -260,7 +260,7 @@ func (b *Buoy) ParseRawDetailedWaveData(rawData []string, dataCountLimit int) er
 	}
 
 	itemIndex := 0
-	for line := headerLines; line < dataLineCount; line++ {
+	for line := headerLines; line < dataLineCount+headerLines; line++ {
 		lineBeginIndex := line * dataLineLength
 		if lineBeginIndex > len(rawData) {
 			break
@@ -306,12 +306,35 @@ func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData []string, rawEnergyData []st
 	const frequencyStep = 0.005
 	const frequencyCount = (frequencyMax - frequencyMin) / frequencyStep
 
+	// Parse the raw alpha data then the raw energy data
+	if len(rawAlphaData) != len(rawEnergyData) {
+		return errors.New("Swell direction and energy spectra data does not match, could not parse")
+	} else if len(rawAlphaData) < 2 {
+		return errors.New("Insufficient data passed for spectra parsing")
+	} else if dataCountLimit < 1 {
+		return errors.New("Incompatable data count passed to parser")
+	}
+
+	// Set up the data line counter
+	dataLineCount := len(rawAlphaData) - headerLines
+	if dataCountLimit < dataLineCount && dataCountLimit >= 0 {
+		dataLineCount = dataCountLimit
+	}
+
+	// Set up the frequencies
 	frequencies := make([]float64, frequencyCount)
 	for i := 0; i <= frequencyCount; i += 1 {
 		frequencies[i] = frequencyMin + (float64(i) * frequencyStep)
 	}
 
-	// TODO: Parse the raw alpha data then the raw energy data
+	if b.WaveSpectra == nil {
+		b.WaveSpectra = make([]BuoySpectraItem, dataLineCount)
+	} else if len(b.BuoyData) == 0 {
+		b.WaveSpectra = make([]BuoySpectraItem, dataLineCount)
+	}
+
+	// First do the alpha data
+
 	return nil
 }
 
