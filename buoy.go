@@ -111,6 +111,18 @@ func (b Buoy) CreateDetailedWaveDataURL() string {
 	return fmt.Sprintf(baseDataURL, b.StationID, detailedWaveDataPostfix)
 }
 
+// Creates and returns the url for fetching the raw directional wave spectra. This is the
+// primary wave direction component and is usually used with the raw energy wave spectra
+func (b Buoy) CreateDirectionalSpectraDataURL() string {
+	return fmt.Sprintf(baseAlphaSpectraURL, b.StationID)
+}
+
+// Creates and returns the url for fetching the raw wave energy spectra. This is the
+// primary wave energy component and is usually used with the raw directional wave spectra
+func (b Buoy) CreateEnergySpectraDataURL() string {
+	return fmt.Sprintf(baseEnergyURL, b.StationID)
+}
+
 // Creates and returns the url of the Buoys latest Spectral Density plot.
 // The url returns a jpeg image.
 func (b Buoy) CreateSpectraPlotURL() string {
@@ -333,7 +345,46 @@ func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData []string, rawEnergyData []st
 		b.WaveSpectra = make([]BuoySpectraItem, dataLineCount)
 	}
 
-	// First do the alpha data
+	// Run through all of the data, creating a new BuoySpectraItem for each
+	for i := headerLines; i < dataLineCount+headerLines; i += 1 {
+		// Split the line by spaces
+		trimmedAlphaData := strings.Replace(rawAlphaData[i], "(", "", -1)
+		trimmedAlphaData = strings.Replace(rawAlphaData[i], ")", "", -1)
+		trimmedEnergyData := strings.Replace(rawAlphaData[i], "(", "", -1)
+		trimmedEnergyData = strings.Replace(rawAlphaData[i], ")", "", -1)
+		rawAlphaLine := strings.Split(trimmedAlphaData, " ")
+		rawEnergyLine := strings.Split(trimmedEnergyData, " ")
+
+		// Create the new item
+		item := BuoySpectraItem{}
+
+		// Start with the date
+		rawDate := fmt.Sprintf("%s%s GMT %s/%s/%s", rawAlphaLine[3], rawAlphaLine[4], rawAlphaLine[1], rawAlphaLine[2], rawAlphaLine[0])
+		item.Date, _ = time.Parse(standardDateLayout, rawDate)
+
+		// Fill the frequencies
+		item.Frequencies = frequencies
+
+		// Fill the alpha data
+		item.Angles = make([]float64, len(frequencies))
+		angleIndex := 0
+		for j := firstAlphaDataIndex; j < len(rawAlphaLine); j += 2 {
+			item.Angles[angleIndex], _ = strconv.ParseFloat(rawAlphaLine[j], 64)
+			angleIndex += 1
+		}
+
+		// Fill the energy data
+		item.SeperationFrequency, _ = strconv.ParseFloat(rawEnergyLine[seperationFrequencyIndex], 64)
+		item.Energies = make([]float64, len(frequencies))
+		energyIndex := 0
+		for j := firstEnergyDataIndex; j < len(rawEnergyLine); j += 2 {
+			item.Energies[energyIndex], _ = strconv.ParseFloat(rawEnergyLine[j], 64)
+			energyIndex += 1
+		}
+
+		// Add the item!
+		b.WaveSpectra[i-headerLines] = item
+	}
 
 	return nil
 }
@@ -380,6 +431,10 @@ func (b *Buoy) FetchDetailedWaveData(dataCountLimit int) error {
 	}
 
 	return b.ParseRawDetailedWaveData(rawData, dataCountLimit)
+}
+
+func (b *Buoy) FetchRawWaveSpectraData(dataCountLimit int) error {
+	return nil
 }
 
 // Finds the closest BuoyItem to a given time and returns the data at that data point.
