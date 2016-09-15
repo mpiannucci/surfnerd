@@ -369,7 +369,8 @@ func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData, rawEnergyData []string, dat
 		item.Angles = make([]float64, len(frequencies))
 		angleIndex := 0
 		for j := firstAlphaDataIndex; j < len(rawAlphaLine); j += 2 {
-			item.Angles[angleIndex], _ = strconv.ParseFloat(rawAlphaLine[j], 64)
+			rawAngle, _ := strconv.ParseFloat(rawAlphaLine[j], 64)
+			item.Angles[angleIndex] = rawAngle * (math.Pi / 180.0)
 			angleIndex += 1
 		}
 
