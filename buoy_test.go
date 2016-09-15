@@ -60,8 +60,6 @@ func TestRawSpectraDataFetch(t *testing.T) {
 		fmt.Println("Failed to fetch the raw spectra buoy data")
 		t.FailNow()
 	}
-
-	fmt.Println(buoy.WaveSpectra)
 }
 
 func TestClosestBuoyDataFinder(t *testing.T) {

@@ -17,18 +17,12 @@ type BuoyItem struct {
 	WindGust      float64
 
 	// Waves
-	SignificantWaveHeight float64
-	DominantWavePeriod    float64
-	AveragePeriod         float64
-	DominantWaveDirection string
-	MeanWaveDirection     float64
-	SwellWaveHeight       float64
-	SwellWavePeriod       float64
-	SwellWaveDirection    string
-	WindSwellWaveHeight   float64
-	WindSwellWavePeriod   float64
-	WindSwellDirection    string
-	Steepness             string
+	PrimarySwell       Swell
+	SwellWaveComponent Swell
+	WindWaveComponent  Swell
+	Steepness          string
+	AveragePeriod      float64
+	MeanWaveDirection  float64
 
 	// Meteorology
 	Pressure            float64
@@ -46,14 +40,15 @@ func (b *BuoyItem) MergeLatestBuoyReading(newBuoyData BuoyItem) {
 	b.WindDirection = newBuoyData.WindDirection
 	b.WindSpeed = newBuoyData.WindSpeed
 	b.WindGust = newBuoyData.WindGust
-	b.SignificantWaveHeight = newBuoyData.SignificantWaveHeight
-	b.DominantWavePeriod = newBuoyData.DominantWavePeriod
 	b.AveragePeriod = newBuoyData.AveragePeriod
 	b.MeanWaveDirection = newBuoyData.MeanWaveDirection
 	b.Pressure = newBuoyData.Pressure
 	b.AirTemperature = newBuoyData.AirTemperature
 	b.WaterTemperature = newBuoyData.WaterTemperature
 	b.DewpointTemperature = newBuoyData.DewpointTemperature
+	b.PrimarySwell = newBuoyData.PrimarySwell
+	b.SwellWaveComponent = newBuoyData.SwellWaveComponent
+	b.WindWaveComponent = newBuoyData.WindWaveComponent
 }
 
 // Merges the standard meteorological data buoy data with an existing buoyitem data set
@@ -61,8 +56,6 @@ func (b *BuoyItem) MergeStandardDataReading(newBuoyData BuoyItem) {
 	b.WindDirection = newBuoyData.WindDirection
 	b.WindSpeed = newBuoyData.WindSpeed
 	b.WindGust = newBuoyData.WindGust
-	b.SignificantWaveHeight = newBuoyData.SignificantWaveHeight
-	b.DominantWavePeriod = newBuoyData.DominantWavePeriod
 	b.AveragePeriod = newBuoyData.AveragePeriod
 	b.MeanWaveDirection = newBuoyData.MeanWaveDirection
 	b.Pressure = newBuoyData.Pressure
@@ -72,39 +65,35 @@ func (b *BuoyItem) MergeStandardDataReading(newBuoyData BuoyItem) {
 	b.Visibility = newBuoyData.Visibility
 	b.PressureTendency = newBuoyData.PressureTendency
 	b.WaterLevel = newBuoyData.WaterLevel
+	b.PrimarySwell = newBuoyData.PrimarySwell
 }
 
 // Merges the detailed spectral wave data with an existing buoy item data set
 func (b *BuoyItem) MergeDetailedWaveDataReading(newBuoyData BuoyItem) {
 	b.Date = newBuoyData.Date
-	b.SignificantWaveHeight = newBuoyData.SignificantWaveHeight
-	b.SwellWaveHeight = newBuoyData.SwellWaveHeight
-	b.SwellWavePeriod = newBuoyData.SwellWavePeriod
-	b.WindSwellWaveHeight = newBuoyData.WindSwellWaveHeight
-	b.WindSwellWavePeriod = newBuoyData.WindSwellWavePeriod
-	b.SwellWaveDirection = newBuoyData.SwellWaveDirection
-	b.WindSwellDirection = newBuoyData.WindSwellDirection
 	b.Steepness = newBuoyData.Steepness
 	b.AveragePeriod = newBuoyData.AveragePeriod
 	b.MeanWaveDirection = newBuoyData.MeanWaveDirection
+	b.SwellWaveComponent = newBuoyData.SwellWaveComponent
+	b.WindWaveComponent = newBuoyData.WindWaveComponent
 }
 
 // Finds the dominant wave direction
 func (b *BuoyItem) InterpolateDominantWaveDirection() {
-	if math.Abs(b.SwellWavePeriod-b.DominantWavePeriod) <
-		math.Abs(b.WindSwellWavePeriod-b.DominantWavePeriod) {
-		b.DominantWaveDirection = b.SwellWaveDirection
+	if math.Abs(b.SwellWaveComponent.Period-b.PrimarySwell.Period) <
+		math.Abs(b.WindWaveComponent.Period-b.PrimarySwell.Period) {
+		b.PrimarySwell.CompassDirection = b.SwellWaveComponent.CompassDirection
 	} else {
-		b.DominantWaveDirection = b.WindSwellDirection
+		b.PrimarySwell.CompassDirection = b.WindWaveComponent.CompassDirection
 	}
 }
 
 // Finds the dominant wave period
 func (b *BuoyItem) InterpolateDominantPeriod() {
-	if math.Abs(b.SwellWaveHeight-b.SignificantWaveHeight) <
-		math.Abs(b.WindSwellWaveHeight-b.SignificantWaveHeight) {
-		b.DominantWavePeriod = b.SwellWavePeriod
+	if math.Abs(b.SwellWaveComponent.WaveHeight-b.PrimarySwell.WaveHeight) <
+		math.Abs(b.WindWaveComponent.WaveHeight-b.PrimarySwell.WaveHeight) {
+		b.PrimarySwell.Period = b.SwellWaveComponent.Period
 	} else {
-		b.DominantWavePeriod = b.WindSwellWavePeriod
+		b.PrimarySwell.Period = b.WindWaveComponent.Period
 	}
 }

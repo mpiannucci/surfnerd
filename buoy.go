@@ -26,7 +26,7 @@ const (
 )
 
 // Holds the latest report grabbed from the NOAA data portal for the given station ID. Typically not
-// used without data being populated in it first.
+// used without data being populated in it first. MOre info is available here http://www.ndbc.noaa.gov/measdes.shtml
 type Buoy struct {
 	*Location
 
@@ -155,9 +155,9 @@ func (b *Buoy) ParseRawLatestBuoyData(rawBuoyData string) error {
 
 		switch variable {
 		case "Seas":
-			buoyDataItem.SignificantWaveHeight, _ = strconv.ParseFloat(rawValue, 64)
+			buoyDataItem.PrimarySwell.WaveHeight, _ = strconv.ParseFloat(rawValue, 64)
 		case "Peak Period":
-			buoyDataItem.DominantWavePeriod, _ = strconv.ParseFloat(rawValue, 64)
+			buoyDataItem.PrimarySwell.Period, _ = strconv.ParseFloat(rawValue, 64)
 		case "Pres":
 			buoyDataItem.Pressure, _ = strconv.ParseFloat(rawValue, 64)
 		case "Air Temp":
@@ -167,22 +167,22 @@ func (b *Buoy) ParseRawLatestBuoyData(rawBuoyData string) error {
 		case "Dew Point":
 			buoyDataItem.DewpointTemperature, _ = strconv.ParseFloat(rawValue, 64)
 		case "Swell":
-			buoyDataItem.SwellWaveHeight, _ = strconv.ParseFloat(rawValue, 64)
+			buoyDataItem.SwellWaveComponent.WaveHeight, _ = strconv.ParseFloat(rawValue, 64)
 		case "Wind Wave":
-			buoyDataItem.WindSwellWaveHeight, _ = strconv.ParseFloat(rawValue, 64)
+			buoyDataItem.WindWaveComponent.WaveHeight, _ = strconv.ParseFloat(rawValue, 64)
 		case "Period":
 			if !swellPeriodRead {
-				buoyDataItem.SwellWavePeriod, _ = strconv.ParseFloat(rawValue, 64)
+				buoyDataItem.SwellWaveComponent.Period, _ = strconv.ParseFloat(rawValue, 64)
 				swellPeriodRead = true
 			} else {
-				buoyDataItem.WindSwellWavePeriod, _ = strconv.ParseFloat(rawValue, 64)
+				buoyDataItem.WindWaveComponent.Period, _ = strconv.ParseFloat(rawValue, 64)
 			}
 		case "Direction":
 			if !swellDirectionRead {
-				buoyDataItem.SwellWaveDirection = rawValue
+				buoyDataItem.SwellWaveComponent.CompassDirection = rawValue
 				swellDirectionRead = true
 			} else {
-				buoyDataItem.WindSwellDirection = rawValue
+				buoyDataItem.WindWaveComponent.CompassDirection = rawValue
 			}
 		default:
 			// Do Nothing
@@ -231,8 +231,8 @@ func (b *Buoy) ParseRawStandardData(rawData []string, dataCountLimit int) error 
 		newBuoyData.WindDirection, _ = strconv.ParseFloat(rawData[lineBeginIndex+5], 64)
 		newBuoyData.WindSpeed, _ = strconv.ParseFloat(rawData[lineBeginIndex+6], 64)
 		newBuoyData.WindGust, _ = strconv.ParseFloat(rawData[lineBeginIndex+7], 64)
-		newBuoyData.SignificantWaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+8], 64)
-		newBuoyData.DominantWavePeriod, _ = strconv.ParseFloat(rawData[lineBeginIndex+9], 64)
+		newBuoyData.PrimarySwell.WaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+8], 64)
+		newBuoyData.PrimarySwell.Period, _ = strconv.ParseFloat(rawData[lineBeginIndex+9], 64)
 		newBuoyData.AveragePeriod, _ = strconv.ParseFloat(rawData[lineBeginIndex+10], 64)
 		newBuoyData.MeanWaveDirection, _ = strconv.ParseFloat(rawData[lineBeginIndex+11], 64)
 		newBuoyData.Pressure, _ = strconv.ParseFloat(rawData[lineBeginIndex+12], 64)
@@ -281,13 +281,13 @@ func (b *Buoy) ParseRawDetailedWaveData(rawData []string, dataCountLimit int) er
 		newBuoyData := BuoyItem{}
 		rawDate := fmt.Sprintf("%s%s GMT %s/%s/%s", rawData[lineBeginIndex+3], rawData[lineBeginIndex+4], rawData[lineBeginIndex+1], rawData[lineBeginIndex+2], rawData[lineBeginIndex+0])
 		newBuoyData.Date, _ = time.Parse(standardDateLayout, rawDate)
-		newBuoyData.SignificantWaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+5], 64)
-		newBuoyData.SwellWaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+6], 64)
-		newBuoyData.SwellWavePeriod, _ = strconv.ParseFloat(rawData[lineBeginIndex+7], 64)
-		newBuoyData.WindSwellWaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+8], 64)
-		newBuoyData.WindSwellWavePeriod, _ = strconv.ParseFloat(rawData[lineBeginIndex+9], 64)
-		newBuoyData.SwellWaveDirection = rawData[lineBeginIndex+10]
-		newBuoyData.WindSwellDirection = rawData[lineBeginIndex+11]
+		newBuoyData.PrimarySwell.WaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+5], 64)
+		newBuoyData.SwellWaveComponent.WaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+6], 64)
+		newBuoyData.SwellWaveComponent.Period, _ = strconv.ParseFloat(rawData[lineBeginIndex+7], 64)
+		newBuoyData.WindWaveComponent.WaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+8], 64)
+		newBuoyData.WindWaveComponent.Period, _ = strconv.ParseFloat(rawData[lineBeginIndex+9], 64)
+		newBuoyData.SwellWaveComponent.CompassDirection = rawData[lineBeginIndex+10]
+		newBuoyData.WindWaveComponent.CompassDirection = rawData[lineBeginIndex+11]
 		newBuoyData.Steepness = rawData[lineBeginIndex+12]
 		newBuoyData.AveragePeriod, _ = strconv.ParseFloat(rawData[lineBeginIndex+13], 64)
 		newBuoyData.MeanWaveDirection, _ = strconv.ParseFloat(rawData[lineBeginIndex+14], 64)
@@ -296,7 +296,7 @@ func (b *Buoy) ParseRawDetailedWaveData(rawData []string, dataCountLimit int) er
 
 		if len(b.BuoyData) <= itemIndex {
 			b.BuoyData = append(b.BuoyData, newBuoyData)
-		} else if b.BuoyData[itemIndex].DominantWavePeriod > 0 {
+		} else if b.BuoyData[itemIndex].PrimarySwell.Period > 0 {
 			b.BuoyData[itemIndex].MergeDetailedWaveDataReading(newBuoyData)
 		} else {
 			b.BuoyData[itemIndex] = newBuoyData
@@ -467,6 +467,29 @@ func (b *Buoy) FindConditionsForDateAndTime(date time.Time) (BuoyItem, time.Dura
 		newDuration := date.Sub(b.BuoyData[index].Date)
 		if math.Abs(newDuration.Seconds()) < math.Abs(minDuration.Seconds()) {
 			minBuoy = b.BuoyData[index]
+			minDuration = newDuration
+		}
+	}
+
+	return minBuoy, minDuration
+}
+
+// Finds the closest BuoySpectraItem to a given time and returns the data at that data point.
+// If it fails, the duration returned is -1.
+func (b *Buoy) FindWaveSpectraForDateAndTime(date time.Time) (BuoySpectraItem, time.Duration) {
+	if b.WaveSpectra == nil {
+		return BuoySpectraItem{}, -1
+	} else if len(b.WaveSpectra) < 1 {
+		return BuoySpectraItem{}, -1
+	}
+
+	minBuoy := b.WaveSpectra[0]
+	minDuration := date.Sub(b.WaveSpectra[0].Date)
+
+	for index := 1; index < len(b.WaveSpectra); index++ {
+		newDuration := date.Sub(b.WaveSpectra[index].Date)
+		if math.Abs(newDuration.Seconds()) < math.Abs(minDuration.Seconds()) {
+			minBuoy = b.WaveSpectra[index]
 			minDuration = newDuration
 		}
 	}
