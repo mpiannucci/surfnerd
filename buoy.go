@@ -308,7 +308,7 @@ func (b *Buoy) ParseRawDetailedWaveData(rawData []string, dataCountLimit int) er
 	return nil
 }
 
-func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData []string, rawEnergyData []string, dataCountLimit int) error {
+func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData, rawEnergyData []string, dataCountLimit int) error {
 	const headerLines = 1
 	const firstAlphaDataIndex = 5
 	const seperationFrequencyIndex = 5
@@ -350,8 +350,8 @@ func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData []string, rawEnergyData []st
 		// Split the line by spaces
 		trimmedAlphaData := strings.Replace(rawAlphaData[i], "(", "", -1)
 		trimmedAlphaData = strings.Replace(rawAlphaData[i], ")", "", -1)
-		trimmedEnergyData := strings.Replace(rawAlphaData[i], "(", "", -1)
-		trimmedEnergyData = strings.Replace(rawAlphaData[i], ")", "", -1)
+		trimmedEnergyData := strings.Replace(rawEnergyData[i], "(", "", -1)
+		trimmedEnergyData = strings.Replace(rawEnergyData[i], ")", "", -1)
 		rawAlphaLine := strings.Split(trimmedAlphaData, " ")
 		rawEnergyLine := strings.Split(trimmedEnergyData, " ")
 

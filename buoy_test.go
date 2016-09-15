@@ -55,7 +55,7 @@ func TestRawSpectraDataFetch(t *testing.T) {
 		t.FailNow()
 	}
 
-	fetchError := buoy.FetchRawWaveSpectraData(60)
+	fetchError := buoy.FetchRawWaveSpectraData(1)
 	if fetchError != nil {
 		fmt.Println("Failed to fetch the raw spectra buoy data")
 		t.FailNow()
