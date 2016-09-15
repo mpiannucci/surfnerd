@@ -335,7 +335,7 @@ func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData []string, rawEnergyData []st
 
 	// Set up the frequencies
 	frequencies := make([]float64, frequencyCount)
-	for i := 0; i <= frequencyCount; i += 1 {
+	for i := 0; i < frequencyCount; i += 1 {
 		frequencies[i] = frequencyMin + (float64(i) * frequencyStep)
 	}
 
@@ -434,7 +434,21 @@ func (b *Buoy) FetchDetailedWaveData(dataCountLimit int) error {
 }
 
 func (b *Buoy) FetchRawWaveSpectraData(dataCountLimit int) error {
-	return nil
+	rawAlphaData, rawAlphaError := fetchLineDelimitedString(b.CreateDirectionalSpectraDataURL())
+	if rawAlphaError != nil {
+		return rawAlphaError
+	} else if rawAlphaData == nil {
+		return errors.New("No directional data recieved for this buoy")
+	}
+
+	rawEnergyData, rawEnergyError := fetchLineDelimitedString(b.CreateEnergySpectraDataURL())
+	if rawEnergyError != nil {
+		return rawEnergyError
+	} else if rawEnergyData == nil {
+		return errors.New("No energy data recieved for this buoy")
+	}
+
+	return b.ParseRawWaveSpectraData(rawAlphaData, rawEnergyData, dataCountLimit)
 }
 
 // Finds the closest BuoyItem to a given time and returns the data at that data point.
