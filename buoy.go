@@ -312,11 +312,6 @@ func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData, rawEnergyData []string, dat
 	const headerLines = 1
 	const firstAlphaDataIndex = 5
 	const seperationFrequencyIndex = 5
-	const firstEnergyDataIndex = 6
-	const frequencyMax = 0.580
-	const frequencyMin = 0.025
-	const frequencyStep = 0.005
-	const frequencyCount = (frequencyMax - frequencyMin) / frequencyStep
 
 	// Parse the raw alpha data then the raw energy data
 	if len(rawAlphaData) != len(rawEnergyData) {
@@ -333,12 +328,6 @@ func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData, rawEnergyData []string, dat
 		dataLineCount = dataCountLimit
 	}
 
-	// Set up the frequencies
-	frequencies := make([]float64, frequencyCount)
-	for i := 0; i < frequencyCount; i += 1 {
-		frequencies[i] = frequencyMin + (float64(i) * frequencyStep)
-	}
-
 	if b.WaveSpectra == nil {
 		b.WaveSpectra = make([]BuoySpectraItem, dataLineCount)
 	} else if len(b.BuoyData) == 0 {
@@ -348,12 +337,16 @@ func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData, rawEnergyData []string, dat
 	// Run through all of the data, creating a new BuoySpectraItem for each
 	for i := headerLines; i < dataLineCount+headerLines; i += 1 {
 		// Split the line by spaces
+		rawAlphaData[i] = strings.TrimSpace(rawAlphaData[i])
+		rawEnergyData[i] = strings.TrimSpace(rawEnergyData[i])
 		trimmedAlphaData := strings.Replace(rawAlphaData[i], "(", "", -1)
-		trimmedAlphaData = strings.Replace(rawAlphaData[i], ")", "", -1)
+		trimmedAlphaData = strings.Replace(trimmedAlphaData, ")", "", -1)
 		trimmedEnergyData := strings.Replace(rawEnergyData[i], "(", "", -1)
-		trimmedEnergyData = strings.Replace(rawEnergyData[i], ")", "", -1)
+		trimmedEnergyData = strings.Replace(trimmedEnergyData, ")", "", -1)
 		rawAlphaLine := strings.Split(trimmedAlphaData, " ")
 		rawEnergyLine := strings.Split(trimmedEnergyData, " ")
+
+		freqCount := (len(rawAlphaLine) - 5) / 2
 
 		// Create the new item
 		item := BuoySpectraItem{}
@@ -362,26 +355,28 @@ func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData, rawEnergyData []string, dat
 		rawDate := fmt.Sprintf("%s%s GMT %s/%s/%s", rawAlphaLine[3], rawAlphaLine[4], rawAlphaLine[1], rawAlphaLine[2], rawAlphaLine[0])
 		item.Date, _ = time.Parse(standardDateLayout, rawDate)
 
-		// Fill the frequencies
-		item.Frequencies = frequencies
-
-		// Fill the alpha data
-		item.Angles = make([]float64, len(frequencies))
-		angleIndex := 0
+		// Fill the frequency, direction, nad energy data
+		item.Frequencies = make([]float64, freqCount)
+		item.Angles = make([]float64, freqCount)
+		item.Energies = make([]float64, freqCount)
+		freqIndex := 0
 		for j := firstAlphaDataIndex; j < len(rawAlphaLine); j += 2 {
-			rawAngle, _ := strconv.ParseFloat(rawAlphaLine[j], 64)
-			item.Angles[angleIndex] = rawAngle * (math.Pi / 180.0)
-			angleIndex += 1
+			// Get the frequency
+			item.Frequencies[freqIndex], _ = strconv.ParseFloat(rawAlphaLine[j+1], 64)
+
+			// Get the angle
+			//rawAngle, _ := strconv.ParseFloat(rawAlphaLine[j], 64)
+			//item.Angles[freqIndex] = rawAngle * (math.Pi / 180.0)
+			item.Angles[freqIndex], _ = strconv.ParseFloat(rawAlphaLine[j], 64)
+
+			// Get the energy
+			item.Energies[freqIndex], _ = strconv.ParseFloat(rawEnergyLine[j+1], 64)
+			// Increment the index
+			freqIndex += 1
 		}
 
-		// Fill the energy data
+		// Get the seperation frequency
 		item.SeperationFrequency, _ = strconv.ParseFloat(rawEnergyLine[seperationFrequencyIndex], 64)
-		item.Energies = make([]float64, len(frequencies))
-		energyIndex := 0
-		for j := firstEnergyDataIndex; j < len(rawEnergyLine); j += 2 {
-			item.Energies[energyIndex], _ = strconv.ParseFloat(rawEnergyLine[j], 64)
-			energyIndex += 1
-		}
 
 		// Add the item!
 		b.WaveSpectra[i-headerLines] = item
