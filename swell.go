@@ -62,3 +62,23 @@ func (s *Swell) BreakingWaveHeights(beachAngle, depth, beachSlope float64) (mini
 	minimumBreakHeight = breakingHeight / 1.4
 	return
 }
+
+func NewSwellWithDirection(waveHeight, period, direction float64) Swell {
+	swell := Swell{
+		WaveHeight:       waveHeight,
+		Period:           period,
+		Direction:        direction,
+		CompassDirection: DegreeToDirection(direction),
+	}
+	return swell
+}
+
+func NewSwellWithCompassDirection(waveHeight, period float64, direction string) Swell {
+	swell := Swell{
+		WaveHeight:       waveHeight,
+		Period:           period,
+		Direction:        DirectionToDegree(direction),
+		CompassDirection: direction,
+	}
+	return swell
+}

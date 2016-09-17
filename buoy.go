@@ -366,12 +366,11 @@ func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData, rawEnergyData []string, dat
 			item.Frequencies[freqIndex], _ = strconv.ParseFloat(rawAlphaLine[j+1], 64)
 
 			// Get the angle
-			//rawAngle, _ := strconv.ParseFloat(rawAlphaLine[j], 64)
-			//item.Angles[freqIndex] = rawAngle * (math.Pi / 180.0)
 			item.Angles[freqIndex], _ = strconv.ParseFloat(rawAlphaLine[j], 64)
 
 			// Get the energy
 			item.Energies[freqIndex], _ = strconv.ParseFloat(rawEnergyLine[j+1], 64)
+
 			// Increment the index
 			freqIndex += 1
 		}
