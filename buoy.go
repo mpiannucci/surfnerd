@@ -40,7 +40,6 @@ type Buoy struct {
 	WaterQuality string   `xml:"waterquality,attr"`
 	Dart         string   `xml:"dart,attr"`
 	BuoyData     []BuoyItem
-	WaveSpectra  []BuoySpectraItem
 }
 
 // Finds a buoy for a given identification string
@@ -328,10 +327,10 @@ func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData, rawEnergyData []string, dat
 		dataLineCount = dataCountLimit
 	}
 
-	if b.WaveSpectra == nil {
-		b.WaveSpectra = make([]BuoySpectraItem, dataLineCount)
+	if b.BuoyData == nil {
+		b.BuoyData = make([]BuoyItem, dataLineCount)
 	} else if len(b.BuoyData) == 0 {
-		b.WaveSpectra = make([]BuoySpectraItem, dataLineCount)
+		b.BuoyData = make([]BuoyItem, dataLineCount)
 	}
 
 	// Run through all of the data, creating a new BuoySpectraItem for each
@@ -352,8 +351,10 @@ func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData, rawEnergyData []string, dat
 		item := BuoySpectraItem{}
 
 		// Start with the date
-		rawDate := fmt.Sprintf("%s%s GMT %s/%s/%s", rawAlphaLine[3], rawAlphaLine[4], rawAlphaLine[1], rawAlphaLine[2], rawAlphaLine[0])
-		item.Date, _ = time.Parse(standardDateLayout, rawDate)
+		if b.BuoyData[i-headerLines].Date.IsZero() {
+			rawDate := fmt.Sprintf("%s%s GMT %s/%s/%s", rawAlphaLine[3], rawAlphaLine[4], rawAlphaLine[1], rawAlphaLine[2], rawAlphaLine[0])
+			b.BuoyData[i-headerLines].Date, _ = time.Parse(standardDateLayout, rawDate)
+		}
 
 		// Fill the frequency, direction, nad energy data
 		item.Frequencies = make([]float64, freqCount)
@@ -379,7 +380,7 @@ func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData, rawEnergyData []string, dat
 		item.SeperationFrequency, _ = strconv.ParseFloat(rawEnergyLine[seperationFrequencyIndex], 64)
 
 		// Add the item!
-		b.WaveSpectra[i-headerLines] = item
+		b.BuoyData[i-headerLines].WaveSpectra = item
 	}
 
 	return nil
@@ -463,29 +464,6 @@ func (b *Buoy) FindConditionsForDateAndTime(date time.Time) (BuoyItem, time.Dura
 		newDuration := date.Sub(b.BuoyData[index].Date)
 		if math.Abs(newDuration.Seconds()) < math.Abs(minDuration.Seconds()) {
 			minBuoy = b.BuoyData[index]
-			minDuration = newDuration
-		}
-	}
-
-	return minBuoy, minDuration
-}
-
-// Finds the closest BuoySpectraItem to a given time and returns the data at that data point.
-// If it fails, the duration returned is -1.
-func (b *Buoy) FindWaveSpectraForDateAndTime(date time.Time) (BuoySpectraItem, time.Duration) {
-	if b.WaveSpectra == nil {
-		return BuoySpectraItem{}, -1
-	} else if len(b.WaveSpectra) < 1 {
-		return BuoySpectraItem{}, -1
-	}
-
-	minBuoy := b.WaveSpectra[0]
-	minDuration := date.Sub(b.WaveSpectra[0].Date)
-
-	for index := 1; index < len(b.WaveSpectra); index++ {
-		newDuration := date.Sub(b.WaveSpectra[index].Date)
-		if math.Abs(newDuration.Seconds()) < math.Abs(minDuration.Seconds()) {
-			minBuoy = b.WaveSpectra[index]
 			minDuration = newDuration
 		}
 	}

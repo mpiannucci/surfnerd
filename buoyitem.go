@@ -23,6 +23,7 @@ type BuoyItem struct {
 	Steepness          string
 	AveragePeriod      float64
 	MeanWaveDirection  float64
+	WaveSpectra        BuoySpectraItem
 
 	// Meteorology
 	Pressure            float64
