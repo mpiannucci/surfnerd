@@ -60,17 +60,6 @@ func TestRawSpectraDataFetch(t *testing.T) {
 		fmt.Println("Failed to fetch the raw spectra buoy data")
 		t.FailNow()
 	}
-
-	waveSummary := buoy.BuoyData[0].WaveSpectra.WaveSummary()
-	waveSummary.ConvertToImperialUnits()
-	swellComponent := buoy.BuoyData[0].WaveSpectra.SwellWaveComponent()
-	swellComponent.ConvertToImperialUnits()
-	windComponent := buoy.BuoyData[0].WaveSpectra.WindWaveComponent()
-	windComponent.ConvertToImperialUnits()
-
-	fmt.Println(waveSummary)
-	fmt.Println(swellComponent)
-	fmt.Println(windComponent)
 }
 
 func TestClosestBuoyDataFinder(t *testing.T) {

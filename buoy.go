@@ -39,7 +39,7 @@ type Buoy struct {
 	Currents     string   `xml:"currents,attr"`
 	WaterQuality string   `xml:"waterquality,attr"`
 	Dart         string   `xml:"dart,attr"`
-	BuoyData     []BuoyItem
+	BuoyData     []BuoyDataItem
 }
 
 // Finds a buoy for a given identification string
@@ -134,10 +134,13 @@ func (b *Buoy) ParseRawLatestBuoyData(rawBuoyData string) error {
 		return errors.New("Could not parse latest buoy data")
 	}
 
-	// Make a new buoy data item
-	buoyDataItem := BuoyItem{}
+	// Clear out old data if its hanging around
+	b.BuoyData = make([]BuoyDataItem, 1, 1)
 
-	// For now be cheap and don't use date objects. We will eventually.
+	// Make a new buoy data item
+	buoyDataItem := BuoyDataItem{}
+
+	// Get the date
 	rawTime := rawBuoyLineData[4]
 	buoyDataItem.Date, _ = time.Parse(latestDateLayout, rawTime)
 
@@ -190,15 +193,7 @@ func (b *Buoy) ParseRawLatestBuoyData(rawBuoyData string) error {
 
 	buoyDataItem.InterpolateDominantWaveDirection()
 
-	if b.BuoyData == nil {
-		b.BuoyData = make([]BuoyItem, 1)
-		b.BuoyData[0] = buoyDataItem
-	} else if len(b.BuoyData) == 0 {
-		b.BuoyData = make([]BuoyItem, 1)
-		b.BuoyData[0] = buoyDataItem
-	} else {
-		b.BuoyData[0].MergeLatestBuoyReading(buoyDataItem)
-	}
+	b.BuoyData[0] = buoyDataItem
 
 	return nil
 }
@@ -211,11 +206,7 @@ func (b *Buoy) ParseRawStandardData(rawData []string, dataCountLimit int) error 
 		dataLineCount = dataCountLimit
 	}
 
-	if b.BuoyData == nil {
-		b.BuoyData = make([]BuoyItem, dataLineCount)
-	} else if len(b.BuoyData) == 0 {
-		b.BuoyData = make([]BuoyItem, dataLineCount)
-	}
+	b.BuoyData = make([]BuoyDataItem, dataLineCount)
 
 	itemIndex := 0
 	for line := headerLines; line < dataLineCount+headerLines; line++ {
@@ -223,7 +214,7 @@ func (b *Buoy) ParseRawStandardData(rawData []string, dataCountLimit int) error 
 		if lineBeginIndex > len(rawData) {
 			break
 		}
-		newBuoyData := BuoyItem{}
+		newBuoyData := BuoyDataItem{}
 
 		rawDate := fmt.Sprintf("%s%s GMT %s/%s/%s", rawData[lineBeginIndex+3], rawData[lineBeginIndex+4], rawData[lineBeginIndex+1], rawData[lineBeginIndex+2], rawData[lineBeginIndex+0])
 		newBuoyData.Date, _ = time.Parse(standardDateLayout, rawDate)
@@ -233,7 +224,8 @@ func (b *Buoy) ParseRawStandardData(rawData []string, dataCountLimit int) error 
 		newBuoyData.WaveSummary.WaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+8], 64)
 		newBuoyData.WaveSummary.Period, _ = strconv.ParseFloat(rawData[lineBeginIndex+9], 64)
 		newBuoyData.AveragePeriod, _ = strconv.ParseFloat(rawData[lineBeginIndex+10], 64)
-		newBuoyData.MeanWaveDirection, _ = strconv.ParseFloat(rawData[lineBeginIndex+11], 64)
+		newBuoyData.WaveSummary.Direction, _ = strconv.ParseFloat(rawData[lineBeginIndex+11], 64)
+		newBuoyData.WaveSummary.CompassDirection = DegreeToDirection(newBuoyData.WaveSummary.Direction)
 		newBuoyData.Pressure, _ = strconv.ParseFloat(rawData[lineBeginIndex+12], 64)
 		newBuoyData.AirTemperature, _ = strconv.ParseFloat(rawData[lineBeginIndex+13], 64)
 		newBuoyData.WaterTemperature, _ = strconv.ParseFloat(rawData[lineBeginIndex+14], 64)
@@ -242,13 +234,7 @@ func (b *Buoy) ParseRawStandardData(rawData []string, dataCountLimit int) error 
 		newBuoyData.PressureTendency, _ = strconv.ParseFloat(rawData[lineBeginIndex+17], 64)
 		newBuoyData.WaterLevel, _ = strconv.ParseFloat(rawData[lineBeginIndex+18], 64)
 
-		if len(b.BuoyData) <= itemIndex {
-			b.BuoyData = append(b.BuoyData, newBuoyData)
-		} else if len(b.BuoyData[itemIndex].Steepness) > 0 {
-			b.BuoyData[itemIndex].MergeStandardDataReading(newBuoyData)
-		} else {
-			b.BuoyData[itemIndex] = newBuoyData
-		}
+		b.BuoyData[itemIndex] = newBuoyData
 
 		itemIndex++
 	}
@@ -264,11 +250,7 @@ func (b *Buoy) ParseRawDetailedWaveData(rawData []string, dataCountLimit int) er
 		dataLineCount = dataCountLimit
 	}
 
-	if b.BuoyData == nil {
-		b.BuoyData = make([]BuoyItem, dataLineCount)
-	} else if len(b.BuoyData) == 0 {
-		b.BuoyData = make([]BuoyItem, dataLineCount)
-	}
+	b.BuoyData = make([]BuoyDataItem, dataLineCount)
 
 	itemIndex := 0
 	for line := headerLines; line < dataLineCount+headerLines; line++ {
@@ -277,7 +259,7 @@ func (b *Buoy) ParseRawDetailedWaveData(rawData []string, dataCountLimit int) er
 			break
 		}
 
-		newBuoyData := BuoyItem{}
+		newBuoyData := BuoyDataItem{}
 		rawDate := fmt.Sprintf("%s%s GMT %s/%s/%s", rawData[lineBeginIndex+3], rawData[lineBeginIndex+4], rawData[lineBeginIndex+1], rawData[lineBeginIndex+2], rawData[lineBeginIndex+0])
 		newBuoyData.Date, _ = time.Parse(standardDateLayout, rawDate)
 		newBuoyData.WaveSummary.WaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+5], 64)
@@ -289,17 +271,12 @@ func (b *Buoy) ParseRawDetailedWaveData(rawData []string, dataCountLimit int) er
 		newBuoyData.WindWaveComponent.CompassDirection = rawData[lineBeginIndex+11]
 		newBuoyData.Steepness = rawData[lineBeginIndex+12]
 		newBuoyData.AveragePeriod, _ = strconv.ParseFloat(rawData[lineBeginIndex+13], 64)
-		newBuoyData.MeanWaveDirection, _ = strconv.ParseFloat(rawData[lineBeginIndex+14], 64)
+		newBuoyData.WaveSummary.Direction, _ = strconv.ParseFloat(rawData[lineBeginIndex+14], 64)
+		newBuoyData.WaveSummary.CompassDirection = DegreeToDirection(newBuoyData.WaveSummary.Direction)
 		newBuoyData.InterpolateDominantPeriod()
 		newBuoyData.InterpolateDominantWaveDirection()
 
-		if len(b.BuoyData) <= itemIndex {
-			b.BuoyData = append(b.BuoyData, newBuoyData)
-		} else if b.BuoyData[itemIndex].WaveSummary.Period > 0 {
-			b.BuoyData[itemIndex].MergeDetailedWaveDataReading(newBuoyData)
-		} else {
-			b.BuoyData[itemIndex] = newBuoyData
-		}
+		b.BuoyData[itemIndex] = newBuoyData
 
 		itemIndex++
 	}
@@ -327,11 +304,7 @@ func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData, rawEnergyData []string, dat
 		dataLineCount = dataCountLimit
 	}
 
-	if b.BuoyData == nil {
-		b.BuoyData = make([]BuoyItem, dataLineCount)
-	} else if len(b.BuoyData) == 0 {
-		b.BuoyData = make([]BuoyItem, dataLineCount)
-	}
+	b.BuoyData = make([]BuoyDataItem, dataLineCount)
 
 	// Run through all of the data, creating a new BuoySpectraItem for each
 	for i := headerLines; i < dataLineCount+headerLines; i += 1 {
@@ -383,7 +356,15 @@ func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData, rawEnergyData []string, dat
 		}
 
 		// Add the item!
-		b.BuoyData[i-headerLines].WaveSpectra = item
+		buoyItem := BuoyDataItem{}
+		buoyItem.WaveSpectra = item
+		buoyItem.WaveSummary = item.WaveSummary()
+		buoyItem.SwellWaveComponent = item.SwellWaveComponent()
+		buoyItem.WindWaveComponent = item.WindWaveComponent()
+		buoyItem.Steepness = SolveSteepness(buoyItem.WaveSummary.WaveHeight, buoyItem.WaveSummary.Period)
+		buoyItem.AveragePeriod = item.AveragePeriod()
+
+		b.BuoyData[i-headerLines] = buoyItem
 	}
 
 	return nil
@@ -405,7 +386,7 @@ func (b *Buoy) FetchLatestBuoyReading() error {
 	return b.ParseRawLatestBuoyData(rawBuoyData)
 }
 
-// Grabs the latest data as a time series of BuoyItem objects. This data contains thing like
+// Grabs the latest data as a time series of BuoyDataItem objects. This data contains thing like
 // wave heights, periods, water temps, and wind. Input a negative integer or zero to download all
 // available data points.
 func (b *Buoy) FetchStandardData(dataCountLimit int) error {
@@ -419,7 +400,7 @@ func (b *Buoy) FetchStandardData(dataCountLimit int) error {
 	return b.ParseRawStandardData(rawData, dataCountLimit)
 }
 
-// Grabs the latest spectral wave data as a time series of BuoyItem objects. This data contains things
+// Grabs the latest spectral wave data as a time series of BuoyDataItem objects. This data contains things
 // like the primary and secondary swell components, and significant wave height. Input a negative integer
 // or zero to download all available data points
 func (b *Buoy) FetchDetailedWaveData(dataCountLimit int) error {
@@ -451,13 +432,13 @@ func (b *Buoy) FetchRawWaveSpectraData(dataCountLimit int) error {
 	return b.ParseRawWaveSpectraData(rawAlphaData, rawEnergyData, dataCountLimit)
 }
 
-// Finds the closest BuoyItem to a given time and returns the data at that data point.
+// Finds the closest BuoyDataItem to a given time and returns the data at that data point.
 // If it fails, the duration returned is -1.
-func (b *Buoy) FindConditionsForDateAndTime(date time.Time) (BuoyItem, time.Duration) {
+func (b *Buoy) FindConditionsForDateAndTime(date time.Time) (BuoyDataItem, time.Duration) {
 	if b.BuoyData == nil {
-		return BuoyItem{}, -1
+		return BuoyDataItem{}, -1
 	} else if len(b.BuoyData) < 1 {
-		return BuoyItem{}, -1
+		return BuoyDataItem{}, -1
 	}
 
 	minBuoy := b.BuoyData[0]
