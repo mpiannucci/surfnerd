@@ -30,12 +30,14 @@ func (b *BuoySpectraItem) CalculateSeperationFrequency() float64 {
 		}
 	}
 
-	b.SeperationFrequency = b.Frequencies[maxEnergyIndex] / 0.9
+	b.SeperationFrequency = b.Frequencies[maxEnergyIndex] * 0.9
 	return b.SeperationFrequency
 }
 
 func (b BuoySpectraItem) AveragePeriod() float64 {
-	return b.ZeroMoment() * 1.982
+	zeroMoment := b.ZeroMoment()
+	secondMoment := b.SecondMoment()
+	return math.Sqrt(zeroMoment / secondMoment)
 }
 
 func (b BuoySpectraItem) ZeroMoment() float64 {
@@ -59,12 +61,37 @@ func (b BuoySpectraItem) ZeroMoment() float64 {
 	return zeroMoment
 }
 
+func (b BuoySpectraItem) SecondMoment() float64 {
+	if b.Frequencies == nil {
+		return -1.0
+	} else if b.Energies == nil {
+		return -1.0
+	}
+
+	secondMoment := 0.0
+	for index, _ := range b.Frequencies {
+		bandwidth := 0.01
+		if index > 0 {
+			bandwidth = math.Abs(b.Frequencies[index] - b.Frequencies[index-1])
+		} else if len(b.Frequencies) > 1 {
+			bandwidth = math.Abs(b.Frequencies[index+1] - b.Frequencies[index])
+		}
+
+		secondMoment += b.Energies[index] * bandwidth * math.Pow(b.Frequencies[index], 2)
+	}
+	return secondMoment
+}
+
 func (b BuoySpectraItem) WaveSummary() Swell {
 	if b.Frequencies == nil {
 		return Swell{}
 	} else if b.Energies == nil {
 		return Swell{}
 	} else if b.Angles == nil {
+		return Swell{}
+	} else if len(b.Angles) != len(b.Frequencies) {
+		return Swell{}
+	} else if len(b.Frequencies) != len(b.Energies) {
 		return Swell{}
 	}
 
@@ -104,6 +131,10 @@ func (b BuoySpectraItem) SwellWaveComponent() Swell {
 	} else if b.Energies == nil {
 		return Swell{}
 	} else if b.Angles == nil {
+		return Swell{}
+	} else if len(b.Angles) != len(b.Frequencies) {
+		return Swell{}
+	} else if len(b.Frequencies) != len(b.Energies) {
 		return Swell{}
 	}
 
@@ -151,6 +182,10 @@ func (b BuoySpectraItem) WindWaveComponent() Swell {
 	} else if b.Energies == nil {
 		return Swell{}
 	} else if b.Angles == nil {
+		return Swell{}
+	} else if len(b.Angles) != len(b.Frequencies) {
+		return Swell{}
+	} else if len(b.Frequencies) != len(b.Energies) {
 		return Swell{}
 	}
 

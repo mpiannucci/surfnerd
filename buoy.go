@@ -377,6 +377,10 @@ func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData, rawEnergyData []string, dat
 
 		// Get the seperation frequency
 		item.SeperationFrequency, _ = strconv.ParseFloat(rawEnergyLine[seperationFrequencyIndex], 64)
+		if item.SeperationFrequency > 9.9 {
+			// If its 9.99999 it was not available so we need to solve for it ourselves
+			item.CalculateSeperationFrequency()
+		}
 
 		// Add the item!
 		b.BuoyData[i-headerLines].WaveSpectra = item
