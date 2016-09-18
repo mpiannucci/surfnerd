@@ -111,3 +111,30 @@ func SolveShoalingCoefficient(wavelength, depth float64) (shoalingCoefficient fl
 	shoalingCoefficient = math.Sqrt(initialCelerity / (2 * groupVelocity))
 	return
 }
+
+// Calculates the zero moment of a wave spectra point given energy and bandwidth
+func SolveZeroSpectralMoment(energy, bandwidth float64) float64 {
+	return energy * bandwidth
+}
+
+// Calculates the second moment of a wave spectra point given enrgy, frequency and bandwith
+func SolveSecondSpectralMoment(energy, bandwidth, frequency float64) float64 {
+	return energy * bandwidth * math.Pow(frequency, 2)
+}
+
+func SolveSteepnessCoeffWithMoments(zeroMoment, secondMoment float64) float64 {
+	return (8.0 * math.Pi * secondMoment) / (9.81 * math.Sqrt(zeroMoment))
+}
+
+func SolveSteepness(significantWaveWieght, dominantPeriod float64) string {
+	val := math.Exp(-3.3 * math.Log(dominantPeriod))
+	if significantWaveWieght > (val / 250.0) {
+		return "Very Steep"
+	} else if significantWaveWieght > (val / 500.0) {
+		return "Steep"
+	} else if significantWaveWieght > (val / 1000.0) {
+		return "Average"
+	} else {
+		return "Swell"
+	}
+}

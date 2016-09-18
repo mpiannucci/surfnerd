@@ -49,7 +49,7 @@ func TestDetailedWaveDataFetch(t *testing.T) {
 }
 
 func TestRawSpectraDataFetch(t *testing.T) {
-	buoy := GetBuoyByID("44017")
+	buoy := GetBuoyByID("44097")
 	if buoy == nil {
 		fmt.Println("Could not find the buoy for the given ID")
 		t.FailNow()
@@ -71,7 +71,6 @@ func TestRawSpectraDataFetch(t *testing.T) {
 	fmt.Println(waveSummary)
 	fmt.Println(swellComponent)
 	fmt.Println(windComponent)
-	fmt.Println(buoy.BuoyData[0].WaveSpectra.AveragePeriod())
 }
 
 func TestClosestBuoyDataFinder(t *testing.T) {

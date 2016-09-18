@@ -17,7 +17,7 @@ type BuoyItem struct {
 	WindGust      float64
 
 	// Waves
-	PrimarySwell       Swell
+	WaveSummary        Swell
 	SwellWaveComponent Swell
 	WindWaveComponent  Swell
 	Steepness          string
@@ -47,7 +47,7 @@ func (b *BuoyItem) MergeLatestBuoyReading(newBuoyData BuoyItem) {
 	b.AirTemperature = newBuoyData.AirTemperature
 	b.WaterTemperature = newBuoyData.WaterTemperature
 	b.DewpointTemperature = newBuoyData.DewpointTemperature
-	b.PrimarySwell = newBuoyData.PrimarySwell
+	b.WaveSummary = newBuoyData.WaveSummary
 	b.SwellWaveComponent = newBuoyData.SwellWaveComponent
 	b.WindWaveComponent = newBuoyData.WindWaveComponent
 }
@@ -66,7 +66,7 @@ func (b *BuoyItem) MergeStandardDataReading(newBuoyData BuoyItem) {
 	b.Visibility = newBuoyData.Visibility
 	b.PressureTendency = newBuoyData.PressureTendency
 	b.WaterLevel = newBuoyData.WaterLevel
-	b.PrimarySwell = newBuoyData.PrimarySwell
+	b.WaveSummary = newBuoyData.WaveSummary
 }
 
 // Merges the detailed spectral wave data with an existing buoy item data set
@@ -81,20 +81,20 @@ func (b *BuoyItem) MergeDetailedWaveDataReading(newBuoyData BuoyItem) {
 
 // Finds the dominant wave direction
 func (b *BuoyItem) InterpolateDominantWaveDirection() {
-	if math.Abs(b.SwellWaveComponent.Period-b.PrimarySwell.Period) <
-		math.Abs(b.WindWaveComponent.Period-b.PrimarySwell.Period) {
-		b.PrimarySwell.CompassDirection = b.SwellWaveComponent.CompassDirection
+	if math.Abs(b.SwellWaveComponent.Period-b.WaveSummary.Period) <
+		math.Abs(b.WindWaveComponent.Period-b.WaveSummary.Period) {
+		b.WaveSummary.CompassDirection = b.SwellWaveComponent.CompassDirection
 	} else {
-		b.PrimarySwell.CompassDirection = b.WindWaveComponent.CompassDirection
+		b.WaveSummary.CompassDirection = b.WindWaveComponent.CompassDirection
 	}
 }
 
 // Finds the dominant wave period
 func (b *BuoyItem) InterpolateDominantPeriod() {
-	if math.Abs(b.SwellWaveComponent.WaveHeight-b.PrimarySwell.WaveHeight) <
-		math.Abs(b.WindWaveComponent.WaveHeight-b.PrimarySwell.WaveHeight) {
-		b.PrimarySwell.Period = b.SwellWaveComponent.Period
+	if math.Abs(b.SwellWaveComponent.WaveHeight-b.WaveSummary.WaveHeight) <
+		math.Abs(b.WindWaveComponent.WaveHeight-b.WaveSummary.WaveHeight) {
+		b.WaveSummary.Period = b.SwellWaveComponent.Period
 	} else {
-		b.PrimarySwell.Period = b.WindWaveComponent.Period
+		b.WaveSummary.Period = b.WindWaveComponent.Period
 	}
 }

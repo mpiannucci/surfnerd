@@ -17,58 +17,46 @@ type BuoySpectraItem struct {
 }
 
 func (b *BuoySpectraItem) CalculateSeperationFrequency() float64 {
-	if b.Energies == nil {
+	if b.Frequencies == nil {
+		return -1.0
+	} else if b.Energies == nil {
 		return -1.0
 	}
 
-	maxEnergy := -1.0
-	maxEnergyIndex := -1
-	for index, energy := range b.Energies {
-		if energy > maxEnergy {
-			maxEnergyIndex = index
-			maxEnergy = energy
+	maxSteepness := -1.0
+	maxSteepnessIndex := -1
+	for index, _ := range b.Frequencies {
+		bandwidth := 0.01
+		if index > 0 {
+			bandwidth = math.Abs(b.Frequencies[index] - b.Frequencies[index-1])
+		} else if len(b.Frequencies) > 1 {
+			bandwidth = math.Abs(b.Frequencies[index+1] - b.Frequencies[index])
+		}
+
+		zeroMoment := SolveZeroSpectralMoment(b.Energies[index], bandwidth)
+		secondMoment := SolveSecondSpectralMoment(b.Energies[index], bandwidth, b.Frequencies[index])
+		steepness := SolveSteepnessCoeffWithMoments(zeroMoment, secondMoment)
+
+		if steepness > maxSteepness {
+			maxSteepness = steepness
+			maxSteepnessIndex = index
 		}
 	}
 
-	b.SeperationFrequency = b.Frequencies[maxEnergyIndex] * 0.9
+	b.SeperationFrequency = 0.75 * b.Frequencies[maxSteepnessIndex]
 	return b.SeperationFrequency
 }
 
 func (b BuoySpectraItem) AveragePeriod() float64 {
-	zeroMoment := b.ZeroMoment()
-	secondMoment := b.SecondMoment()
-	return math.Sqrt(zeroMoment / secondMoment)
-}
-
-func (b BuoySpectraItem) ZeroMoment() float64 {
-	if b.Frequencies == nil {
-		return -1.0
-	} else if b.Energies == nil {
-		return -1.0
-	}
-
 	zeroMoment := 0.0
-	for index, _ := range b.Frequencies {
-		bandwidth := 0.01
-		if index > 0 {
-			bandwidth = math.Abs(b.Frequencies[index] - b.Frequencies[index-1])
-		} else if len(b.Frequencies) > 1 {
-			bandwidth = math.Abs(b.Frequencies[index+1] - b.Frequencies[index])
-		}
+	secondMoment := 0.0
 
-		zeroMoment += b.Energies[index] * bandwidth
-	}
-	return zeroMoment
-}
-
-func (b BuoySpectraItem) SecondMoment() float64 {
 	if b.Frequencies == nil {
 		return -1.0
 	} else if b.Energies == nil {
 		return -1.0
 	}
 
-	secondMoment := 0.0
 	for index, _ := range b.Frequencies {
 		bandwidth := 0.01
 		if index > 0 {
@@ -77,9 +65,11 @@ func (b BuoySpectraItem) SecondMoment() float64 {
 			bandwidth = math.Abs(b.Frequencies[index+1] - b.Frequencies[index])
 		}
 
-		secondMoment += b.Energies[index] * bandwidth * math.Pow(b.Frequencies[index], 2)
+		zeroMoment += SolveZeroSpectralMoment(b.Energies[index], bandwidth)
+		secondMoment += SolveSecondSpectralMoment(b.Energies[index], bandwidth, b.Frequencies[index])
 	}
-	return secondMoment
+
+	return math.Sqrt(zeroMoment / secondMoment)
 }
 
 func (b BuoySpectraItem) WaveSummary() Swell {
@@ -108,7 +98,7 @@ func (b BuoySpectraItem) WaveSummary() Swell {
 			bandwidth = math.Abs(b.Frequencies[index+1] - b.Frequencies[index])
 		}
 
-		zeroMoment += b.Energies[index] * bandwidth
+		zeroMoment += SolveZeroSpectralMoment(b.Energies[index], bandwidth)
 
 		if b.Energies[index] > maxEnergy {
 			maxEnergy = b.Energies[index]
@@ -144,7 +134,7 @@ func (b BuoySpectraItem) SwellWaveComponent() Swell {
 	maxEnergy := -1.0
 	zeroMoment := 0.0
 	for index, _ := range b.Frequencies {
-		if b.Frequencies[index] < b.SeperationFrequency {
+		if b.Frequencies[index] > b.SeperationFrequency {
 			continue
 		}
 
@@ -155,7 +145,7 @@ func (b BuoySpectraItem) SwellWaveComponent() Swell {
 			bandwidth = math.Abs(b.Frequencies[index+1] - b.Frequencies[index])
 		}
 
-		zeroMoment += b.Energies[index] * bandwidth
+		zeroMoment += SolveZeroSpectralMoment(b.Energies[index], bandwidth)
 
 		if b.Energies[index] > maxEnergy {
 			maxEnergy = b.Energies[index]
@@ -195,7 +185,7 @@ func (b BuoySpectraItem) WindWaveComponent() Swell {
 	maxEnergy := -1.0
 	zeroMoment := 0.0
 	for index, _ := range b.Frequencies {
-		if b.Frequencies[index] > b.SeperationFrequency {
+		if b.Frequencies[index] < b.SeperationFrequency {
 			continue
 		}
 
@@ -206,7 +196,7 @@ func (b BuoySpectraItem) WindWaveComponent() Swell {
 			bandwidth = math.Abs(b.Frequencies[index+1] - b.Frequencies[index])
 		}
 
-		zeroMoment += b.Energies[index] * bandwidth
+		zeroMoment += SolveZeroSpectralMoment(b.Energies[index], bandwidth)
 
 		if b.Energies[index] > maxEnergy {
 			maxEnergy = b.Energies[index]

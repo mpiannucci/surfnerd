@@ -154,9 +154,9 @@ func (b *Buoy) ParseRawLatestBuoyData(rawBuoyData string) error {
 
 		switch variable {
 		case "Seas":
-			buoyDataItem.PrimarySwell.WaveHeight, _ = strconv.ParseFloat(rawValue, 64)
+			buoyDataItem.WaveSummary.WaveHeight, _ = strconv.ParseFloat(rawValue, 64)
 		case "Peak Period":
-			buoyDataItem.PrimarySwell.Period, _ = strconv.ParseFloat(rawValue, 64)
+			buoyDataItem.WaveSummary.Period, _ = strconv.ParseFloat(rawValue, 64)
 		case "Pres":
 			buoyDataItem.Pressure, _ = strconv.ParseFloat(rawValue, 64)
 		case "Air Temp":
@@ -230,8 +230,8 @@ func (b *Buoy) ParseRawStandardData(rawData []string, dataCountLimit int) error 
 		newBuoyData.WindDirection, _ = strconv.ParseFloat(rawData[lineBeginIndex+5], 64)
 		newBuoyData.WindSpeed, _ = strconv.ParseFloat(rawData[lineBeginIndex+6], 64)
 		newBuoyData.WindGust, _ = strconv.ParseFloat(rawData[lineBeginIndex+7], 64)
-		newBuoyData.PrimarySwell.WaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+8], 64)
-		newBuoyData.PrimarySwell.Period, _ = strconv.ParseFloat(rawData[lineBeginIndex+9], 64)
+		newBuoyData.WaveSummary.WaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+8], 64)
+		newBuoyData.WaveSummary.Period, _ = strconv.ParseFloat(rawData[lineBeginIndex+9], 64)
 		newBuoyData.AveragePeriod, _ = strconv.ParseFloat(rawData[lineBeginIndex+10], 64)
 		newBuoyData.MeanWaveDirection, _ = strconv.ParseFloat(rawData[lineBeginIndex+11], 64)
 		newBuoyData.Pressure, _ = strconv.ParseFloat(rawData[lineBeginIndex+12], 64)
@@ -280,7 +280,7 @@ func (b *Buoy) ParseRawDetailedWaveData(rawData []string, dataCountLimit int) er
 		newBuoyData := BuoyItem{}
 		rawDate := fmt.Sprintf("%s%s GMT %s/%s/%s", rawData[lineBeginIndex+3], rawData[lineBeginIndex+4], rawData[lineBeginIndex+1], rawData[lineBeginIndex+2], rawData[lineBeginIndex+0])
 		newBuoyData.Date, _ = time.Parse(standardDateLayout, rawDate)
-		newBuoyData.PrimarySwell.WaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+5], 64)
+		newBuoyData.WaveSummary.WaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+5], 64)
 		newBuoyData.SwellWaveComponent.WaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+6], 64)
 		newBuoyData.SwellWaveComponent.Period, _ = strconv.ParseFloat(rawData[lineBeginIndex+7], 64)
 		newBuoyData.WindWaveComponent.WaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+8], 64)
@@ -295,7 +295,7 @@ func (b *Buoy) ParseRawDetailedWaveData(rawData []string, dataCountLimit int) er
 
 		if len(b.BuoyData) <= itemIndex {
 			b.BuoyData = append(b.BuoyData, newBuoyData)
-		} else if b.BuoyData[itemIndex].PrimarySwell.Period > 0 {
+		} else if b.BuoyData[itemIndex].WaveSummary.Period > 0 {
 			b.BuoyData[itemIndex].MergeDetailedWaveDataReading(newBuoyData)
 		} else {
 			b.BuoyData[itemIndex] = newBuoyData
