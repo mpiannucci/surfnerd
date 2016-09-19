@@ -25,7 +25,11 @@ func (b *BuoySpectraItem) CalculateSeperationFrequency() float64 {
 
 	maxSteepness := -1.0
 	maxSteepnessIndex := -1
-	for index, _ := range b.Frequencies {
+	for index, freq := range b.Frequencies {
+		if freq > 1/3.9 {
+			continue
+		}
+
 		bandwidth := 0.01
 		if index > 0 {
 			bandwidth = math.Abs(b.Frequencies[index] - b.Frequencies[index-1])
