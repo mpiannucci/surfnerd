@@ -321,13 +321,12 @@ func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData, rawEnergyData []string, dat
 		freqCount := (len(rawAlphaLine) - 5) / 2
 
 		// Create the new item
+		buoyItem := BuoyDataItem{}
 		item := BuoySpectraItem{}
 
 		// Start with the date
-		if b.BuoyData[i-headerLines].Date.IsZero() {
-			rawDate := fmt.Sprintf("%s%s GMT %s/%s/%s", rawAlphaLine[3], rawAlphaLine[4], rawAlphaLine[1], rawAlphaLine[2], rawAlphaLine[0])
-			b.BuoyData[i-headerLines].Date, _ = time.Parse(standardDateLayout, rawDate)
-		}
+		rawDate := fmt.Sprintf("%s%s GMT %s/%s/%s", rawAlphaLine[3], rawAlphaLine[4], rawAlphaLine[1], rawAlphaLine[2], rawAlphaLine[0])
+		buoyItem.Date, _ = time.Parse(standardDateLayout, rawDate)
 
 		// Fill the frequency, direction, nad energy data
 		item.Frequencies = make([]float64, freqCount)
@@ -356,7 +355,6 @@ func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData, rawEnergyData []string, dat
 		}
 
 		// Add the item!
-		buoyItem := BuoyDataItem{}
 		buoyItem.WaveSpectra = item
 		buoyItem.WaveSummary = item.WaveSummary()
 		buoyItem.SwellWaveComponent = item.SwellWaveComponent()
