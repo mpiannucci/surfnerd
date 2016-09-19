@@ -1,6 +1,7 @@
 package surfnerd
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"strings"
 )
@@ -121,4 +122,9 @@ func (b *BuoyStations) FindClosestActiveWaveBuoys(loc Location) []*Buoy {
 	}
 
 	return closestBuoys
+}
+
+// Convert a Buoy object to a json formatted string
+func (b *BuoyStations) ToJSON() ([]byte, error) {
+	return json.MarshalIndent(b, "", "    ")
 }
