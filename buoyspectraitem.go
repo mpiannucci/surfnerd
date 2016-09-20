@@ -143,7 +143,7 @@ func (b BuoySpectraItem) FindSwellComponents() []Swell {
 		prevIndex = minIndex
 	}
 
-	sort.Reverse(ByMaxEnergy(components))
+	sort.Sort(sort.Reverse(ByMaxEnergy(components)))
 
 	return components
 }
