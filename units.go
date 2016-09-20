@@ -28,11 +28,11 @@ func DegreeToDirection(degree float64) string {
 		return "NULL"
 	}
 
-	windIndex := int(degree) / (360 / len(windDirs))
+	windIndex := int((degree+11.25)/22.5 - 0.02)
 	if windIndex >= len(windDirs) {
 		windIndex = 0
 	}
-	return windDirs[windIndex]
+	return windDirs[windIndex%len(windDirs)]
 }
 
 // Converts a direction to the given degree value that it represents

@@ -24,7 +24,7 @@ func TestTimeConversion(t *testing.T) {
 }
 
 func TestDegreeConversion(t *testing.T) {
-	if DegreeToDirection(360) != "N" {
+	if DegreeToDirection(350) != "N" {
 		t.Fail()
 	}
 
