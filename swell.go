@@ -9,6 +9,10 @@ type Swell struct {
 	Period           float64
 	Direction        float64
 	CompassDirection string
+
+	// Metadata
+	MaxEnergy      float64 `json:",omitempty"`
+	FrequencyIndex int     `json:",omitempty"`
 }
 
 // Converts relevant members to metric units
@@ -81,4 +85,18 @@ func NewSwellWithCompassDirection(waveHeight, period float64, direction string) 
 		CompassDirection: direction,
 	}
 	return swell
+}
+
+type ByMaxEnergy []Swell
+
+func (b ByMaxEnergy) Len() int {
+	return len(b)
+}
+
+func (b ByMaxEnergy) Swap(i, j int) {
+	b[i], b[j] = b[j], b[i]
+}
+
+func (b ByMaxEnergy) Less(i, j int) bool {
+	return b[i].MaxEnergy < b[j].MaxEnergy
 }

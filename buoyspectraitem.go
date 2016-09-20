@@ -1,8 +1,10 @@
 package surfnerd
 
 import (
-	"github.com/mpiannucci/peakdetect"
 	"math"
+	"sort"
+
+	"github.com/mpiannucci/peakdetect"
 )
 
 // Represents the Wave Spectra measured by a NDBC wave buoy for a given time step
@@ -108,7 +110,7 @@ func (b BuoySpectraItem) FindSwellComponents() []Swell {
 
 	// Loop through and find all of the swell components
 	prevIndex := 0
-	for maxIndex, _ := range maxEnergies {
+	for maxIndex, maxEnergy := range maxEnergies {
 		minIndex := prevIndex
 		if maxIndex >= len(minIndexes) {
 			minIndex = len(b.Energies)
@@ -134,10 +136,14 @@ func (b BuoySpectraItem) FindSwellComponents() []Swell {
 		swellComponent.Period = 1.0 / b.Frequencies[maxIndexes[maxIndex]]
 		swellComponent.Direction = b.Angles[maxIndexes[maxIndex]]
 		swellComponent.CompassDirection = DegreeToDirection(swellComponent.Direction)
+		swellComponent.MaxEnergy = maxEnergy
+		swellComponent.FrequencyIndex = maxIndexes[maxIndex]
 		components[maxIndex] = swellComponent
 
 		prevIndex = minIndex
 	}
+
+	sort.Reverse(ByMaxEnergy(components))
 
 	return components
 }
