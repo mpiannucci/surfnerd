@@ -359,6 +359,7 @@ func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData, rawEnergyData []string, dat
 
 		// Add the item!
 		buoyItem.WaveSpectra = item
+		buoyItem.WaveSummary = item.WaveSummary()
 		buoyItem.SwellComponents = item.FindSwellComponents()
 		buoyItem.Steepness = SolveSteepness(buoyItem.WaveSummary.WaveHeight, buoyItem.WaveSummary.Period)
 		buoyItem.AveragePeriod = item.AveragePeriod()
