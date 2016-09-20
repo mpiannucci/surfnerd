@@ -144,6 +144,8 @@ func (b *Buoy) ParseRawLatestBuoyData(rawBuoyData string) error {
 	rawTime := rawBuoyLineData[4]
 	buoyDataItem.Date, _ = time.Parse(latestDateLayout, rawTime)
 
+	windWaveComponent := Swell{}
+	swellWaveComponent := Swell{}
 	swellPeriodRead := false
 	swellDirectionRead := false
 	for i := 5; i < len(rawBuoyLineData); i++ {
@@ -169,28 +171,29 @@ func (b *Buoy) ParseRawLatestBuoyData(rawBuoyData string) error {
 		case "Dew Point":
 			buoyDataItem.DewpointTemperature, _ = strconv.ParseFloat(rawValue, 64)
 		case "Swell":
-			buoyDataItem.SwellWaveComponent.WaveHeight, _ = strconv.ParseFloat(rawValue, 64)
+			swellWaveComponent.WaveHeight, _ = strconv.ParseFloat(rawValue, 64)
 		case "Wind Wave":
-			buoyDataItem.WindWaveComponent.WaveHeight, _ = strconv.ParseFloat(rawValue, 64)
+			windWaveComponent.WaveHeight, _ = strconv.ParseFloat(rawValue, 64)
 		case "Period":
 			if !swellPeriodRead {
-				buoyDataItem.SwellWaveComponent.Period, _ = strconv.ParseFloat(rawValue, 64)
+				swellWaveComponent.Period, _ = strconv.ParseFloat(rawValue, 64)
 				swellPeriodRead = true
 			} else {
-				buoyDataItem.WindWaveComponent.Period, _ = strconv.ParseFloat(rawValue, 64)
+				windWaveComponent.Period, _ = strconv.ParseFloat(rawValue, 64)
 			}
 		case "Direction":
 			if !swellDirectionRead {
-				buoyDataItem.SwellWaveComponent.CompassDirection = rawValue
+				swellWaveComponent.CompassDirection = rawValue
 				swellDirectionRead = true
 			} else {
-				buoyDataItem.WindWaveComponent.CompassDirection = rawValue
+				windWaveComponent.CompassDirection = rawValue
 			}
 		default:
 			// Do Nothing
 		}
 	}
 
+	buoyDataItem.SwellComponents = []Swell{swellWaveComponent, windWaveComponent}
 	buoyDataItem.InterpolateDominantWaveDirection()
 
 	b.BuoyData[0] = buoyDataItem
@@ -260,19 +263,23 @@ func (b *Buoy) ParseRawDetailedWaveData(rawData []string, dataCountLimit int) er
 		}
 
 		newBuoyData := BuoyDataItem{}
+		windWaveComponent := Swell{}
+		swellWaveComponent := Swell{}
 		rawDate := fmt.Sprintf("%s%s GMT %s/%s/%s", rawData[lineBeginIndex+3], rawData[lineBeginIndex+4], rawData[lineBeginIndex+1], rawData[lineBeginIndex+2], rawData[lineBeginIndex+0])
 		newBuoyData.Date, _ = time.Parse(standardDateLayout, rawDate)
 		newBuoyData.WaveSummary.WaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+5], 64)
-		newBuoyData.SwellWaveComponent.WaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+6], 64)
-		newBuoyData.SwellWaveComponent.Period, _ = strconv.ParseFloat(rawData[lineBeginIndex+7], 64)
-		newBuoyData.WindWaveComponent.WaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+8], 64)
-		newBuoyData.WindWaveComponent.Period, _ = strconv.ParseFloat(rawData[lineBeginIndex+9], 64)
-		newBuoyData.SwellWaveComponent.CompassDirection = rawData[lineBeginIndex+10]
-		newBuoyData.WindWaveComponent.CompassDirection = rawData[lineBeginIndex+11]
+		swellWaveComponent.WaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+6], 64)
+		swellWaveComponent.Period, _ = strconv.ParseFloat(rawData[lineBeginIndex+7], 64)
+		windWaveComponent.WaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+8], 64)
+		windWaveComponent.Period, _ = strconv.ParseFloat(rawData[lineBeginIndex+9], 64)
+		swellWaveComponent.CompassDirection = rawData[lineBeginIndex+10]
+		windWaveComponent.CompassDirection = rawData[lineBeginIndex+11]
 		newBuoyData.Steepness = rawData[lineBeginIndex+12]
 		newBuoyData.AveragePeriod, _ = strconv.ParseFloat(rawData[lineBeginIndex+13], 64)
 		newBuoyData.WaveSummary.Direction, _ = strconv.ParseFloat(rawData[lineBeginIndex+14], 64)
 		newBuoyData.WaveSummary.CompassDirection = DegreeToDirection(newBuoyData.WaveSummary.Direction)
+
+		newBuoyData.SwellComponents = []Swell{swellWaveComponent, windWaveComponent}
 		newBuoyData.InterpolateDominantPeriod()
 		newBuoyData.InterpolateDominantWaveDirection()
 
@@ -349,16 +356,10 @@ func (b *Buoy) ParseRawWaveSpectraData(rawAlphaData, rawEnergyData []string, dat
 
 		// Get the seperation frequency
 		item.SeperationFrequency, _ = strconv.ParseFloat(rawEnergyLine[seperationFrequencyIndex], 64)
-		if item.SeperationFrequency > 9.9 {
-			// If its 9.99999 it was not available so we need to solve for it ourselves
-			item.CalculateSeperationFrequency()
-		}
 
 		// Add the item!
 		buoyItem.WaveSpectra = item
-		buoyItem.WaveSummary = item.WaveSummary()
-		buoyItem.SwellWaveComponent = item.SwellWaveComponent()
-		buoyItem.WindWaveComponent = item.WindWaveComponent()
+		buoyItem.SwellComponents = item.FindSwellComponents()
 		buoyItem.Steepness = SolveSteepness(buoyItem.WaveSummary.WaveHeight, buoyItem.WaveSummary.Period)
 		buoyItem.AveragePeriod = item.AveragePeriod()
 

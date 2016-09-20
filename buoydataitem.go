@@ -17,12 +17,11 @@ type BuoyDataItem struct {
 	WindGust      float64
 
 	// Waves
-	WaveSummary        Swell
-	SwellWaveComponent Swell
-	WindWaveComponent  Swell
-	Steepness          string
-	AveragePeriod      float64
-	WaveSpectra        BuoySpectraItem
+	WaveSummary     Swell
+	SwellComponents []Swell
+	Steepness       string
+	AveragePeriod   float64
+	WaveSpectra     BuoySpectraItem
 
 	// Meteorology
 	Pressure            float64
@@ -36,20 +35,24 @@ type BuoyDataItem struct {
 
 // Finds the dominant wave direction
 func (b *BuoyDataItem) InterpolateDominantWaveDirection() {
-	if math.Abs(b.SwellWaveComponent.Period-b.WaveSummary.Period) <
-		math.Abs(b.WindWaveComponent.Period-b.WaveSummary.Period) {
-		b.WaveSummary.CompassDirection = b.SwellWaveComponent.CompassDirection
-	} else {
-		b.WaveSummary.CompassDirection = b.WindWaveComponent.CompassDirection
+	minPeriodDiff := math.Inf(1)
+	for _, swell := range b.SwellComponents {
+		periodDiff := math.Abs(swell.Period - b.WaveSummary.Period)
+		if periodDiff < minPeriodDiff {
+			minPeriodDiff = periodDiff
+			b.WaveSummary.CompassDirection = swell.CompassDirection
+		}
 	}
 }
 
 // Finds the dominant wave period
 func (b *BuoyDataItem) InterpolateDominantPeriod() {
-	if math.Abs(b.SwellWaveComponent.WaveHeight-b.WaveSummary.WaveHeight) <
-		math.Abs(b.WindWaveComponent.WaveHeight-b.WaveSummary.WaveHeight) {
-		b.WaveSummary.Period = b.SwellWaveComponent.Period
-	} else {
-		b.WaveSummary.Period = b.WindWaveComponent.Period
+	minHeightDiff := math.Inf(1)
+	for _, swell := range b.SwellComponents {
+		heightDiff := math.Abs(swell.WaveHeight - b.WaveSummary.WaveHeight)
+		if heightDiff < minHeightDiff {
+			minHeightDiff = heightDiff
+			b.WaveSummary.Period = swell.Period
+		}
 	}
 }
