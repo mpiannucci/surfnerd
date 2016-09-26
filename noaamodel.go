@@ -15,7 +15,7 @@ type NOAAModel struct {
 	AltitudeResolution float64
 	LocationResolution float64
 	TimeResolution     float64
-	Units              string
+	Units              UnitSystem
 	TimeLocation       string
 	ModelRun           string
 }

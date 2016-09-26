@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-type UnitSystem int
+type UnitSystem string
 
 const (
-	Metric UnitSystem = iota
-	English
+	Metric  UnitSystem = "metric"
+	English UnitSystem = "english"
 )
 
 var (

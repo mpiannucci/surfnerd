@@ -10,7 +10,7 @@ type SurfForecast struct {
 	Location
 	BeachAngle float64
 	BeachSlope float64
-	Units      string
+	Units      UnitSystem
 
 	ForecastData []SurfForecastItem
 
@@ -21,22 +21,17 @@ type SurfForecast struct {
 	WindModelLocation Location
 }
 
-// Converts relevant members to metric units
-func (s *SurfForecast) ConvertToMetricUnits() {
-	for index, _ := range s.ForecastData {
-		(&s.ForecastData[index]).ConvertToMetricUnits()
+// Converts the data members to a given unit system
+func (s *SurfForecast) ChangeUnits(newUnits UnitSystem) {
+	if s.Units == newUnits {
+		return
 	}
 
-	s.Units = "metric"
-}
-
-// Converts relevant members to imperial units
-func (s *SurfForecast) ConvertToImperialUnits() {
 	for index, _ := range s.ForecastData {
-		(&s.ForecastData[index]).ConvertToImperialUnits()
+		(&s.ForecastData[index]).ChangeUnits(newUnits)
 	}
 
-	s.Units = "imperial"
+	s.Units = newUnits
 }
 
 // Convert Forecast object to a json formatted string
@@ -60,14 +55,14 @@ func NewSurfForecast(loc Location, beachAngle, beachSlope float64, waveForecast 
 	surfForecast.Location = loc
 	surfForecast.BeachAngle = beachAngle
 	surfForecast.BeachSlope = beachSlope
-	surfForecast.Units = "metric"
+	surfForecast.Units = Metric
 
 	// Make sure all of the units match up
-	if waveForecast.Model.Units != "metric" {
-		waveForecast.ConvertToMetricUnits()
+	if waveForecast.Model.Units != Metric {
+		waveForecast.ChangeUnits(Metric)
 	}
-	if windForecast.Model.Units != "metric" {
-		windForecast.ConvertToMetricUnits()
+	if windForecast.Model.Units != Metric {
+		windForecast.ChangeUnits(Metric)
 	}
 
 	// Save the model metadata

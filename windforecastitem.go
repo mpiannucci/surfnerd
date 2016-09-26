@@ -7,16 +7,23 @@ type WindForecastItem struct {
 	WindSpeed     float64
 	WindGustSpeed float64
 	WindDirection float64
+	Units         UnitSystem
 }
 
-// Converts relevant members to metric units
-func (w *WindForecastItem) ConvertToMetricUnits() {
-	w.WindSpeed = MilesPerHourToMetersPerSecond(w.WindSpeed)
-	w.WindGustSpeed = MilesPerHourToMetersPerSecond(w.WindGustSpeed)
-}
+func (w *WindForecastItem) ChangeUnits(newUnits UnitSystem) {
+	if w.Units == newUnits {
+		return
+	}
 
-// Converts relevant members to imperial units
-func (w *WindForecastItem) ConvertToImperialUnits() {
-	w.WindSpeed = MetersPerSecondToMilesPerHour(w.WindSpeed)
-	w.WindGustSpeed = MetersPerSecondToMilesPerHour(w.WindGustSpeed)
+	switch newUnits {
+	case Metric:
+		w.WindSpeed = MilesPerHourToMetersPerSecond(w.WindSpeed)
+		w.WindGustSpeed = MilesPerHourToMetersPerSecond(w.WindGustSpeed)
+	case English:
+		w.WindSpeed = MetersPerSecondToMilesPerHour(w.WindSpeed)
+		w.WindGustSpeed = MetersPerSecondToMilesPerHour(w.WindGustSpeed)
+	default:
+	}
+
+	w.Units = newUnits
 }

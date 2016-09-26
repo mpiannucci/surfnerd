@@ -29,6 +29,6 @@ func TestSurfForecastFetch(t *testing.T) {
 		LocationName: "Narragansett",
 	}
 	surfForecast := NewSurfForecast(riForecastLocation, 145.0, 0.02, waveForecast, windForecast)
-	surfForecast.ConvertToImperialUnits()
+	surfForecast.ChangeUnits(English)
 	surfForecast.ExportAsJSON("test_forecast.json")
 }

@@ -13,26 +13,31 @@ type SurfForecastItem struct {
 	PrimarySwellComponent   Swell
 	SecondarySwellComponent Swell
 	TertiarySwellComponent  Swell
+	Units                   UnitSystem
 }
 
-// Converts relevant members to metric units
-func (s *SurfForecastItem) ConvertToMetricUnits() {
-	s.MinimumBreakingHeight = FeetToMeters(s.MinimumBreakingHeight)
-	s.MaximumBreakingHeight = FeetToMeters(s.MaximumBreakingHeight)
-	s.WindSpeed = MilesPerHourToMetersPerSecond(s.WindSpeed)
-	s.WindGustSpeed = MilesPerHourToMetersPerSecond(s.WindGustSpeed)
-	s.PrimarySwellComponent.ConvertToMetricUnits()
-	s.SecondarySwellComponent.ConvertToMetricUnits()
-	s.TertiarySwellComponent.ConvertToMetricUnits()
-}
+// Converts the relevant members to the given unit system
+func (s *SurfForecastItem) ChangeUnits(newUnits UnitSystem) {
+	if s.Units == newUnits {
+		return
+	}
 
-// Converts relevant members to imperial units
-func (s *SurfForecastItem) ConvertToImperialUnits() {
-	s.MinimumBreakingHeight = MetersToFeet(s.MinimumBreakingHeight)
-	s.MaximumBreakingHeight = MetersToFeet(s.MaximumBreakingHeight)
-	s.WindSpeed = MetersPerSecondToMilesPerHour(s.WindSpeed)
-	s.WindGustSpeed = MetersPerSecondToMilesPerHour(s.WindGustSpeed)
-	s.PrimarySwellComponent.ConvertToImperialUnits()
-	s.SecondarySwellComponent.ConvertToImperialUnits()
-	s.TertiarySwellComponent.ConvertToImperialUnits()
+	switch newUnits {
+	case Metric:
+		s.MinimumBreakingHeight = FeetToMeters(s.MinimumBreakingHeight)
+		s.MaximumBreakingHeight = FeetToMeters(s.MaximumBreakingHeight)
+		s.WindSpeed = MilesPerHourToMetersPerSecond(s.WindSpeed)
+		s.WindGustSpeed = MilesPerHourToMetersPerSecond(s.WindGustSpeed)
+	case English:
+		s.MinimumBreakingHeight = MetersToFeet(s.MinimumBreakingHeight)
+		s.MaximumBreakingHeight = MetersToFeet(s.MaximumBreakingHeight)
+		s.WindSpeed = MetersPerSecondToMilesPerHour(s.WindSpeed)
+		s.WindGustSpeed = MetersPerSecondToMilesPerHour(s.WindGustSpeed)
+	}
+
+	s.PrimarySwellComponent.ChangeUnits(newUnits)
+	s.SecondarySwellComponent.ChangeUnits(newUnits)
+	s.TertiarySwellComponent.ChangeUnits(newUnits)
+
+	s.Units = newUnits
 }

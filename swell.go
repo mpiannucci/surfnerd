@@ -13,24 +13,26 @@ type Swell struct {
 	// Metadata
 	MaxEnergy      float64 `json:",omitempty"`
 	FrequencyIndex int     `json:",omitempty"`
+	Units          UnitSystem
 }
 
-// Converts relevant members to metric units
-func (s *Swell) ConvertToMetricUnits() {
-	if !s.IsValid() {
+func (s *Swell) ChangeUnits(newUnits UnitSystem) {
+	if s.Units == newUnits {
+		return
+	} else if !s.IsValid() {
+		s.Units = newUnits
 		return
 	}
 
-	s.WaveHeight = FeetToMeters(s.WaveHeight)
-}
-
-// Converts relevant members to imperial units
-func (s *Swell) ConvertToImperialUnits() {
-	if !s.IsValid() {
-		return
+	switch newUnits {
+	case Metric:
+		s.WaveHeight = FeetToMeters(s.WaveHeight)
+	case English:
+		s.WaveHeight = MetersToFeet(s.WaveHeight)
+	default:
 	}
 
-	s.WaveHeight = MetersToFeet(s.WaveHeight)
+	s.Units = newUnits
 }
 
 // Tests if the swell has valid numbers or if it is just maxed out to show null

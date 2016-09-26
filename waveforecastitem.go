@@ -18,22 +18,29 @@ type WaveForecastItem struct {
 	WindSwellPeriod          float64
 	SurfaceWindSpeed         float64
 	SurfaceWindDirection     float64
+	Units                    UnitSystem
 }
 
-// Converts relevant members to metric units
-func (w *WaveForecastItem) ConvertToMetricUnits() {
-	w.SignificantWaveHeight = FeetToMeters(w.SignificantWaveHeight)
-	w.PrimarySwellWaveHeight = FeetToMeters(w.PrimarySwellWaveHeight)
-	w.SecondarySwellWaveHeight = FeetToMeters(w.SecondarySwellWaveHeight)
-	w.WindSwellWaveHeight = FeetToMeters(w.WindSwellWaveHeight)
-	w.SurfaceWindSpeed = MilesPerHourToMetersPerSecond(w.SurfaceWindSpeed)
-}
+func (w *WaveForecastItem) ChangeUnits(newUnits UnitSystem) {
+	if w.Units == newUnits {
+		return
+	}
 
-// Converts relevant members to imperial units
-func (w *WaveForecastItem) ConvertToImperialUnits() {
-	w.SignificantWaveHeight = MetersToFeet(w.SignificantWaveHeight)
-	w.PrimarySwellWaveHeight = MetersToFeet(w.PrimarySwellWaveHeight)
-	w.SecondarySwellWaveHeight = MetersToFeet(w.SecondarySwellWaveHeight)
-	w.WindSwellWaveHeight = MetersToFeet(w.WindSwellWaveHeight)
-	w.SurfaceWindSpeed = MetersPerSecondToMilesPerHour(w.SurfaceWindSpeed)
+	switch newUnits {
+	case Metric:
+		w.SignificantWaveHeight = FeetToMeters(w.SignificantWaveHeight)
+		w.PrimarySwellWaveHeight = FeetToMeters(w.PrimarySwellWaveHeight)
+		w.SecondarySwellWaveHeight = FeetToMeters(w.SecondarySwellWaveHeight)
+		w.WindSwellWaveHeight = FeetToMeters(w.WindSwellWaveHeight)
+		w.SurfaceWindSpeed = MilesPerHourToMetersPerSecond(w.SurfaceWindSpeed)
+	case English:
+		w.SignificantWaveHeight = MetersToFeet(w.SignificantWaveHeight)
+		w.PrimarySwellWaveHeight = MetersToFeet(w.PrimarySwellWaveHeight)
+		w.SecondarySwellWaveHeight = MetersToFeet(w.SecondarySwellWaveHeight)
+		w.WindSwellWaveHeight = MetersToFeet(w.WindSwellWaveHeight)
+		w.SurfaceWindSpeed = MetersPerSecondToMilesPerHour(w.SurfaceWindSpeed)
+	default:
+	}
+
+	w.Units = newUnits
 }

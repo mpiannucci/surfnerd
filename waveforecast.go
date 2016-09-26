@@ -15,22 +15,17 @@ type WaveForecast struct {
 	ForecastData []WaveForecastItem
 }
 
-// Converts all of the ForecastItems in the ForecastData member to metric
-func (w *WaveForecast) ConvertToMetricUnits() {
-	for index, _ := range w.ForecastData {
-		(&w.ForecastData[index]).ConvertToMetricUnits()
+// Converts all of the objects to a given unit system
+func (w *WaveForecast) ChangeUnits(newUnits UnitSystem) {
+	if w.Model.Units == newUnits {
+		return
 	}
 
-	w.Model.Units = "metric"
-}
-
-// Converts all of the ForecastItems in the ForecastData member to imperial
-func (w *WaveForecast) ConvertToImperialUnits() {
 	for index, _ := range w.ForecastData {
-		(&w.ForecastData[index]).ConvertToImperialUnits()
+		(&w.ForecastData[index]).ChangeUnits(newUnits)
 	}
 
-	w.Model.Units = "imperial"
+	w.Model.Units = newUnits
 }
 
 // Convert Forecast object to a json formatted string
