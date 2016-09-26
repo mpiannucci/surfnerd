@@ -80,7 +80,7 @@ func (b BuoySpectraItem) WaveSummary() Swell {
 		}
 	}
 
-	primarySwell := Swell{}
+	primarySwell := Swell{Units: Metric}
 	primarySwell.WaveHeight = 4.0 * math.Sqrt(zeroMoment)
 	primarySwell.Period = 1.0 / b.Frequencies[maxEnergyIndex]
 	primarySwell.Direction = b.Angles[maxEnergyIndex]
@@ -131,7 +131,7 @@ func (b BuoySpectraItem) FindSwellComponents() []Swell {
 		}
 
 		// Add the component we found!!
-		swellComponent := Swell{}
+		swellComponent := Swell{Units: Metric}
 		swellComponent.WaveHeight = 4.0 * math.Sqrt(zeroMoment)
 		swellComponent.Period = 1.0 / b.Frequencies[maxIndexes[maxIndex]]
 		swellComponent.Direction = b.Angles[maxIndexes[maxIndex]]
