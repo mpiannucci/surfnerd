@@ -7,6 +7,13 @@ import (
 	"strings"
 )
 
+type UnitSystem int
+
+const (
+	Metric UnitSystem = iota
+	English
+)
+
 var (
 	windDirs = [...]string{
 		"N", "NNE", "NE",
