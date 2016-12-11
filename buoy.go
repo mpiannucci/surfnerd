@@ -144,6 +144,7 @@ func (b *Buoy) ParseRawLatestBuoyData(rawBuoyData string) error {
 	rawTime := rawBuoyLineData[4]
 	buoyDataItem.Date, _ = time.Parse(latestDateLayout, rawTime)
 
+	buoyDataItem.Units = English
 	buoyDataItem.WaveSummary.ChangeUnits(English)
 	windWaveComponent := Swell{Units: English}
 	swellWaveComponent := Swell{Units: English}
@@ -159,6 +160,14 @@ func (b *Buoy) ParseRawLatestBuoyData(rawBuoyData string) error {
 		rawValue := strings.Split(strings.TrimSpace(comps[1]), " ")[0]
 
 		switch variable {
+		case "Wind":
+			windComponents := strings.Split(rawValue, ",")
+			buoyDataItem.WindDirection, _ = strconv.ParseFloat(windComponents[0], 64)
+			buoyDataItem.WindSpeed, _ = strconv.ParseFloat(windComponents[1], 64)
+			buoyDataItem.WindSpeed = KnotsToMilesPerHour(buoyDataItem.WindSpeed)
+		case "Gust":
+			buoyDataItem.WindGust, _ = strconv.ParseFloat(rawValue, 64)
+			buoyDataItem.WindGust = KnotsToMilesPerHour(buoyDataItem.WindGust)
 		case "Seas":
 			buoyDataItem.WaveSummary.WaveHeight, _ = strconv.ParseFloat(rawValue, 64)
 		case "Peak Period":
@@ -221,7 +230,8 @@ func (b *Buoy) ParseRawStandardData(rawData []string, dataCountLimit int) error 
 		newBuoyData := BuoyDataItem{}
 
 		// Units are metric by default
-		newBuoyData.WaveSummary.ChangeUnits(Metric)
+		newBuoyData.Units = Metric
+		newBuoyData.Units = Metric
 
 		rawDate := fmt.Sprintf("%s%s GMT %s/%s/%s", rawData[lineBeginIndex+3], rawData[lineBeginIndex+4], rawData[lineBeginIndex+1], rawData[lineBeginIndex+2], rawData[lineBeginIndex+0])
 		newBuoyData.Date, _ = time.Parse(standardDateLayout, rawDate)
@@ -240,6 +250,7 @@ func (b *Buoy) ParseRawStandardData(rawData []string, dataCountLimit int) error 
 		newBuoyData.Visibility, _ = strconv.ParseFloat(rawData[lineBeginIndex+16], 64)
 		newBuoyData.PressureTendency, _ = strconv.ParseFloat(rawData[lineBeginIndex+17], 64)
 		newBuoyData.WaterLevel, _ = strconv.ParseFloat(rawData[lineBeginIndex+18], 64)
+		newBuoyData.WaterLevel = FeetToMeters(newBuoyData.WaterLevel)
 
 		b.BuoyData[itemIndex] = newBuoyData
 
@@ -269,7 +280,7 @@ func (b *Buoy) ParseRawDetailedWaveData(rawData []string, dataCountLimit int) er
 		newBuoyData := BuoyDataItem{}
 		windWaveComponent := Swell{Units: Metric}
 		swellWaveComponent := Swell{Units: Metric}
-		newBuoyData.WaveSummary.ChangeUnits(Metric)
+		newBuoyData.WaveSummary.Units = Metric
 		rawDate := fmt.Sprintf("%s%s GMT %s/%s/%s", rawData[lineBeginIndex+3], rawData[lineBeginIndex+4], rawData[lineBeginIndex+1], rawData[lineBeginIndex+2], rawData[lineBeginIndex+0])
 		newBuoyData.Date, _ = time.Parse(standardDateLayout, rawDate)
 		newBuoyData.WaveSummary.WaveHeight, _ = strconv.ParseFloat(rawData[lineBeginIndex+5], 64)

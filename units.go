@@ -97,9 +97,37 @@ func MetersPerSecondToMilesPerHour(mpsValue float64) float64 {
 	return mpsValue * 2.237
 }
 
-// COnverts from MPH to Meter / Sec
+// Converts from MPH to Meter / Sec
 func MilesPerHourToMetersPerSecond(mphValue float64) float64 {
 	return mphValue / 2.237
+}
+
+func KnotsToMilesPerHour(knotValue float64) float64 {
+	return knotValue * 1.15
+}
+
+func MilesPerHourToKnots(mphValue float64) float64 {
+	return mphValue / 1.15
+}
+
+// Converts from Celsius to Fahrenheit
+func CelsiusToFahrenheit(celsiusValue float64) float64 {
+	return (celsiusValue * (9.0 / 5.0)) + 32.0
+}
+
+// Converts from Fahrenheit to Celsius
+func FahrenheitToCelsius(fahrenheitValue float64) float64 {
+	return (fahrenheitValue - 32.0) * (5.0 / 9.0)
+}
+
+// Converts hPa pressure to inch mercury
+func HectoPascalToInchMercury(hpaValue float64) float64 {
+	return hpaValue / 33.8638
+}
+
+// Converts inch mercury presure to hPa
+func InchMercuryToHectoPascal(inmgValue float64) float64 {
+	return inmgValue * 33.8638
 }
 
 // From 18z format to 12 pm format
