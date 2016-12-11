@@ -161,9 +161,9 @@ func (b *Buoy) ParseRawLatestBuoyData(rawBuoyData string) error {
 
 		switch variable {
 		case "Wind":
-			windComponents := strings.Split(rawValue, ",")
-			buoyDataItem.WindDirection, _ = strconv.ParseFloat(windComponents[0], 64)
-			buoyDataItem.WindSpeed, _ = strconv.ParseFloat(windComponents[1], 64)
+			windComponents := strings.Split(comps[1], ",")
+			buoyDataItem.WindDirection = DirectionToDegree(strings.Split(strings.TrimSpace(windComponents[0]), " ")[0])
+			buoyDataItem.WindSpeed, _ = strconv.ParseFloat(strings.Split(strings.TrimSpace(windComponents[1]), " ")[0], 64)
 			buoyDataItem.WindSpeed = KnotsToMilesPerHour(buoyDataItem.WindSpeed)
 		case "Gust":
 			buoyDataItem.WindGust, _ = strconv.ParseFloat(rawValue, 64)
