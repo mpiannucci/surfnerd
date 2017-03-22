@@ -11,7 +11,7 @@ https://godoc.org/github.com/mpiannucci/surfnerd
 It can:
 
 * Download data from NOAA WaveWatch 3 Model runs
-* Download data frrom NOAA NAM Weather models
+* Download data frrom NOAA NAM and GFS Weather models
 * Download buoy data from NOAA's vast buoy data base
 * Find nearby buoys and model runs for given locations
 * Find historical buoy data
