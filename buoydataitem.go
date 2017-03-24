@@ -12,25 +12,25 @@ type BuoyDataItem struct {
 	Date time.Time
 
 	// Wind
-	WindDirection float64
-	WindSpeed     float64
-	WindGust      float64
+	WindDirection float64 `json:",omitempty"`
+	WindSpeed     float64 `json:",omitempty"`
+	WindGust      float64 `json:",omitempty"`
 
 	// Waves
-	WaveSummary     Swell
-	SwellComponents []Swell
-	Steepness       string
-	AveragePeriod   float64
-	WaveSpectra     BuoySpectraItem
+	WaveSummary     Swell           `json:",omitempty"`
+	SwellComponents []Swell         `json:",omitempty"`
+	Steepness       string          `json:",omitempty"`
+	AveragePeriod   float64         `json:",omitempty"`
+	WaveSpectra     BuoySpectraItem `json:",omitempty"`
 
 	// Meteorology
-	Pressure            float64
-	AirTemperature      float64
-	WaterTemperature    float64
-	DewpointTemperature float64
-	Visibility          float64
-	PressureTendency    float64
-	WaterLevel          float64
+	Pressure            float64 `json:",omitempty"`
+	AirTemperature      float64 `json:",omitempty"`
+	WaterTemperature    float64 `json:",omitempty"`
+	DewpointTemperature float64 `json:",omitempty"`
+	Visibility          float64 `json:",omitempty"`
+	PressureTendency    float64 `json:",omitempty"`
+	WaterLevel          float64 `json:",omitempty"`
 
 	// Units
 	Units UnitSystem
