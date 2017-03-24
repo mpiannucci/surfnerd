@@ -232,6 +232,7 @@ func (b *Buoy) ParseRawStandardData(rawData []string, dataCountLimit int) error 
 		// Units are metric by default
 		newBuoyData.Units = Metric
 		newBuoyData.Units = Metric
+		newBuoyData.WaveSummary.Units = Metric
 
 		rawDate := fmt.Sprintf("%s%s GMT %s/%s/%s", rawData[lineBeginIndex+3], rawData[lineBeginIndex+4], rawData[lineBeginIndex+1], rawData[lineBeginIndex+2], rawData[lineBeginIndex+0])
 		newBuoyData.Date, _ = time.Parse(standardDateLayout, rawDate)
