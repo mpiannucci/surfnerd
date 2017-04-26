@@ -57,8 +57,27 @@ func (n NOAAModel) AltitudeIndex(altitude float64) int {
 	return int(altitude / n.AltitudeResolution)
 }
 
+// Get the timezone location of the model
 func (n NOAAModel) TimezoneLocation() *time.Location {
 	return FetchTimeLocation(n.TimeLocation)
+}
+
+// Get the time resolution in hours
+func (n NOAAModel) TimeResolutionHours() float64 {
+	return n.TimeResolution * 24.0
+}
+
+// Get the closest future data index of a given time
+func (n NOAAModel) TimeIndex(desiredTime time.Time) int {
+	latestModelTime, _ := LatestModelDateTime()
+	diff := desiredTime.UTC().Sub(latestModelTime)
+	hoursDiff := int(diff.Hours())
+	if hoursDiff < 1 {
+		return -1
+	}
+
+	hoursResolution := int(n.TimeResolutionHours())
+	return (hoursDiff + (hoursResolution - (hoursDiff % hoursResolution))) / hoursResolution
 }
 
 // Get the time and hour of the latest NOAA WaveWatch model run
@@ -70,6 +89,7 @@ func LatestModelDateTime() (time.Time, int64) {
 	return currentTime, lastModelHour
 }
 
+// Get the Time location of the model
 func FetchTimeLocation(location string) *time.Location {
 	loc, _ := time.LoadLocation(location)
 	return loc

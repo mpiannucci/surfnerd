@@ -125,7 +125,7 @@ func FetchWaveModelData(loc Location) *ModelData {
 	}
 
 	// Create the url
-	url := model.CreateURL(loc, 0, 60)
+	url := model.CreateURL(loc, 0, 0)
 
 	// Fetch the raw data
 	rawData, err := fetchRawDataFromURL(url)
