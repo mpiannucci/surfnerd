@@ -2,6 +2,7 @@ package surfnerd
 
 import (
 	"fmt"
+	"time"
 )
 
 const (
@@ -31,6 +32,21 @@ func (w *WaveModel) CreateURL(loc Location, startTimeIndex, endTimeIndex int) st
 	// Format the url and return
 	url := fmt.Sprintf(baseMultigridUrl, dateString, w.Name, hourString, latIndex, lngIndex, startTimeIndex, endTimeIndex)
 	return url
+}
+
+// Create a URL for downloading data from the NOAA GRADS servers
+// The time interval may be specified by a valid future time object that
+// represents the interval to fetch
+func (w *WaveModel) CreateTimedURL(loc Location, startTime time.Time, timeSteps int) string {
+	startIndex := w.TimeIndex(startTime)
+	if startIndex < 0 {
+		startIndex = 0
+	}
+	if timeSteps < 1 {
+		timeSteps = 1
+	}
+	endIndex := startIndex + timeSteps - 1
+	return w.CreateURL(loc, startIndex, endIndex)
 }
 
 // Get the US East Coast Model
@@ -125,7 +141,7 @@ func FetchWaveModelData(loc Location) *ModelData {
 	}
 
 	// Create the url
-	url := model.CreateURL(loc, 0, 0)
+	url := model.CreateURL(loc, 0, 60)
 
 	// Fetch the raw data
 	rawData, err := fetchRawDataFromURL(url)

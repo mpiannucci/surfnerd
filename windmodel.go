@@ -2,6 +2,7 @@ package surfnerd
 
 import (
 	"fmt"
+	"time"
 )
 
 type WindModelType int64
@@ -47,6 +48,21 @@ func (w *WindModel) CreateURL(loc Location, startTimeIndex, endTimeIndex int) st
 	}
 	url := fmt.Sprintf(baseURL, w.Name, dateString, hourString, altIndex, latIndex, lngIndex, startTimeIndex, endTimeIndex)
 	return url
+}
+
+// Create a URL for downloading data from the NOAA GRADS servers
+// The time interval may be specified by a valid future time object that
+// represents the interval to fetch
+func (w *WindModel) CreateTimedURL(loc Location, startTime time.Time, timeSteps int) string {
+	startIndex := w.TimeIndex(startTime)
+	if startIndex < 0 {
+		startIndex = 0
+	}
+	if timeSteps < 1 {
+		timeSteps = 1
+	}
+	endIndex := startIndex + timeSteps - 1
+	return w.CreateURL(loc, startIndex, endIndex)
 }
 
 // Create a new GFS Model
