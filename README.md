@@ -1,5 +1,7 @@
 # SurfNerd
 
+# Deprecated.... Please look at https://github.com/mpiannucci/surfpy instead!!!!
+
 A comprehensive suite of surf forecasting and wave analysis tools
 
 ### Documentation
